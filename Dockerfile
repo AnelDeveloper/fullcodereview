@@ -1,77 +1,42 @@
-# Production image for Full Code Review (Laravel 11 + Vite + Vue + Postgres).
-#
-# Two-stage build:
-#   1) frontend  → Node 20 builds vite assets into public/build
-#   2) runtime   → PHP 8.2 CLI + composer + the assets, run by `php artisan serve`
-#
-# Runs `php artisan migrate --force` at container start before booting the app.
+FROM node:20-slim AS frontend
 
-# ─────────────────────────── Stage 1: Vite build ───────────────────────────
-FROM node:20-alpine AS frontend
 WORKDIR /app
 COPY package.json package-lock.json ./
 COPY .npmrc* ./
-RUN npm ci --no-audit --no-fund
-COPY postcss.config.js* tailwind.config.js* vite.config.js jsconfig.json themeConfig.js ./
-COPY resources ./resources
-COPY public ./public
-COPY routes ./routes
+RUN npm install
+COPY . .
 
-# resources/js/plugins/iconify/icons.css is a generated bundle (built locally
-# by @iconify/tools) and gitignored, so it doesn't exist in a clean checkout.
-# Vite's plugin entry imports it, so the build crashes with "Could not resolve
-# ./icons.css". Drop a stub so the build can proceed. NOTE: with a stub in
-# place no `tabler-*` icons will render in production. To restore icons,
-# either un-gitignore the real file and commit it, or regenerate it in this
-# stage (requires @iconify/tools + tsx + a Node-side build script).
+# resources/js/plugins/iconify/icons.css is a generated artifact (gitignored).
+# Drop a stub if missing so Vite/Rollup can resolve the import.
 RUN test -f resources/js/plugins/iconify/icons.css \
-    || echo '/* placeholder — icons.css is a generated artifact (gitignored). Regenerate or commit the real file to restore tabler-* icons. */' \
-       > resources/js/plugins/iconify/icons.css
+    || echo '/* placeholder */' > resources/js/plugins/iconify/icons.css
 
 RUN npm run build
 
 
-# ─────────────────────────── Stage 2: PHP runtime ───────────────────────────
-FROM php:8.2-cli-bookworm AS runtime
+FROM php:8.3-cli
 
-# install-php-extensions handles compile + runtime libs in one shot, much
-# more reliable than apt + docker-php-ext-install + manual configure.
-ADD --chmod=0755 https://github.com/mlocati/docker-php-extension-installer/releases/latest/download/install-php-extensions /usr/local/bin/
+RUN apt-get update && apt-get install -y \
+    git curl zip unzip libpq-dev libzip-dev libxml2-dev \
+    && docker-php-ext-install pdo pdo_pgsql pgsql bcmath xml ctype fileinfo zip \
+    && apt-get clean && rm -rf /var/lib/apt/lists/*
 
-RUN install-php-extensions pdo_pgsql
-RUN install-php-extensions bcmath
-RUN install-php-extensions zip
-RUN install-php-extensions opcache
-RUN apt-get update \
-    && apt-get install -y --no-install-recommends git unzip ca-certificates \
-    && apt-get clean \
-    && rm -rf /var/lib/apt/lists/*
-
-# Composer
-COPY --from=composer:2 /usr/bin/composer /usr/local/bin/composer
+COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
 WORKDIR /app
 
-# Install PHP deps first for better layer caching
 COPY composer.json composer.lock ./
-RUN composer install --no-dev --optimize-autoloader --no-interaction --prefer-dist --no-scripts \
-    && composer clear-cache
+RUN composer install --no-dev --optimize-autoloader --no-scripts
 
-# Bring in the rest of the source
 COPY . .
+COPY --from=frontend /app/public/build public/build
 
-# Bring in the pre-built assets from the frontend stage
-COPY --from=frontend /app/public/build ./public/build
+RUN composer dump-autoload --optimize
+RUN php artisan config:clear && php artisan route:clear && php artisan view:clear
 
-# Run composer scripts now that artisan exists
-RUN composer dump-autoload --optimize --no-dev
+# Increase PHP upload + memory limits
+RUN echo "upload_max_filesize=512M\npost_max_size=512M\nmemory_limit=512M" > /usr/local/etc/php/conf.d/uploads.ini
 
-# Container entry: migrate, then serve. Caches are deliberately skipped on
-# boot — they sometimes mask config errors and a fresh `serve` is fine for
-# the traffic levels we'll see initially. Add them back later via Octane.
-EXPOSE 8000
-CMD set -e; \
-    echo "→ Booting Full Code Review on port ${PORT:-8000}"; \
-    php artisan migrate --force; \
-    echo "→ Migrations done, starting serve…"; \
-    php artisan serve --host=0.0.0.0 --port=${PORT:-8000}
+EXPOSE 8080
+
+CMD php artisan migrate --force && php artisan storage:link --force && php artisan serve --host=0.0.0.0 --port=${PORT:-8080}
