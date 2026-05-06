@@ -21,10 +21,7 @@
             >
                 <VCardItem class="d-flex flex-column align-center text-center pt-2">
                     <RouterLink to="/" class="brand-mark mb-3">
-                        <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                            <polyline points="16 18 22 12 16 6" />
-                            <polyline points="8 6 2 12 8 18" />
-                        </svg>
+                        <img src="/favicon.png" alt="Full Code Review" />
                     </RouterLink>
                     <h1 class="text-h4 font-weight-bold gradient-text mb-1">Create your account</h1>
                     <p class="text-body-2 text-medium-emphasis">Run AI-powered code reviews on your GitHub repos.</p>
@@ -186,15 +183,15 @@ const register = async () => {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 56px;
-    height: 56px;
-    border-radius: 16px;
-    color: #fff;
-    background: linear-gradient(135deg, #8B5CF6 0%, #EC4899 100%);
-    box-shadow:
-        0 12px 32px -6px rgba(139, 92, 246, 0.6),
-        0 0 0 1px rgba(255, 255, 255, 0.06) inset;
     text-decoration: none;
+    filter: drop-shadow(0 12px 24px rgba(139, 92, 246, 0.4));
+
+    img {
+        width: 64px;
+        height: 64px;
+        border-radius: 16px;
+        display: block;
+    }
 }
 
 .gradient-text {

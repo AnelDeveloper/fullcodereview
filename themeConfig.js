@@ -5,9 +5,9 @@ import { Skins } from '@core/enums'
 import { AppContentLayoutNav, ContentWidth, FooterType, NavbarType } from '@layouts/enums'
 
 const logoMark = h('img', {
-    src: '/favicon.svg',
+    src: '/favicon.png',
     alt: 'Full Code Review',
-    style: 'width:34px;height:34px;border-radius:9px;flex-shrink:0;box-shadow:0 4px 16px rgba(139,92,246,0.4);',
+    style: 'width:34px;height:34px;border-radius:9px;flex-shrink:0;',
 })
 
 export const { themeConfig, layoutConfig } = defineThemeConfig({
