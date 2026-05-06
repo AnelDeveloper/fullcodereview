@@ -26,7 +26,6 @@ FROM php:8.2-cli-bookworm AS runtime
 # more reliable than apt + docker-php-ext-install + manual configure.
 ADD --chmod=0755 https://github.com/mlocati/docker-php-extension-installer/releases/latest/download/install-php-extensions /usr/local/bin/
 
-ENV IPE_DEBUG=1
 RUN install-php-extensions pdo_pgsql
 RUN install-php-extensions bcmath
 RUN install-php-extensions zip
