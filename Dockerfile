@@ -32,7 +32,14 @@ COPY . .
 COPY --from=frontend /app/public/build public/build
 
 RUN composer dump-autoload --optimize
-RUN php artisan config:clear && php artisan route:clear && php artisan view:clear
+
+# .dockerignore excludes the framework cache subdirs, so Laravel needs an
+# empty skeleton at runtime to write into.
+RUN mkdir -p storage/framework/cache/data \
+    && mkdir -p storage/framework/sessions \
+    && mkdir -p storage/framework/views \
+    && mkdir -p storage/logs \
+    && chmod -R 775 storage bootstrap/cache
 
 # Increase PHP upload + memory limits
 RUN echo "upload_max_filesize=512M\npost_max_size=512M\nmemory_limit=512M" > /usr/local/etc/php/conf.d/uploads.ini
