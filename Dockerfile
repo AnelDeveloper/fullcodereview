@@ -22,21 +22,20 @@ RUN npm run build
 # ─────────────────────────── Stage 2: PHP runtime ───────────────────────────
 FROM php:8.2-cli-bookworm AS runtime
 
-# System libs needed by PHP extensions
-RUN apt-get update \
-    && apt-get install -y --no-install-recommends \
-        libpq-dev \
-        libzip-dev \
-        libonig-dev \
-        libpng-dev \
-        zip unzip git curl ca-certificates \
-    && docker-php-ext-install -j$(nproc) \
-        pdo \
+# install-php-extensions handles compile + runtime libs in one shot, much
+# more reliable than apt + docker-php-ext-install + manual configure.
+ADD --chmod=0755 https://github.com/mlocati/docker-php-extension-installer/releases/latest/download/install-php-extensions /usr/local/bin/
+
+RUN install-php-extensions \
         pdo_pgsql \
         pgsql \
         bcmath \
         mbstring \
         zip \
+        opcache \
+    && apt-get update \
+    && apt-get install -y --no-install-recommends git unzip ca-certificates \
+    && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
 # Composer
@@ -55,12 +54,11 @@ COPY . .
 # Bring in the pre-built assets from the frontend stage
 COPY --from=frontend /app/public/build ./public/build
 
-# Finalize Composer (run scripts now that artisan exists), warm caches.
-# Caches are skipped if config/route/view caching errors due to missing env —
-# Railway will set env vars at runtime, so we'll cache on container start instead.
+# Run composer scripts now that artisan exists
 RUN composer dump-autoload --optimize --no-dev
 
-# Container entry: migrate + serve
+# Container entry: migrate + cache + serve. Caches happen at runtime so the
+# Railway-injected env vars are baked in.
 EXPOSE 8000
 CMD php artisan migrate --force \
  && php artisan config:cache \
