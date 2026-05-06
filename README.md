@@ -112,6 +112,79 @@ Set `GITHUB_REDIRECT_URI` to `${APP_URL}/api/github/callback`. The OAuth scopes 
 | GET    | `/api/analyses/{id}`                  | Single analysis                      |
 | GET    | `/api/analyses/{id}/report.pdf`       | Download PDF report                  |
 
+## Deploy to Railway
+
+The repo ships with [nixpacks.toml](nixpacks.toml) and [railway.json](railway.json) — Railway will auto-detect both.
+
+### One-time setup
+
+1. Create a new Railway project from this repo (`AnelDeveloper/fullcodereview`).
+2. Add a **PostgreSQL** plugin to the project — this gives you `DATABASE_URL` and individual `PG*` variables.
+3. In the service → **Variables**, set the env. The minimum is:
+
+   ```
+   APP_NAME="Full Code Review"
+   APP_ENV=production
+   APP_DEBUG=false
+   APP_URL=https://${{RAILWAY_PUBLIC_DOMAIN}}
+   APP_KEY=                          # paste output of `php artisan key:generate --show` from local
+
+   # Postgres — use the URL shorthand from the plugin reference
+   DB_CONNECTION=pgsql
+   DB_URL=${{Postgres.DATABASE_URL}}
+
+   LOG_CHANNEL=stack
+   SESSION_DRIVER=cookie
+   CACHE_STORE=database
+   QUEUE_CONNECTION=sync
+
+   # Stripe
+   STRIPE_SECRET=sk_live_...
+   STRIPE_WEBHOOK_SECRET=whsec_...
+   STRIPE_SUCCESS_URL=${APP_URL}/?session_id={CHECKOUT_SESSION_ID}
+   STRIPE_CANCEL_URL=${APP_URL}/?canceled=1
+
+   # GitHub OAuth (use the production OAuth app — separate from local)
+   GITHUB_CLIENT_ID=
+   GITHUB_CLIENT_SECRET=
+   GITHUB_REDIRECT_URI=${APP_URL}/api/github/callback
+
+   # Anthropic
+   ANTHROPIC_API_KEY=
+   ANTHROPIC_MODEL=claude-sonnet-4-6
+
+   # Mail (Resend or SES recommended for production)
+   MAIL_MAILER=resend
+   RESEND_KEY=
+   MAIL_FROM_ADDRESS=hello@fullcodereview.com
+   MAIL_FROM_NAME="Full Code Review"
+   ```
+
+4. Trigger a deploy. Nixpacks will:
+   - install PHP 8.2 + Node 20 + the pgsql extension
+   - `composer install --no-dev`
+   - `npm ci && npm run build`
+   - `php artisan config:cache && route:cache && view:cache`
+   - on start: run `php artisan migrate --force` then boot the server on `$PORT`
+
+5. After the first deploy, point Stripe and GitHub callbacks at the Railway domain:
+   - **Stripe**: Webhooks → endpoint `https://<your-domain>/api/stripe/webhook`, copy the new signing secret into `STRIPE_WEBHOOK_SECRET`.
+   - **GitHub**: OAuth app callback URL → `https://<your-domain>/api/github/callback`.
+
+6. Health check is wired to Laravel's `/up` (already handled in [bootstrap/app.php](bootstrap/app.php)).
+
+### Generating an APP_KEY
+
+Locally:
+```sh
+php artisan key:generate --show
+```
+Copy the `base64:...` value into `APP_KEY` on Railway. Don't share it.
+
+### Custom domain
+
+In Railway → Service → Settings → Domains, attach `app.fullcodereview.com`. Then update `APP_URL`, `STRIPE_SUCCESS_URL`/`STRIPE_CANCEL_URL`, and `GITHUB_REDIRECT_URI` to use that domain.
+
 ## How analysis works
 
 [AnalysisService](app/Services/AnalysisService.php) orchestrates:
