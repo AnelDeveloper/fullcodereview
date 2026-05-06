@@ -16,10 +16,17 @@ Route::post('stripe/webhook', [StripeController::class, 'webhook']);
 Route::get('github/login', [GithubController::class, 'login']);
 Route::get('github/callback', [GithubController::class, 'callback']);
 
+// Email verification — link from the email is signed, no auth required
+Route::get('auth/email/verify/{id}/{hash}', [AuthController::class, 'verify'])
+    ->middleware(['signed', 'throttle:6,1'])
+    ->name('verification.verify');
+
 // Authenticated
 Route::middleware('auth.api')->group(function () {
     Route::post('auth/logout', [AuthController::class, 'logout']);
     Route::get('auth/me', [AuthController::class, 'me']);
+    Route::post('auth/email/resend', [AuthController::class, 'resendVerification'])
+        ->middleware('throttle:6,1');
 
     Route::get('me/credits', [CreditsController::class, 'index']);
 

@@ -10,12 +10,20 @@
             </div>
         </div>
 
+        <VerifyEmailBanner />
+
         <!-- Stripe return banners -->
         <VAlert v-if="returnBanner === 'success'" type="success" variant="tonal" closable class="mb-4" @click:close="returnBanner = null">
             Payment received — your credits are ready. Pick a repo below.
         </VAlert>
         <VAlert v-if="returnBanner === 'canceled'" type="warning" variant="tonal" closable class="mb-4" @click:close="returnBanner = null">
             Checkout canceled. No charge was made.
+        </VAlert>
+        <VAlert v-if="returnBanner === 'verified'" type="success" variant="tonal" closable class="mb-4" @click:close="returnBanner = null">
+            Email confirmed — thanks!
+        </VAlert>
+        <VAlert v-if="returnBanner === 'verified-already'" type="info" variant="tonal" closable class="mb-4" @click:close="returnBanner = null">
+            Your email was already confirmed.
         </VAlert>
         <VAlert v-if="oauthError" type="error" variant="tonal" closable class="mb-4" @click:close="oauthError = ''">
             GitHub connection failed: {{ oauthError }}
@@ -252,6 +260,7 @@ import {
 import ScoreRing from "@/components/ScoreRing.vue"
 import IssueSection from "@/components/IssueSection.vue"
 import CategoryConfigurator from "@/components/CategoryConfigurator.vue"
+import VerifyEmailBanner from "@/components/VerifyEmailBanner.vue"
 import { useAuthStore } from "@/stores/auth"
 
 const route = useRoute()
@@ -327,10 +336,24 @@ onMounted(async () => {
     const ghConnected = route.query.gh_connected
     const ghError = route.query.gh_error
     const buy = route.query.buy
+    const verified = route.query.verified
 
     if (buy) {
         buyDialog.value = true
         clearQuery(["buy"])
+    }
+
+    if (verified === "1") {
+        returnBanner.value = "verified"
+        clearQuery(["verified"])
+        // Pull fresh user so emailVerified flips true and the banner disappears
+        await authStore.fetchMe()
+    } else if (verified === "already") {
+        returnBanner.value = "verified-already"
+        clearQuery(["verified"])
+    } else if (verified === "invalid") {
+        oauthError.value = "Verification link is invalid or expired. Click \"Resend\" in the banner above to get a new one."
+        clearQuery(["verified"])
     }
 
     if (canceled) {

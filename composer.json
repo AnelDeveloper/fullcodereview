@@ -15,6 +15,7 @@
         "guzzlehttp/guzzle": "^7.2",
         "laravel/framework": "^11.9",
         "laravel/tinker": "^2.9",
+        "resend/resend-laravel": "^0.17",
         "stripe/stripe-php": "^15.0"
     },
     "require-dev": {
