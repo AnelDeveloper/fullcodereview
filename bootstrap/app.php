@@ -23,6 +23,10 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'auth.api' => \App\Http\Middleware\AuthApiToken::class,
         ]);
+
+        // Trust Railway's edge proxies so HTTPS / Host detection works
+        // behind their load balancer.
+        $middleware->trustProxies(at: '*');
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //

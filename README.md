@@ -181,9 +181,36 @@ php artisan key:generate --show
 ```
 Copy the `base64:...` value into `APP_KEY` on Railway. Don't share it.
 
-### Custom domain
+### Custom domain — `app.fullcodereview.com`
 
-In Railway → Service → Settings → Domains, attach `app.fullcodereview.com`. Then update `APP_URL`, `STRIPE_SUCCESS_URL`/`STRIPE_CANCEL_URL`, and `GITHUB_REDIRECT_URI` to use that domain.
+The marketing site lives at `fullcodereview.com` (separate `codereview-landingpage` repo). The app runs at the `app.` subdomain.
+
+**1. In Railway** → Service → Settings → Networking → **Custom Domain**, click "Add Domain" and enter `app.fullcodereview.com`. Railway shows you a CNAME target like `xxxx.up.railway.app`.
+
+**2. In your DNS provider** (where you set the Resend records), add:
+
+| Type  | Host  | Value                          |
+| ----- | ----- | ------------------------------ |
+| CNAME | `app` | `xxxx.up.railway.app` (from Railway) |
+
+Save and wait for propagation (usually a few minutes). Railway issues a Let's Encrypt certificate automatically once it sees the CNAME.
+
+**3. In Railway → Variables**, swap any URL-shaped vars to the canonical domain:
+
+```
+APP_URL=https://app.fullcodereview.com
+STRIPE_SUCCESS_URL=https://app.fullcodereview.com/?session_id={CHECKOUT_SESSION_ID}
+STRIPE_CANCEL_URL=https://app.fullcodereview.com/?canceled=1
+GITHUB_REDIRECT_URI=https://app.fullcodereview.com/api/github/callback
+```
+
+**4. Update external integrations:**
+- **Stripe** → Webhooks → endpoint URL → `https://app.fullcodereview.com/api/stripe/webhook`. Copy the new signing secret into `STRIPE_WEBHOOK_SECRET`.
+- **GitHub OAuth app** → Authorization callback URL → `https://app.fullcodereview.com/api/github/callback`.
+
+**5. Trigger a redeploy** so Laravel picks up the new `APP_URL` (verification emails, signed URLs, redirects all use it).
+
+The `bootstrap/app.php` already calls `trustProxies(at: '*')`, so Laravel correctly treats requests as HTTPS when Railway's edge terminates SSL.
 
 ## How analysis works
 
