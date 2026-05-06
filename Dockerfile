@@ -16,6 +16,18 @@ COPY postcss.config.js* tailwind.config.js* vite.config.js jsconfig.json themeCo
 COPY resources ./resources
 COPY public ./public
 COPY routes ./routes
+
+# resources/js/plugins/iconify/icons.css is a generated bundle (built locally
+# by @iconify/tools) and gitignored, so it doesn't exist in a clean checkout.
+# Vite's plugin entry imports it, so the build crashes with "Could not resolve
+# ./icons.css". Drop a stub so the build can proceed. NOTE: with a stub in
+# place no `tabler-*` icons will render in production. To restore icons,
+# either un-gitignore the real file and commit it, or regenerate it in this
+# stage (requires @iconify/tools + tsx + a Node-side build script).
+RUN test -f resources/js/plugins/iconify/icons.css \
+    || echo '/* placeholder — icons.css is a generated artifact (gitignored). Regenerate or commit the real file to restore tabler-* icons. */' \
+       > resources/js/plugins/iconify/icons.css
+
 RUN npm run build
 
 
