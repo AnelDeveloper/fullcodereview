@@ -1,27 +1,12 @@
 # Railway build via Nixpacks for Laravel 11 + Vite + Vue.
 #
-# Phases:
-#   setup    → PHP 8.2 + Node 20 + Postgres client
-#   install  → composer install (prod) + npm ci
-#   build    → npm run build + Laravel caches
-#   start    → run migrations + boot the PHP built-in server
-#
-# Railway exposes $PORT for the public listener.
-
-providers = ["php", "node"]
+# We let the Nixpacks PHP provider auto-detect PHP version and extensions
+# from composer.json (see `ext-*` entries in `require`). Only the install,
+# build, and start steps are overridden — and a fixed Node version pinned
+# via setup so the Vite build is reproducible.
 
 [phases.setup]
-nixPkgs = [
-    "php82",
-    "php82Packages.composer",
-    "php82Extensions.pdo_pgsql",
-    "php82Extensions.pgsql",
-    "php82Extensions.gd",
-    "php82Extensions.bcmath",
-    "php82Extensions.intl",
-    "php82Extensions.zip",
-    "nodejs_20",
-]
+nixPkgs = ["nodejs_20"]
 
 [phases.install]
 cmds = [
@@ -38,4 +23,4 @@ cmds = [
 ]
 
 [start]
-cmd = "php artisan migrate --force && php artisan storage:link --force || true && php artisan serve --host=0.0.0.0 --port=$PORT"
+cmd = "php artisan migrate --force && php artisan serve --host=0.0.0.0 --port=$PORT"

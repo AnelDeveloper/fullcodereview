@@ -6,6 +6,11 @@
     "license": "MIT",
     "require": {
         "php": "^8.2",
+        "ext-bcmath": "*",
+        "ext-mbstring": "*",
+        "ext-pdo": "*",
+        "ext-pdo_pgsql": "*",
+        "ext-zip": "*",
         "barryvdh/laravel-dompdf": "^3.0",
         "guzzlehttp/guzzle": "^7.2",
         "laravel/framework": "^11.9",
