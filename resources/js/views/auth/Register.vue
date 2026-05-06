@@ -152,7 +152,7 @@ const register = async () => {
     loading.value = true
     try {
         await authStore.register(form.value)
-        router.push("/")
+        router.push({ path: "/check-email", query: { email: form.value.email } })
     } catch (e) {
         const data = e?.data || {}
         if (data.errors) errors.value = data.errors
