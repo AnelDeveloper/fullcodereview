@@ -1,12 +1,10 @@
 # Railway build via Nixpacks for Laravel 11 + Vite + Vue.
 #
-# We let the Nixpacks PHP provider auto-detect PHP version and extensions
-# from composer.json (see `ext-*` entries in `require`). Only the install,
-# build, and start steps are overridden — and a fixed Node version pinned
-# via setup so the Vite build is reproducible.
+# Both PHP and Node providers run. The PHP provider reads composer.json
+# (including the `ext-*` entries in `require`) and installs the matching
+# nix packages. We override only install/build/start.
 
-[phases.setup]
-nixPkgs = ["nodejs_20"]
+providers = ["php", "node"]
 
 [phases.install]
 cmds = [
