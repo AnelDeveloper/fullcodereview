@@ -21,7 +21,7 @@
             >
                 <VCardItem class="d-flex flex-column align-center text-center pt-2">
                     <RouterLink to="/" class="brand-mark mb-3">
-                        <img src="/favicon.png" alt="Full Code Review" />
+                        <img src="/logo.png" alt="Full Code Review" />
                     </RouterLink>
                     <h1 class="text-h4 font-weight-bold gradient-text mb-1">Welcome back</h1>
                     <p class="text-body-2 text-medium-emphasis">Sign in to run AI-powered code reviews on your repos.</p>
@@ -175,9 +175,9 @@ const login = async () => {
     filter: drop-shadow(0 12px 24px rgba(139, 92, 246, 0.4));
 
     img {
-        width: 64px;
-        height: 64px;
-        border-radius: 16px;
+        width: 88px;
+        height: 88px;
+        object-fit: contain;
         display: block;
     }
 }
