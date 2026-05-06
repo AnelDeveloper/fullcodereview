@@ -1,0 +1,69 @@
+# Production image for Full Code Review (Laravel 11 + Vite + Vue + Postgres).
+#
+# Two-stage build:
+#   1) frontend  → Node 20 builds vite assets into public/build
+#   2) runtime   → PHP 8.2 CLI + composer + the assets, run by `php artisan serve`
+#
+# Runs `php artisan migrate --force` at container start before booting the app.
+
+# ─────────────────────────── Stage 1: Vite build ───────────────────────────
+FROM node:20-alpine AS frontend
+WORKDIR /app
+COPY package.json package-lock.json ./
+COPY .npmrc* ./
+RUN npm ci --no-audit --no-fund
+COPY postcss.config.js* tailwind.config.js* vite.config.js jsconfig.json themeConfig.js ./
+COPY resources ./resources
+COPY public ./public
+COPY routes ./routes
+RUN npm run build
+
+
+# ─────────────────────────── Stage 2: PHP runtime ───────────────────────────
+FROM php:8.2-cli-bookworm AS runtime
+
+# System libs needed by PHP extensions
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends \
+        libpq-dev \
+        libzip-dev \
+        libonig-dev \
+        libpng-dev \
+        zip unzip git curl ca-certificates \
+    && docker-php-ext-install -j$(nproc) \
+        pdo \
+        pdo_pgsql \
+        pgsql \
+        bcmath \
+        mbstring \
+        zip \
+    && rm -rf /var/lib/apt/lists/*
+
+# Composer
+COPY --from=composer:2 /usr/bin/composer /usr/local/bin/composer
+
+WORKDIR /app
+
+# Install PHP deps first for better layer caching
+COPY composer.json composer.lock ./
+RUN composer install --no-dev --optimize-autoloader --no-interaction --prefer-dist --no-scripts \
+    && composer clear-cache
+
+# Bring in the rest of the source
+COPY . .
+
+# Bring in the pre-built assets from the frontend stage
+COPY --from=frontend /app/public/build ./public/build
+
+# Finalize Composer (run scripts now that artisan exists), warm caches.
+# Caches are skipped if config/route/view caching errors due to missing env —
+# Railway will set env vars at runtime, so we'll cache on container start instead.
+RUN composer dump-autoload --optimize --no-dev
+
+# Container entry: migrate + serve
+EXPOSE 8000
+CMD php artisan migrate --force \
+ && php artisan config:cache \
+ && php artisan route:cache \
+ && php artisan view:cache \
+ && php artisan serve --host=0.0.0.0 --port=${PORT:-8000}
