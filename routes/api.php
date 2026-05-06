@@ -5,6 +5,7 @@ use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\CatalogController;
 use App\Http\Controllers\Api\CreditsController;
 use App\Http\Controllers\Api\GithubController;
+use App\Http\Controllers\Api\GoogleAuthController;
 use App\Http\Controllers\Api\StripeController;
 use Illuminate\Support\Facades\Route;
 
@@ -15,6 +16,9 @@ Route::post('auth/login', [AuthController::class, 'login']);
 Route::post('stripe/webhook', [StripeController::class, 'webhook']);
 Route::get('github/login', [GithubController::class, 'login']);
 Route::get('github/callback', [GithubController::class, 'callback']);
+
+Route::get('auth/google/redirect', [GoogleAuthController::class, 'redirectToGoogle']);
+Route::get('auth/google/callback', [GoogleAuthController::class, 'handleGoogleCallback']);
 
 // Email verification — link from the email is signed, no auth required
 Route::get('auth/email/verify/{id}/{hash}', [AuthController::class, 'verify'])

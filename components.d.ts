@@ -43,5 +43,6 @@ declare module 'vue' {
     TablePagination: typeof import('./resources/js/@core/components/TablePagination.vue')['default']
     TheCustomizer: typeof import('./resources/js/@core/components/TheCustomizer.vue')['default']
     ThemeSwitcher: typeof import('./resources/js/@core/components/ThemeSwitcher.vue')['default']
+    VerifyEmailBanner: typeof import('./resources/js/components/VerifyEmailBanner.vue')['default']
   }
 }

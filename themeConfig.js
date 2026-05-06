@@ -4,28 +4,15 @@ import { defineThemeConfig } from '@core'
 import { Skins } from '@core/enums'
 import { AppContentLayoutNav, ContentWidth, FooterType, NavbarType } from '@layouts/enums'
 
-const logoMark = h('div', {
-    style: 'display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:9px;background:linear-gradient(135deg,#8B5CF6 0%,#EC4899 100%);box-shadow:0 4px 16px rgba(139,92,246,0.4);color:#fff;flex-shrink:0;',
-}, [
-    h('svg', {
-        xmlns: 'http://www.w3.org/2000/svg',
-        viewBox: '0 0 24 24',
-        width: 18,
-        height: 18,
-        fill: 'none',
-        stroke: 'currentColor',
-        'stroke-width': 2.5,
-        'stroke-linecap': 'round',
-        'stroke-linejoin': 'round',
-    }, [
-        h('polyline', { points: '16 18 22 12 16 6' }),
-        h('polyline', { points: '8 6 2 12 8 18' }),
-    ]),
-])
+const logoMark = h('img', {
+    src: '/favicon.svg',
+    alt: 'Full Code Review',
+    style: 'width:34px;height:34px;border-radius:9px;flex-shrink:0;box-shadow:0 4px 16px rgba(139,92,246,0.4);',
+})
 
 export const { themeConfig, layoutConfig } = defineThemeConfig({
     app: {
-        title: 'Code Review',
+        title: 'Full Code Review',
         logo: logoMark,
         logoDark: logoMark,
         logoIconLight: logoMark,
