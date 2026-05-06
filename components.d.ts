@@ -40,6 +40,7 @@ declare module 'vue' {
     ScoreRing: typeof import('./resources/js/components/ScoreRing.vue')['default']
     ScrollToTop: typeof import('./resources/js/@core/components/ScrollToTop.vue')['default']
     Shortcuts: typeof import('./resources/js/@core/components/Shortcuts.vue')['default']
+    StatCard: typeof import('./resources/js/components/StatCard.vue')['default']
     TablePagination: typeof import('./resources/js/@core/components/TablePagination.vue')['default']
     TheCustomizer: typeof import('./resources/js/@core/components/TheCustomizer.vue')['default']
     ThemeSwitcher: typeof import('./resources/js/@core/components/ThemeSwitcher.vue')['default']

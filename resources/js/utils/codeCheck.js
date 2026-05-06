@@ -4,6 +4,8 @@ export const fetchCatalog = () => $api("/catalog")
 
 export const fetchCredits = () => $api("/me/credits")
 
+export const fetchDashboard = () => $api("/me/dashboard")
+
 export const startCheckout = (categories) =>
     $api("/stripe/checkout", { method: "POST", body: { categories } })
 

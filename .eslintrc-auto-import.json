@@ -389,6 +389,7 @@
     "startCheckout": true,
     "validateCode": true,
     "fetchCatalog": true,
-    "fetchCredits": true
+    "fetchCredits": true,
+    "fetchDashboard": true
   }
 }

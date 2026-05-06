@@ -4,6 +4,7 @@ use App\Http\Controllers\Api\AnalysisController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\CatalogController;
 use App\Http\Controllers\Api\CreditsController;
+use App\Http\Controllers\Api\DashboardController;
 use App\Http\Controllers\Api\GithubController;
 use App\Http\Controllers\Api\GoogleAuthController;
 use App\Http\Controllers\Api\StripeController;
@@ -33,6 +34,7 @@ Route::middleware('auth.api')->group(function () {
         ->middleware('throttle:6,1');
 
     Route::get('me/credits', [CreditsController::class, 'index']);
+    Route::get('me/dashboard', [DashboardController::class, 'index']);
 
     Route::post('stripe/checkout', [StripeController::class, 'checkout']);
     Route::get('stripe/sessions/{sessionId}/code', [StripeController::class, 'fetchCodeForSession']);
