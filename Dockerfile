@@ -66,11 +66,12 @@ COPY --from=frontend /app/public/build ./public/build
 # Run composer scripts now that artisan exists
 RUN composer dump-autoload --optimize --no-dev
 
-# Container entry: migrate + cache + serve. Caches happen at runtime so the
-# Railway-injected env vars are baked in.
+# Container entry: migrate, then serve. Caches are deliberately skipped on
+# boot — they sometimes mask config errors and a fresh `serve` is fine for
+# the traffic levels we'll see initially. Add them back later via Octane.
 EXPOSE 8000
-CMD php artisan migrate --force \
- && php artisan config:cache \
- && php artisan route:cache \
- && php artisan view:cache \
- && php artisan serve --host=0.0.0.0 --port=${PORT:-8000}
+CMD set -e; \
+    echo "→ Booting Full Code Review on port ${PORT:-8000}"; \
+    php artisan migrate --force; \
+    echo "→ Migrations done, starting serve…"; \
+    php artisan serve --host=0.0.0.0 --port=${PORT:-8000}
