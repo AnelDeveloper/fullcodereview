@@ -1,0 +1,61 @@
+// App background gradients for light and dark themes
+
+// Light theme gradient background
+.v-application.v-theme--light {
+  background: linear-gradient(135deg, #f0f4fa 0%, #e6ecf5 35%, #dde6f2 65%, #d4e0ee 100%) !important;
+  min-height: 100vh;
+  
+  // Subtle overlay for depth with blue accents
+  &::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: radial-gradient(ellipse at top right, rgba(180, 200, 240, 0.2) 0%, transparent 50%),
+                radial-gradient(ellipse at bottom left, rgba(190, 210, 250, 0.15) 0%, transparent 50%),
+                radial-gradient(ellipse at center, rgba(200, 215, 245, 0.12) 0%, transparent 60%);
+    pointer-events: none;
+    z-index: 0;
+  }
+}
+
+// Dark theme gradient background - Better contrast
+.v-application.v-theme--dark {
+  background: linear-gradient(135deg, #1a1a28 0%, #1e1e30 35%, #212135 65%, #252540 100%) !important;
+  min-height: 100vh;
+  
+  // Add subtle color accents for depth
+  &::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: radial-gradient(ellipse at top right, rgba(60, 60, 100, 0.15) 0%, transparent 50%),
+                radial-gradient(ellipse at bottom left, rgba(50, 70, 120, 0.12) 0%, transparent 50%),
+                radial-gradient(ellipse at center, rgba(55, 55, 90, 0.1) 0%, transparent 60%);
+    pointer-events: none;
+    z-index: 0;
+  }
+}
+
+// Ensure content is above the gradient overlay
+.v-application > .v-locale-provider,
+.v-application .v-main,
+.v-application .v-navigation-drawer,
+.v-application .v-app-bar {
+  position: relative;
+  z-index: 1;
+}
+
+// Override for auth pages to use transparent background
+.layout-blank .v-application {
+  background: transparent !important;
+  
+  &::before {
+    display: none;
+  }
+}

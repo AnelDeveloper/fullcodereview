@@ -1,0 +1,19 @@
+@use "sass:map";
+@use "@core-scss/base";
+@use "@core-scss/base/mobile-optimizations";
+@use "@core-scss/base/admin-tables-mobile";
+
+// Layout
+@use "vertical-nav";
+@use "horizontal-nav";
+@use "default-layout-w-vertical-nav";
+@use "default-layout-w-horizontal-nav";
+
+// Skins
+@use "skins";
+
+// Utilities
+@use "utilities";
+
+// Mixins
+@use "mixins";

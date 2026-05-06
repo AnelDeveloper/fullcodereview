@@ -1,0 +1,205 @@
+<template>
+    <div class="auth-wrapper d-flex align-center justify-center pa-4">
+        <AuthAnimatedBackground />
+
+        <div class="theme-toggle-wrapper">
+            <VBtn
+                icon
+                variant="text"
+                size="small"
+                @click="toggleTheme"
+            >
+                <VIcon :icon="isDark ? 'tabler-sun' : 'tabler-moon'" />
+            </VBtn>
+        </div>
+
+        <div class="position-relative my-sm-16">
+            <VCard
+                class="auth-card"
+                max-width="460"
+                :class="$vuetify.display.smAndUp ? 'pa-6' : 'pa-4'"
+            >
+                <VCardItem class="d-flex flex-column align-center text-center pt-2">
+                    <RouterLink to="/" class="brand-mark mb-3">
+                        <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="16 18 22 12 16 6" />
+                            <polyline points="8 6 2 12 8 18" />
+                        </svg>
+                    </RouterLink>
+                    <h1 class="text-h4 font-weight-bold gradient-text mb-1">Create your account</h1>
+                    <p class="text-body-2 text-medium-emphasis">Run AI-powered code reviews on your GitHub repos.</p>
+                </VCardItem>
+
+                <VCardText>
+                    <VForm @submit.prevent="register">
+                        <VRow>
+                            <VCol cols="12">
+                                <AppTextField
+                                    v-model="form.name"
+                                    autofocus
+                                    label="Name"
+                                    placeholder="Jane Doe"
+                                    :error-messages="errors.name"
+                                />
+                            </VCol>
+                            <VCol cols="12">
+                                <AppTextField
+                                    v-model="form.email"
+                                    label="Email"
+                                    type="email"
+                                    placeholder="you@example.com"
+                                    :error-messages="errors.email"
+                                />
+                            </VCol>
+                            <VCol cols="12">
+                                <AppTextField
+                                    v-model="form.password"
+                                    label="Password"
+                                    placeholder="············"
+                                    :type="isPasswordVisible ? 'text' : 'password'"
+                                    :append-inner-icon="isPasswordVisible ? 'tabler-eye-off' : 'tabler-eye'"
+                                    :error-messages="errors.password"
+                                    @click:append-inner="isPasswordVisible = !isPasswordVisible"
+                                />
+                            </VCol>
+                            <VCol cols="12">
+                                <AppTextField
+                                    v-model="form.password_confirmation"
+                                    label="Confirm password"
+                                    placeholder="············"
+                                    :type="isPasswordVisible ? 'text' : 'password'"
+                                    :error-messages="errors.password_confirmation"
+                                />
+                            </VCol>
+
+                            <VCol cols="12">
+                                <VBtn
+                                    block
+                                    type="submit"
+                                    :loading="loading"
+                                    size="large"
+                                    rounded="lg"
+                                    class="vibe-cta"
+                                >
+                                    Create account
+                                </VBtn>
+                            </VCol>
+
+                            <VCol cols="12" class="text-body-1 text-center">
+                                <span class="d-inline-block">Already have an account?</span>
+                                <RouterLink class="text-primary ms-1 d-inline-block text-body-1" to="/login">
+                                    Sign in
+                                </RouterLink>
+                            </VCol>
+                        </VRow>
+                    </VForm>
+                </VCardText>
+            </VCard>
+        </div>
+    </div>
+</template>
+
+<script setup>
+import AuthAnimatedBackground from "./AuthAnimatedBackground.vue"
+import { useAuthStore } from "@/stores/auth"
+import { useTheme } from "vuetify"
+import { useConfigStore } from "@core/stores/config"
+
+const authStore = useAuthStore()
+const vuetifyTheme = useTheme()
+const configStore = useConfigStore()
+const isDark = computed(() => vuetifyTheme.global.current.value.dark)
+const toggleTheme = () => { configStore.theme = isDark.value ? "light" : "dark" }
+const router = useRouter()
+
+const form = ref({ name: "", email: "", password: "", password_confirmation: "" })
+const errors = ref({})
+const isPasswordVisible = ref(false)
+const loading = ref(false)
+
+const validate = () => {
+    errors.value = {}
+    if (!form.value.name) errors.value.name = ["Name is required"]
+    if (!form.value.email) errors.value.email = ["Email is required"]
+    else if (!/^\S+@\S+\.\S+$/.test(form.value.email)) errors.value.email = ["Invalid email"]
+    if (!form.value.password) errors.value.password = ["Password is required"]
+    else if (form.value.password.length < 8) errors.value.password = ["Min 8 characters"]
+    if (form.value.password !== form.value.password_confirmation)
+        errors.value.password_confirmation = ["Passwords do not match"]
+    return !Object.keys(errors.value).length
+}
+
+const register = async () => {
+    if (!validate()) return
+    loading.value = true
+    try {
+        await authStore.register(form.value)
+        router.push("/")
+    } catch (e) {
+        const data = e?.data || {}
+        if (data.errors) errors.value = data.errors
+        else errors.value = { email: [data.message || "Registration failed"] }
+    } finally {
+        loading.value = false
+    }
+}
+</script>
+
+<style lang="scss">
+@use "@core-scss/template/pages/page-auth.scss";
+
+.auth-card {
+    background: rgba(255, 255, 255, 0.7) !important;
+    .v-theme--dark & { background: rgba(21, 16, 43, 0.65) !important; }
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    border: 1px solid rgba(139, 92, 246, 0.18) !important;
+    box-shadow:
+        0 1px 0 rgba(255, 255, 255, 0.06) inset,
+        0 24px 60px -20px rgba(139, 92, 246, 0.4),
+        0 8px 32px rgba(0, 0, 0, 0.4);
+    border-radius: 20px !important;
+}
+
+.brand-mark {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 56px;
+    height: 56px;
+    border-radius: 16px;
+    color: #fff;
+    background: linear-gradient(135deg, #8B5CF6 0%, #EC4899 100%);
+    box-shadow:
+        0 12px 32px -6px rgba(139, 92, 246, 0.6),
+        0 0 0 1px rgba(255, 255, 255, 0.06) inset;
+    text-decoration: none;
+}
+
+.gradient-text {
+    background: linear-gradient(90deg, #8B5CF6 0%, #EC4899 50%, #06B6D4 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    color: transparent;
+}
+
+.vibe-cta {
+    background: linear-gradient(135deg, #8B5CF6 0%, #EC4899 100%) !important;
+    color: #fff !important;
+    font-weight: 600 !important;
+    letter-spacing: 0.2px;
+    box-shadow:
+        0 12px 28px -10px rgba(139, 92, 246, 0.7),
+        0 0 0 1px rgba(255, 255, 255, 0.1) inset !important;
+
+    &:hover { filter: brightness(1.07); }
+}
+
+.theme-toggle-wrapper {
+    position: fixed;
+    top: 16px;
+    right: 16px;
+    z-index: 10;
+}
+</style>

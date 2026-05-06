@@ -1,0 +1,795 @@
+// Mobile-specific optimizations and touch-friendly styles
+
+// Touch-friendly tap targets
+@media (max-width: 600px) {
+  // Override any theme default padding
+  * {
+    --v-layout-left: 0 !important;
+    --v-layout-right: 0 !important;
+    --v-layout-top: 0 !important;
+    --v-layout-bottom: 0 !important;
+  }
+  // Remove padding for native app feel
+  .layout-page-content {
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+
+  .page-content-container {
+    padding: 0 !important;
+    margin: 0 !important;
+    max-width: 100% !important;
+  }
+
+  .layout-content-wrapper {
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+
+  // Remove card margins and make them edge-to-edge
+  .v-card {
+    margin: 0 !important;
+    border-radius: 0 !important;
+    box-shadow: none !important; // Make cards flat
+    border: none !important;
+    border-bottom: 1px solid rgba(var(--v-border-color), 0.12) !important; // Add bottom border
+
+    &.auth-card {
+      border-radius: 0.375rem !important; // Keep auth cards rounded
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1) !important; // Keep subtle shadow for auth
+      border-bottom: none !important; // No bottom border for auth cards
+    }
+  }
+
+  // Adjust main container padding
+  .v-container {
+    padding: 0 !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+  }
+
+  // Full-width rows
+  .v-row {
+    margin: 0 !important;
+    --v-gutter-x: 0 !important;
+    --v-gutter-y: 0 !important;
+
+    &.row {
+      margin: 0 !important;
+    }
+  }
+
+  // Remove all column padding on mobile
+  .v-col,
+  .v-col-12,
+  .v-col-sm-6,
+  .v-col-md-6,
+  .v-col-lg-5,
+  .v-col-lg-7,
+  [class*="v-col-"] {
+    padding: 0 !important;
+  }
+
+  // Specifically target dashboard widget columns and their content
+  .dashboard-widgets-row {
+    .v-col,
+    .v-col-12,
+    .v-col-md-6,
+    .v-col-lg-5,
+    .v-col-lg-7,
+    [class*="v-col-"] {
+      padding: 0 !important;
+    }
+
+    // Also target any VRow inside the widgets
+    .v-row {
+      margin: 0 !important;
+
+      .v-col,
+      [class*="v-col-"] {
+        padding: 0 !important;
+      }
+    }
+  }
+
+  // Special case for auth pages - keep some padding
+  .auth-wrapper .v-col {
+    padding: 8px !important;
+  }
+
+  // Dashboard specific adjustments
+  .dashboard-timer {
+    .v-card-text {
+      padding: 12px !important;
+    }
+  }
+
+  // Override any default Vuetify spacing
+  .v-application {
+    .v-row + .v-row {
+      margin-top: 0 !important;
+    }
+
+    .v-col + .v-col {
+      padding-left: 0 !important;
+    }
+  }
+
+  // Dashboard widgets - remove gaps and add dividers
+  .dashboard-widgets-row {
+    margin: 0 !important;
+    padding: 0 !important;
+    gap: 0 !important;
+    width: 100vw !important;
+    max-width: 100vw !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+
+    > .v-col {
+      padding: 0 !important;
+      margin: 0 !important;
+      max-width: 100% !important;
+
+      // Add bottom border divider between widgets
+      &:not(:last-child) {
+        .v-card {
+          border-bottom: 1px solid rgba(var(--v-border-color), 0.12) !important;
+        }
+      }
+
+      .v-card {
+        margin: 0 !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        min-width: 100% !important;
+      }
+    }
+  }
+
+  // Specific widget styles for full width
+  .timer-widget,
+  .weekly-overview-widget,
+  .dashboard-timer,
+  .admin-dashboard {
+    width: 100% !important;
+    margin: 0 !important;
+
+    .v-card {
+      width: 100% !important;
+      margin: 0 !important;
+    }
+  }
+
+  // Remove navbar container padding
+  .navbar-content-container {
+    padding: 0 !important;
+
+    // Add padding only to inner content
+    > div {
+      padding: 0 12px !important;
+    }
+  }
+
+  // Full-width navbar
+  .layout-navbar {
+    padding: 0 !important;
+    margin: 0 !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    width: 100% !important;
+    border-radius: 0 !important;
+
+    &.navbar-blur {
+      backdrop-filter: blur(10px);
+      background: rgba(var(--v-theme-surface), 0.9) !important;
+      border-radius: 0 !important;
+    }
+
+    // Remove border radius from the inner content container too
+    .navbar-content-container {
+      border-radius: 0 !important;
+    }
+  }
+
+  // Remove top margin from layout wrapper
+  .layout-wrapper {
+    padding-top: 0 !important;
+    margin-top: 0 !important;
+  }
+
+  // Ensure content wrapper starts from top
+  .layout-content-wrapper {
+    margin-top: 0 !important;
+    padding-top: 0 !important;
+  }
+  // Increase tap target size for mobile
+  .v-btn {
+    min-height: 44px !important;
+
+    &.v-btn--icon {
+      width: 44px !important;
+      height: 44px !important;
+    }
+
+    &.v-btn--size-small {
+      min-height: 36px !important;
+    }
+  }
+
+  // Touch-friendly form inputs
+  .v-field__input {
+    min-height: 44px !important;
+  }
+
+  // Better touch targets for chips
+  .v-chip {
+    min-height: 32px !important;
+
+    &.v-chip--size-x-small {
+      min-height: 24px !important;
+    }
+  }
+
+  // Optimize scrolling performance
+  .board-wrapper,
+  .timeline-wrapper,
+  .column-scroll-area {
+    -webkit-overflow-scrolling: touch;
+    scroll-behavior: smooth;
+  }
+
+  // Disable hover effects on mobile
+  .v-btn:hover,
+  .v-card:hover,
+  .v-list-item:hover {
+    transform: none !important;
+    box-shadow: none !important;
+  }
+
+  // Optimize data tables for mobile
+  .v-data-table {
+    .v-data-table__td {
+      padding: 8px !important;
+    }
+
+    // Make table rows taller for easier tapping
+    .v-data-table__tr {
+      min-height: 48px;
+    }
+  }
+
+  // Full-width dialogs on mobile
+  .v-dialog {
+    margin: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+
+    .v-overlay__content {
+      width: 100% !important;
+      max-width: 100% !important;
+      margin: 0 !important;
+    }
+
+    .v-card {
+      max-height: 100vh !important;
+      border-radius: 0 !important;
+      width: 100% !important;
+    }
+    
+    // Move close button inside dialog on mobile
+    .v-dialog-close-btn {
+      transform: none !important;
+      inset-block-start: 0.5rem !important;
+      inset-inline-end: 0.5rem !important;
+      z-index: 10 !important;
+    }
+  }
+
+  // Better spacing for mobile navigation
+  .v-navigation-drawer {
+    width: 280px !important;
+  }
+
+  // Board and timeline edge-to-edge
+  .board,
+  .timeline-container,
+  .board > .v-card,
+  .timeline-container > .v-card {
+    margin: 0 !important;
+    border-radius: 0 !important;
+    border-left: none !important;
+    border-right: none !important;
+  }
+
+  // Kanban board specific styles
+  .board-wrapper {
+    padding: 0 !important;
+    margin: 0 !important;
+
+    .board {
+      padding: 0 !important;
+      margin: 0 !important;
+    }
+
+    // Force board header to have two lines on mobile
+    > .v-card > .v-card-title {
+      &.d-flex.flex-wrap {
+        flex-direction: column !important;
+        align-items: flex-start !important;
+
+        // Board title and info on first line
+        > div:first-child {
+          width: 100% !important;
+          margin-bottom: 8px !important;
+        }
+
+        // Avatars, filters and actions on second line
+        > div:last-child {
+          width: 100% !important;
+          display: flex !important;
+          justify-content: space-between !important;
+          align-items: center !important;
+
+          // Member avatars group
+          .v-avatar-group {
+            flex: 0 0 auto !important;
+          }
+
+          // Filter and layout toggle buttons aligned to right
+          > .d-flex.align-center.gap-2 {
+            margin-left: auto !important;
+            flex-wrap: nowrap !important;
+          }
+        }
+      }
+    }
+  }
+
+  .board {
+    .board-column {
+      min-width: 100vw !important;
+      max-width: 100vw !important;
+      width: 100vw !important;
+      padding: 0 !important;
+      margin: 0 !important;
+      max-height: calc(100vh - 190px) !important;
+      height: calc(100vh - 190px) !important;
+
+      // Column header card should be edge-to-edge
+      .column-header {
+        margin: 0 !important;
+        border-radius: 0 !important;
+        border-bottom: 1px solid rgba(var(--v-border-color), 0.12) !important;
+      }
+
+      // Column content area
+      .column-scroll-area {
+        padding: 8px !important; // Small padding for ticket cards
+      }
+
+      // Tickets container
+      .tickets-container {
+        width: 100% !important;
+      }
+
+      // Ticket cards should have regular styling
+      .ticket-card {
+        margin: 0 8px 8px 8px !important; // Small margins on left and right
+        width: calc(100% - 16px) !important; // Full width minus margins
+        border-radius: 8px !important; // Keep regular border radius
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1) !important; // Add subtle shadow
+        border: 1px solid rgba(var(--v-border-color), 0.12) !important;
+        border-bottom: 1px solid rgba(var(--v-border-color), 0.12) !important; // Override the default
+      }
+    }
+  }
+
+  // Data tables edge-to-edge
+  .v-data-table {
+    border-radius: 0 !important;
+
+    .v-table__wrapper {
+      border-radius: 0 !important;
+    }
+  }
+
+  // Time entries specific
+  .v-card-title {
+    padding: 12px !important;
+  }
+
+  // Touch-friendly list items
+  .v-list-item {
+    min-height: 48px !important;
+  }
+
+  // Give tabs more vertical space on mobile
+  .v-tabs {
+    .v-tab {
+      min-height: 48px !important;
+      padding: 0 16px !important;
+    }
+
+    // Make tab items more touch-friendly
+    &.v-tabs--density-default {
+      --v-tabs-height: 48px !important;
+    }
+  }
+
+  // Profile and organization page tabs
+  .profile-tabs,
+  .organisation-tabs,
+  .v-card .v-tabs {
+    margin-bottom: 24px !important; // Increased vertical space
+    padding: 12px 0 !important; // Add vertical padding to tabs container
+
+    .v-tab {
+      font-size: 0.875rem !important; // Slightly smaller font for mobile
+      letter-spacing: normal !important;
+      min-height: 56px !important; // Taller tabs for more breathing room
+    }
+  }
+
+  // Remove border radius from tab menu buttons
+  .v-tabs {
+    .v-btn {
+      border-radius: 0 !important;
+    }
+  }
+
+  // Profile page specific styles
+  .profile-header,
+  .organisation-header,
+  .user-profile-header {
+    margin-bottom: 16px !important;
+  }
+
+  // V-slide-group height on mobile
+  .v-slide-group {
+    height: 50px !important;
+    min-height: 50px !important;
+    max-height: 50px !important;
+    margin-top: 0 !important;
+    margin-left: 0 !important;
+
+    .v-slide-group__wrapper {
+      height: 100% !important;
+      min-height: 50px !important;
+      max-height: 50px !important;
+    }
+
+    .v-slide-group__container {
+      height: 100% !important;
+      min-height: 50px !important;
+      max-height: 50px !important;
+    }
+  }
+
+  // Tab content spacing
+  .v-window,
+  .v-tabs-window {
+    margin-top: 14px !important;
+
+    .v-window__container {
+      padding-top: 0 !important; // Remove top padding
+    }
+
+    .v-window-item {
+      padding: 0 !important; // Remove horizontal padding to keep cards edge-to-edge
+    }
+  }
+
+  // Time Entries page mobile optimizations - Clean layout using Vuetify ordering
+  @media (max-width: 600px) {
+    // Ensure the Time Entry dialog button is full width on mobile
+    .v-dialog .v-btn[prepend-icon*="plus"] {
+      width: 100% !important;
+    }
+
+    // Hide table headers on mobile
+    .v-data-table.hide-headers {
+      .v-data-table__thead {
+        display: none !important;
+      }
+    }
+  }
+
+
+  // Native app-like styling
+  body {
+    // Prevent overscroll bounce on iOS
+    overscroll-behavior: none;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  // Remove focus outlines on mobile
+  *:focus {
+    outline: none !important;
+  }
+
+  // Bottom navigation safe area - removed to use Safari default
+  // .layout-footer,
+  // .bottom-navigation {
+  //   padding-bottom: env(safe-area-inset-bottom) !important;
+  // }
+
+  // Top navigation safe area for notched devices
+  .layout-navbar {
+    padding-top: env(safe-area-inset-top) !important;
+    position: sticky !important;
+    top: 0 !important;
+    z-index: 999 !important;
+    border-bottom: 1px solid rgba(var(--v-border-color), 0.1) !important;
+    border-radius: 0 !important;
+
+    // Increase height for better mobile UX
+    .navbar-content-container {
+      min-height: 56px !important;
+      height: 56px !important;
+      border-radius: 0 !important;
+
+      > div {
+        height: 100% !important;
+        border-radius: 0 !important;
+      }
+    }
+
+    // Ensure all navbar variants have no border radius
+    &[class*="navbar-"] {
+      border-radius: 0 !important;
+    }
+  }
+
+  // Adjust content for fixed header - no gap
+  .layout-page-content {
+    padding: 0 !important;
+    margin: 0 !important;
+
+    // First element should touch the header
+    > *:first-child {
+      margin-top: 0 !important;
+      padding-top: 0 !important;
+    }
+
+    // Remove any container padding
+    > .v-container,
+    > .container {
+      padding: 0 !important;
+      margin: 0 !important;
+      max-width: 100% !important;
+    }
+  }
+
+  // Ensure vertical nav layout has no gaps
+  .layout-wrapper.layout-nav-type-vertical {
+    .layout-content-wrapper {
+      padding-top: 0 !important;
+      margin-top: 0 !important;
+
+      .layout-navbar + * {
+        margin-top: 0 !important;
+      }
+    }
+
+    // Remove any padding from page content container
+    .page-content-container {
+      padding: 0 !important;
+
+      > * {
+        padding: 0 !important;
+      }
+    }
+  }
+
+  // Make menus edge-to-edge
+  .v-menu__content {
+    border-radius: 0 !important;
+
+    .v-list {
+      padding: 0 !important;
+    }
+  }
+
+  // Full-width snackbars
+  .v-snackbar__wrapper {
+    width: 100% !important;
+    margin: 0 !important;
+
+    .v-snackbar__content {
+      border-radius: 0 !important;
+    }
+  }
+
+  // Remove dividers between sections
+  .border-t-sm,
+  .border-b-sm {
+    border: none !important;
+  }
+
+  // Compact spacing for widgets
+  .weekly-overview-widget,
+  .weekly-time-widget,
+  .weekly-earnings-widget {
+    .v-card-text {
+      padding: 12px !important;
+    }
+  }
+
+  // Force Total Tracked and Total Spend widgets to take full width on mobile
+  .weekly-overview-widget {
+    > .v-row {
+      > .v-col-12.v-col-sm-6 {
+        width: 100% !important;
+        max-width: 100% !important;
+        flex: 0 0 100% !important;
+
+        // First two columns contain the time and earnings widgets
+        &:nth-child(1),
+        &:nth-child(2) {
+          width: 100% !important;
+          max-width: 100% !important;
+          flex: 0 0 100% !important;
+        }
+      }
+    }
+  }
+
+  // Mobile-friendly timer in header
+  .timer-component {
+    .timer-display {
+      font-size: 1rem !important;
+    }
+
+    // Hide project name on very small screens
+    @media (max-width: 380px) {
+      .timer-project-name {
+        display: none !important;
+      }
+    }
+  }
+
+  // Mobile hamburger menu styling
+  #vertical-nav-toggle-btn {
+    margin-left: -8px !important;
+
+    .v-icon {
+      font-size: 28px !important;
+    }
+  }
+
+  // User profile compact on mobile
+  .user-profile {
+    .v-btn {
+      padding: 0 8px !important;
+      min-width: auto !important;
+    }
+  }
+
+   // Optimize performance with will-change
+  .board-column,
+  .ticket-card {
+    will-change: transform;
+  }
+
+  //// Reduce animations on mobile for better performance
+  //* {
+  //  animation-duration: 0.2s !important;
+  //  transition-duration: 0.2s !important;
+  //}
+
+  // Hide scrollbars on mobile for cleaner look
+  *::-webkit-scrollbar {
+    display: none;
+  }
+
+  * {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  // Optimize font sizes for mobile readability
+  .text-h5 {
+    font-size: 1.25rem !important;
+  }
+
+  .text-h6 {
+    font-size: 1.125rem !important;
+  }
+
+  // Better spacing for mobile forms - removed to maintain edge-to-edge layout
+  // Forms that need spacing should add it explicitly
+
+  // Optimize bottom sheets for mobile
+  .v-bottom-sheet {
+    .v-card {
+      border-radius: 16px 16px 0 0 !important;
+    }
+  }
+}
+
+// Landscape mobile optimizations
+@media (max-width: 960px) and (orientation: landscape) {
+  // Reduce vertical spacing in landscape
+  .v-card {
+    margin-bottom: 8px;
+  }
+
+  .v-card-title {
+    padding: 12px 16px !important;
+  }
+
+  .v-card-text {
+    padding: 16px !important;
+  }
+}
+
+// Performance optimizations
+@media (max-width: 600px) {
+  // Disable complex shadows on mobile
+  .elevation-1,
+  .elevation-2,
+  .elevation-3,
+  .elevation-4 {
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1) !important;
+  }
+
+  // Optimize backdrop filters
+  .v-overlay__scrim {
+    backdrop-filter: none !important;
+  }
+}
+
+// Touch gesture hints
+@media (hover: none) and (pointer: coarse) {
+    // Add visual feedback for touch
+    .v-btn:active,
+    .v-card:not(.v-overlay__content .v-card):active,
+    .v-list-item:active {
+        opacity: 0.8;
+    }
+
+  // Disable text selection on interactive elements
+  .v-btn,
+  .v-chip,
+  .v-list-item {
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-touch-callout: none;
+  }
+
+  // Add drag delay for ticket cards on touch devices
+  .ticket-card {
+    touch-action: manipulation;
+
+    // Immediate visual feedback when holding for drag
+    &:active {
+      transition: transform 0.1s ease-out;
+      transform: scale(0.95);
+      opacity: 0.8;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2) !important;
+    }
+  }
+}
+
+// PWA optimizations
+@media (display-mode: standalone) {
+  // Adjust for PWA status bar
+  .layout-navbar {
+    padding-top: env(safe-area-inset-top);
+  }
+
+  // Adjust for PWA bottom bar - removed to use Safari default
+  // .layout-footer {
+  //   padding-bottom: env(safe-area-inset-bottom);
+  // }
+}
+
+// Reduce motion for accessibility
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

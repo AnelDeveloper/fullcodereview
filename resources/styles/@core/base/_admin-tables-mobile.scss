@@ -1,0 +1,94 @@
+// Admin tables mobile optimizations
+// Makes admin tables more compact on mobile
+
+@media (max-width: 600px) {
+  // Target admin page tables specifically
+  .admin-users,
+  .admin-organisations,
+  .admin-support {
+    // Compact table styling
+    .v-data-table-server,
+    .v-data-table {
+      // Hide table headers on mobile
+      .v-data-table__thead {
+        display: none !important;
+      }
+      
+      // Reduce padding in cells
+      .v-data-table__td {
+        padding: 8px 4px !important;
+      }
+      
+      .v-data-table__th {
+        padding: 8px 4px !important;
+        font-size: 0.75rem !important;
+      }
+      
+      // Make rows more compact
+      .v-data-table__tr {
+        min-height: 48px;
+      }
+      
+      // Smaller font sizes
+      td {
+        font-size: 0.875rem !important;
+      }
+    }
+    
+    // Card adjustments
+    .v-card {
+      overflow: hidden !important; // Changed from visible to hidden
+      margin: 8px !important;
+      border-radius: 8px !important;
+    }
+    
+    // Title adjustments for mobile
+    .v-card-title {
+      flex-wrap: wrap !important;
+      
+      > div:last-child {
+        width: 100% !important;
+        margin-top: 8px !important;
+        
+        .v-text-field {
+          width: 100% !important;
+          min-width: unset !important;
+        }
+      }
+    }
+  }
+  
+  // Add horizontal scroll indicator
+  .v-table__wrapper {
+    position: relative;
+    
+    // Custom scrollbar styling
+    &::-webkit-scrollbar {
+      height: 6px;
+    }
+    
+    &::-webkit-scrollbar-track {
+      background: rgba(0, 0, 0, 0.1);
+    }
+    
+    &::-webkit-scrollbar-thumb {
+      background: rgba(0, 0, 0, 0.3);
+      border-radius: 3px;
+    }
+  }
+}
+
+// Tablet adjustments
+@media (min-width: 600px) and (max-width: 960px) {
+  .admin-users,
+  .admin-organisations,
+  .admin-support {
+    .v-data-table-server .v-table__wrapper {
+      overflow-x: auto !important;
+      
+      table {
+        min-width: 1000px !important;
+      }
+    }
+  }
+}

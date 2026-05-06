@@ -1,0 +1,81 @@
+// Fix grid spacing on mobile for card grids
+@media (max-width: 600px) {
+  // Target specific grid rows
+  .organisations-grid-row,
+  .projects-grid-row,
+  .boards-grid-row {
+    // Reset all margins
+    margin: 0 !important;
+    // Remove gutters
+    --v-layout-gap: 0px !important;
+    gap: 0 !important;
+    
+    > .v-col {
+      // Remove all padding
+      padding: 0 !important;
+      padding-top: 0 !important;
+      padding-bottom: 0 !important;
+      padding-left: 0 !important;
+      padding-right: 0 !important;
+      
+      // Remove any margins
+      margin: 0 !important;
+      margin-top: 0 !important;
+      margin-bottom: 0 !important;
+      
+      // Remove card margins and make them touch
+      .v-card {
+        margin: 0 !important;
+        margin-top: 0 !important;
+        margin-bottom: 0 !important;
+        border-radius: 0 !important;
+        border-bottom: 1px solid rgba(var(--v-border-color), var(--v-border-opacity));
+        
+        // Remove any box shadow on mobile for cleaner look
+        box-shadow: none !important;
+        
+        // Ensure no padding inside card item
+        .v-card__item {
+          padding-top: 16px !important;
+          padding-bottom: 16px !important;
+        }
+      }
+    }
+    
+    // First card - rounded top corners
+    > .v-col:first-child .v-card {
+      border-top-left-radius: 12px !important;
+      border-top-right-radius: 12px !important;
+    }
+    
+    // Last card - rounded bottom corners and no border
+    > .v-col:last-child .v-card {
+      border-bottom: none !important;
+      border-bottom-left-radius: 12px !important;
+      border-bottom-right-radius: 12px !important;
+    }
+  }
+  
+  // Also remove margins from the parent containers
+  .v-container {
+    .organisations-grid-row,
+    .projects-grid-row,
+    .boards-grid-row {
+      margin-left: -12px !important;
+      margin-right: -12px !important;
+    }
+  }
+  
+  // Global override for any v-row with these classes
+  .v-row.organisations-grid-row,
+  .v-row.projects-grid-row,
+  .v-row.boards-grid-row {
+    &.v-row {
+      margin: 0 !important;
+      
+      > .v-col-12 {
+        padding: 0 !important;
+      }
+    }
+  }
+}

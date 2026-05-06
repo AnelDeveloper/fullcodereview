@@ -1,0 +1,476 @@
+// Shepherd Tour Tooltip Styles
+.shepherd-modal-overlay-container {
+    z-index: 2100 !important;
+    pointer-events: none;
+
+    .shepherd-modal-overlay-container-enabled {
+        pointer-events: auto;
+    }
+}
+
+// Disable entire page during tour except target elements
+.tour-active {
+    // Allow interactions only with tour elements and targets
+    .shepherd-element,
+    .shepherd-target,
+    .tour-target-enabled,
+    .v-menu .v-overlay__content,
+    .v-card,
+    .v-overlay__content {
+        pointer-events: auto !important;
+
+        * {
+            pointer-events: auto !important;
+        }
+    }
+
+    // Ensure highlighted buttons are fully clickable
+    .tour-target-enabled {
+        pointer-events: auto !important;
+        z-index: 2102 !important;
+        position: relative !important;
+
+        * {
+            pointer-events: auto !important;
+        }
+    }
+
+    // Specifically ensure dropdowns stay open during tour
+    .v-menu.tour-menu-lock {
+        .v-overlay__content {
+            pointer-events: auto !important;
+        }
+    }
+}
+
+.shepherd-target-click-disabled {
+    pointer-events: none !important;
+}
+
+// Tooltip style
+.shepherd-element.shepherd-tooltip {
+    z-index: 2101 !important;
+    max-width: 320px;
+    opacity: 0;
+    animation: fadeIn 0.3s ease-out forwards;
+    transform: translateY(20px) !important;
+
+    .shepherd-content {
+        border-radius: 4px;
+        padding: 0;
+        background: white;
+        box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.2),
+                    0 0 0 1px rgba(0, 0, 0, 0.05);
+        border: none;
+    }
+
+    .shepherd-header {
+        background: transparent;
+        padding: 12px 16px 8px;
+        border-radius: 6px 6px 0 0;
+        border-bottom: none;
+
+        .shepherd-title {
+            font-size: 14px;
+            font-weight: 600;
+            margin: 0;
+            color: #1e293b;
+        }
+
+        .shepherd-cancel-icon {
+            display: none;
+        }
+    }
+
+    .shepherd-text {
+        padding: 0 16px 12px;
+        font-size: 13px;
+        line-height: 1.5;
+        color: #64748b;
+
+        strong {
+            color: #667eea;
+            font-weight: 600;
+        }
+    }
+
+    .shepherd-footer {
+        padding: 12px;
+        display: flex;
+        justify-content: flex-end;
+        gap: 8px;
+        border-top: 1px solid #e2e8f0;
+
+        .shepherd-button {
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-weight: 500;
+            font-size: 12px;
+            transition: all 0.2s;
+            border: none;
+            cursor: pointer;
+            background: #667eea;
+            color: white;
+            display: flex !important;
+            align-items: center;
+            justify-content: center;
+
+            &:hover {
+                background: #5a67d8;
+            }
+
+            &.shepherd-button-secondary {
+                background: transparent;
+                color: #64748b;
+                border: 1px solid #e2e8f0;
+                display: flex !important;
+
+                &:hover {
+                    background: #f8fafc;
+                }
+            }
+
+            &.shepherd-button-primary {
+                background: #667eea;
+                color: white;
+                display: flex !important;
+
+                &:hover {
+                    background: #5a67d8;
+                }
+            }
+        }
+    }
+
+    // Arrow styling
+    .shepherd-arrow {
+        width: 16px;
+        height: 16px;
+
+        &::before {
+            content: '';
+            position: absolute;
+            width: 16px;
+            height: 16px;
+            background: white;
+            transform: rotate(45deg);
+            box-shadow: -2px -2px 4px rgba(0, 0, 0, 0.08);
+        }
+
+        &[data-popper-placement^='bottom'] {
+            top: -8px;
+
+            &::before {
+                top: 0;
+            }
+        }
+
+        &[data-popper-placement^='top'] {
+            bottom: -8px;
+
+            &::before {
+                bottom: 0;
+                box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.08);
+            }
+        }
+
+        &[data-popper-placement^='left'] {
+            right: -8px;
+
+            &::before {
+                right: 0;
+            }
+        }
+
+        &[data-popper-placement^='right'] {
+            left: -8px;
+
+            &::before {
+                left: 0;
+            }
+        }
+    }
+}
+
+// Simplified tooltip for action steps
+.shepherd-element.shepherd-has-title {
+    .shepherd-content {
+        .shepherd-header + .shepherd-text {
+            padding-top: 0;
+        }
+    }
+}
+
+// Ensure footer is always visible when buttons are present
+.shepherd-element {
+    .shepherd-footer {
+        display: flex !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        height: auto !important;
+        min-height: 48px !important;
+    }
+
+    // Force buttons to be visible
+    .shepherd-button {
+        display: flex !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        min-width: 60px !important;
+        min-height: 32px !important;
+    }
+
+    // Only hide footer when explicitly marked as no-buttons or info-only
+    &[data-no-buttons] .shepherd-footer,
+    &.info-only .shepherd-footer {
+        display: none !important;
+    }
+
+    // If step has buttons array, always show footer
+    &[data-has-buttons] .shepherd-footer {
+        display: flex !important;
+    }
+}
+
+// Global override for any potential hiding
+.shepherd-button,
+.shepherd-button-primary,
+.shepherd-button-secondary {
+    display: flex !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    width: auto !important;
+    height: auto !important;
+    min-width: 60px !important;
+    min-height: 32px !important;
+    position: relative !important;
+    z-index: 9999 !important;
+}
+
+// ABSOLUTE NUCLEAR OPTION - FORCE BUTTONS TO SHOW
+.shepherd-element,
+.shepherd-tooltip {
+    .shepherd-footer {
+        display: flex !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        height: auto !important;
+        width: 100% !important;
+        min-height: 50px !important;
+        padding: 12px !important;
+        background: inherit !important;
+        border-top: 1px solid #e2e8f0 !important;
+        justify-content: flex-end !important;
+        gap: 8px !important;
+    }
+
+    .shepherd-button,
+    button {
+        display: inline-flex !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        background: #667eea !important;
+        color: white !important;
+        border: none !important;
+        padding: 8px 16px !important;
+        border-radius: 4px !important;
+        cursor: pointer !important;
+        width: auto !important;
+        height: auto !important;
+        min-width: 80px !important;
+        min-height: 32px !important;
+        position: relative !important;
+        z-index: 10000 !important;
+        align-items: center !important;
+        justify-content: center !important;
+        text-align: center !important;
+        line-height: 1 !important;
+        font-size: 14px !important;
+        font-weight: 500 !important;
+    }
+}
+
+// GLOBAL OVERRIDE FOR ANY SHEPHERD ELEMENT
+.shepherd-footer {
+    display: flex !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+}
+
+.shepherd-button {
+    display: inline-flex !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    background: #667eea !important;
+    color: white !important;
+    border: none !important;
+    padding: 8px 16px !important;
+    border-radius: 4px !important;
+    cursor: pointer !important;
+}
+
+// Global override for ALL buttons in tour
+.shepherd-tooltip .shepherd-footer .shepherd-button {
+    display: flex !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+}
+
+// Pulse Animation for highlighted elements
+@keyframes pulse {
+    0% {
+        box-shadow: 0 0 0 0 rgba(102, 126, 234, 0.7);
+    }
+    70% {
+        box-shadow: 0 0 0 10px rgba(102, 126, 234, 0);
+    }
+    100% {
+        box-shadow: 0 0 0 0 rgba(102, 126, 234, 0);
+    }
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.pulse-animation {
+    animation: pulse 2s infinite;
+    position: relative;
+    z-index: 2100;
+}
+
+// Highlight field animation
+@keyframes highlight {
+    0%, 100% {
+        border-color: #667eea;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+    50% {
+        border-color: #764ba2;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
+    }
+}
+
+.highlight-field {
+    animation: highlight 2s infinite;
+    border: 2px solid #667eea !important;
+}
+
+// Success celebration
+.tour-success {
+    text-align: center;
+    padding: 8px 0;
+
+    .emoji-celebrate {
+        font-size: 24px;
+        animation: bounce 1s infinite;
+        display: inline-block;
+
+        &:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        &:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+    }
+}
+
+// Bounce animation
+@keyframes bounce {
+    0%, 100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-10px);
+    }
+}
+
+// Dark mode adjustments
+.v-theme--dark {
+    .shepherd-element.shepherd-tooltip {
+        .shepherd-content {
+            background: #1e293b;
+            box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.4),
+                        0 0 0 1px rgba(255, 255, 255, 0.1);
+        }
+
+        .shepherd-header {
+            .shepherd-title {
+                color: #f1f5f9;
+            }
+        }
+
+        .shepherd-text {
+            color: #94a3b8;
+
+            strong {
+                color: #818cf8;
+            }
+        }
+
+        .shepherd-footer {
+            border-top-color: #334155 !important;
+
+            .shepherd-button {
+                background: #4c5fd5;
+
+                &:hover {
+                    background: #5e35b1;
+                }
+
+                &.shepherd-button-secondary {
+                    color: #94a3b8;
+                    border-color: #334155;
+
+                    &:hover {
+                        background: #334155;
+                    }
+                }
+            }
+        }
+
+        .shepherd-arrow {
+            &::before {
+                background: #1e293b;
+            }
+        }
+    }
+}
+
+// Make sure highlighted elements are clickable
+.shepherd-modal-is-visible {
+    .shepherd-target {
+        z-index: 2100 !important;
+        position: relative;
+    }
+}
+
+// Ensure stop button is clickable during tour
+.tour-active {
+    .tabler-player-stop {
+        pointer-events: auto !important;
+        z-index: 10001 !important;
+        position: relative !important;
+        
+        &:parent(.v-btn) {
+            pointer-events: auto !important;
+            z-index: 10001 !important;
+            position: relative !important;
+        }
+    }
+    
+    // Ensure the stop button's parent is also clickable
+    .v-btn:has(.tabler-player-stop) {
+        pointer-events: auto !important;
+        z-index: 10001 !important;
+        position: relative !important;
+    }
+}

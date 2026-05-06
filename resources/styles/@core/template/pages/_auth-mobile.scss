@@ -1,0 +1,92 @@
+// Mobile full screen auth card styles
+@media (max-width: 599px) {
+  .auth-wrapper {
+    padding: 0 !important;
+    min-height: 100vh !important;
+    height: 100vh !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    -webkit-overflow-scrolling: touch;
+    align-items: flex-start !important;
+    
+    .position-relative {
+      margin: 0 !important;
+      width: 100%;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      
+      .auth-card {
+        max-width: none !important;
+        width: 100% !important;
+        min-height: 100vh !important;
+        height: auto !important;
+        border-radius: 0 !important;
+        margin: 0 !important;
+        display: flex;
+        flex-direction: column;
+        margin-top: 0 !important;
+        
+        // Maintain padding for content
+        .v-card-item,
+        .v-card-text {
+          padding-left: 1.5rem !important;
+          padding-right: 1.5rem !important;
+        }
+        
+        // Logo section
+        .v-card-item {
+          padding-top: 2.5rem !important;
+          padding-bottom: 1rem !important;
+          
+          // Add safe area on top of base padding
+          @supports (padding: env(safe-area-inset-top)) {
+            padding-top: calc(2.5rem + env(safe-area-inset-top)) !important;
+          }
+        }
+        
+        // Form content
+        .v-card-text {
+          padding-bottom: 1.5rem !important;
+          
+          // Footer links
+          &:last-child {
+            padding-top: 0 !important;
+            padding-bottom: 2rem !important;
+          }
+        }
+      }
+    }
+  }
+  
+  // Hide decorative shapes on mobile
+  .auth-v1-top-shape,
+  .auth-v1-bottom-shape {
+    display: none !important;
+  }
+  
+  // Ensure safe area padding for modern phones
+  .auth-card {
+    padding-bottom: env(safe-area-inset-bottom) !important;
+    
+    .v-card-text:last-child {
+      padding-bottom: max(2rem, calc(1rem + env(safe-area-inset-bottom))) !important;
+    }
+  }
+  
+  // Remove gutter spacing from form rows on mobile
+  .v-form {
+    .v-row {
+      margin: 0 !important;
+      
+      .v-col {
+        padding: 0 !important;
+        
+        // Add vertical spacing between fields
+        &:not(:first-child) {
+          margin-top: 1rem;
+        }
+      }
+    }
+  }
+}

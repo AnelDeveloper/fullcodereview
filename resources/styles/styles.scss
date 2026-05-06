@@ -1,0 +1,72 @@
+// Write your overrides
+
+// Import app background gradients
+@import "app-background";
+
+// Import mobile grid fixes
+@import "mobile-grid-fix";
+
+.app-text-field {
+    .v-field__input {
+        height: 38px !important;
+    }
+}
+
+.blur-financials {
+    filter: blur(6px);
+}
+
+.three-lines {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
+    white-space: normal;
+    padding-bottom: 0 !important;
+}
+
+.v-skeleton-loader {
+    //height: 100% !important;
+
+    //.v-skeleton-loader__image {
+    //    height: 100% !important;
+    //}
+}
+
+.ps-no-vertical.ps--active-y .ps__rail-y {
+    display: none !important;
+}
+
+.ps-no-horizontal.ps--active-x .ps__rail-x {
+    display: none !important;
+}
+
+.money input[type=number]::-webkit-inner-spin-button,
+.money input[type=number]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+// Set background for html and body (gradients handled by app-background.scss)
+html {
+    min-height: 100vh;
+}
+
+body {
+    min-height: 100vh;
+    margin: 0;
+    color: inherit;
+}
+
+// iPhone notch/status bar area fix - gradients extend to safe areas
+@media (max-width: 600px) {
+    // PWA and iOS Safari status bar area
+    @supports (padding: env(safe-area-inset-top)) {
+        body {
+            // Extend gradient to cover notch area
+            padding-top: env(safe-area-inset-top);
+            margin-top: calc(-1 * env(safe-area-inset-top));
+        }
+    }
+}
