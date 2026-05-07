@@ -15,13 +15,17 @@ return [
         'key' => env('RESEND_KEY'),
     ],
 
-    'stripe' => [
-        'secret' => env('STRIPE_SECRET'),
-        'webhook_secret' => env('STRIPE_WEBHOOK_SECRET'),
-        'price_cents' => (int) env('STRIPE_PRICE_CENTS', 3000),
-        'product_name' => env('STRIPE_PRODUCT_NAME', 'Code Review'),
-        'success_url' => env('STRIPE_SUCCESS_URL'),
-        'cancel_url' => env('STRIPE_CANCEL_URL'),
+    'lemonsqueezy' => [
+        'api_key' => env('LEMONSQUEEZY_API_KEY'),
+        'store_id' => env('LEMONSQUEEZY_STORE_ID'),
+        'variant_id' => env('LEMONSQUEEZY_VARIANT_ID'),
+        'webhook_secret' => env('LEMONSQUEEZY_WEBHOOK_SECRET'),
+        // Lemon Squeezy bills you in your store currency (BAM here). Our
+        // catalog prices are in USD cents; multiply by this rate before
+        // sending to LS so the customer pays the right BAM equivalent.
+        // 1 USD ≈ 1.83 BAM (update occasionally).
+        'usd_to_store_rate' => (float) env('LEMONSQUEEZY_USD_TO_STORE_RATE', 1.83),
+        'success_url' => env('LEMONSQUEEZY_SUCCESS_URL'),
     ],
 
     'github' => [

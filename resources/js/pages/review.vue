@@ -210,7 +210,6 @@
 
 <script setup>
 import {
-    fetchCodeForSession,
     runCodeCheck,
     fetchUserRepos,
     githubLoginUrl,
@@ -276,8 +275,7 @@ const onOpenBuy = () => { buyDialog.value = true }
 onMounted(async () => {
     window.addEventListener("codereview:open-buy", onOpenBuy)
 
-    const sessionId = route.query.session_id
-    const canceled = route.query.canceled
+    const lemonSuccess = route.query.lemon_success
     const ghConnected = route.query.gh_connected
     const ghError = route.query.gh_error
     const buy = route.query.buy
@@ -285,10 +283,6 @@ onMounted(async () => {
     if (buy) {
         buyDialog.value = true
         clearQuery(["buy"])
-    }
-    if (canceled) {
-        returnBanner.value = "canceled"
-        clearQuery(["canceled"])
     }
     if (ghError) {
         oauthError.value = decodeURIComponent(ghError)
@@ -298,11 +292,15 @@ onMounted(async () => {
         clearQuery(["gh_connected"])
         await loadGithubRepos()
     }
-    if (sessionId) {
-        try { await fetchCodeForSession(sessionId) } catch { /* ignore */ }
-        await authStore.refreshCredits()
+    if (lemonSuccess) {
+        // Webhook may take a few seconds to land — poll credits 3x
+        for (let i = 0; i < 3; i++) {
+            await authStore.refreshCredits()
+            if (authStore.credits > 0) break
+            await new Promise(r => setTimeout(r, 1500))
+        }
         returnBanner.value = "success"
-        clearQuery(["session_id"])
+        clearQuery(["lemon_success"])
     }
 
     if (authStore.user?.githubLogin) {

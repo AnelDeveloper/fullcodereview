@@ -11,7 +11,7 @@ class RedeemCode extends Model
         'code',
         'email',
         'user_id',
-        'stripe_session_id',
+        'lemon_order_id',
         'amount_cents',
         'selected_categories',
         'used_at',

@@ -7,10 +7,7 @@ export const fetchCredits = () => $api("/me/credits")
 export const fetchDashboard = () => $api("/me/dashboard")
 
 export const startCheckout = (categories) =>
-    $api("/stripe/checkout", { method: "POST", body: { categories } })
-
-export const fetchCodeForSession = (sessionId) =>
-    $api(`/stripe/sessions/${encodeURIComponent(sessionId)}/code`)
+    $api("/lemon-squeezy/checkout", { method: "POST", body: { categories } })
 
 export const fetchUserRepos = () => $api("/github/repos")
 
