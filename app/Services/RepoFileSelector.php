@@ -6,7 +6,12 @@ class RepoFileSelector
 {
     public const CHARS_PER_TOKEN = 3;
     public const BASE_TOKEN_OVERHEAD = 15_000;
-    public const MAX_INPUT_TOKENS = 850_000;
+
+    /** Hard cap across all sections combined. Prevents runaway cost on huge repos. */
+    public const GLOBAL_TOKEN_BUDGET = 1_000_000;
+
+    /** Per-category budget. Keeps each focused review inside Sonnet's standard 200K context. */
+    public const PER_SECTION_TOKEN_BUDGET = 200_000;
 
     public const CODE_EXTENSIONS = [
         'ts','tsx','js','jsx','mjs','cjs',
@@ -96,6 +101,53 @@ class RepoFileSelector
         if (str_contains($lower, 'example') || str_contains($lower, 'demo') || str_contains($lower, 'docs/')) $rank += 15;
 
         $rank += substr_count($lower, '/');
+        return $rank;
+    }
+
+    /**
+     * Rank a file specifically for one category. Lower = higher priority.
+     * Layered on top of rankFile() with category-specific bonuses/penalties.
+     */
+    public static function rankFileForCategory(string $path, string $category): int
+    {
+        $rank = self::rankFile($path);
+        $lower = strtolower($path);
+        $isUiFile = (bool) preg_match('/\.(vue|tsx|jsx|svelte|astro|css|scss|less)$/', $lower);
+
+        switch ($category) {
+            case 'security':
+                if (preg_match('/(auth|login|signup|register|session|token|csrf|cors|password|crypto|jwt|oauth)/i', $lower)) $rank -= 35;
+                if (str_contains($lower, '/policies/') || str_contains($lower, '/guards/') || str_contains($lower, '/permissions/')) $rank -= 35;
+                if (str_contains($lower, '/middleware')) $rank -= 25;
+                if ($isUiFile && ! str_contains($lower, '/api/')) $rank += 30;
+                break;
+
+            case 'database':
+                // base rank already favors schema/migrations/models heavily; just push UI down
+                if ($isUiFile) $rank += 50;
+                if (str_contains($lower, '/components/') || str_contains($lower, '/views/components/')) $rank += 35;
+                break;
+
+            case 'backend':
+                if (str_contains($lower, '/controllers/') || str_contains($lower, '/services/') ||
+                    str_contains($lower, '/handlers/') || str_contains($lower, '/api/') ||
+                    str_contains($lower, '/routes/') || str_contains($lower, '/resolvers/')) $rank -= 25;
+                if (str_contains($lower, '/migrations/') || str_ends_with($lower, '.sql') || str_ends_with($lower, '.prisma')) $rank += 30;
+                if ($isUiFile && ! str_contains($lower, '/pages/')) $rank += 25;
+                break;
+
+            case 'frontend':
+                if ($isUiFile) $rank -= 60;
+                if (str_contains($lower, '/components/') || str_contains($lower, '/pages/') ||
+                    str_contains($lower, '/views/') || str_contains($lower, '/screens/') ||
+                    str_contains($lower, '/layouts/')) $rank -= 40;
+                // backend stuff is irrelevant here
+                if (str_contains($lower, '/migrations/') || str_ends_with($lower, '.sql') || str_ends_with($lower, '.prisma')) $rank += 80;
+                if (str_contains($lower, '/controllers/') || str_contains($lower, '/services/') ||
+                    str_contains($lower, '/handlers/')) $rank += 35;
+                break;
+        }
+
         return $rank;
     }
 

@@ -18,6 +18,9 @@ class AnalysisController extends Controller
 {
     public function run(Request $request, AnalysisService $service)
     {
+        // Anthropic review can run longer than php.ini's max_execution_time (30s).
+        set_time_limit(0);
+
         $user = $request->user();
         if (! $user) return response()->json(['message' => 'You must be signed in.'], 401);
 
