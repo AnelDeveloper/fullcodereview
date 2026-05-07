@@ -20,7 +20,19 @@ export const useAuthStore = defineStore("auth", {
             if (user) localStorage.setItem("user", JSON.stringify(user))
             else localStorage.removeItem("user")
         },
-        setToken(token) { useCookie("accessToken").value = token },
+        // Write document.cookie synchronously. We can't rely on
+        // useCookie() — its watch fires async (next microtask), but
+        // fetchMe() runs immediately after and reads document.cookie
+        // synchronously, so on fast local networks the Bearer header
+        // is empty and /auth/me returns 401.
+        setToken(token) {
+            const enc = encodeURIComponent(token ?? "")
+            if (token) {
+                document.cookie = `accessToken=${enc}; path=/; max-age=${60 * 60 * 24 * 30}; samesite=lax`
+            } else {
+                document.cookie = `accessToken=; path=/; max-age=-1`
+            }
+        },
         setCredits(n) { this.credits = n || 0 },
         setSections(sections) {
             this.sections = { ...EMPTY_SECTIONS, ...(sections || {}) }
@@ -48,7 +60,7 @@ export const useAuthStore = defineStore("auth", {
             try { await $api("/auth/logout", { method: "POST" }) } catch { /* ignore */ }
             this.setUser(null)
             this.setSections({ ...EMPTY_SECTIONS })
-            useCookie("accessToken").value = null
+            this.setToken(null)
         },
         async fetchMe() {
             try {
@@ -62,7 +74,7 @@ export const useAuthStore = defineStore("auth", {
                 // exists but user is null" zombie state.
                 const status = e?.status ?? e?.response?.status
                 if (status === 401 || status === 403) {
-                    useCookie("accessToken").value = null
+                    this.setToken(null)
                 }
                 this.setUser(null)
                 this.setSections({ ...EMPTY_SECTIONS })
