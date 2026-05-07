@@ -100,12 +100,12 @@ class LemonSqueezyService
             throw new RuntimeException('Lemon Squeezy returned no checkout URL.');
         }
 
-        // Sanity-check: a real LS checkout URL contains '/buy/<uuid>'.
-        // If we got something like '/checkout?custom=1', LS is likely
-        // erroring or the variant_id is misconfigured — surface that
-        // instead of redirecting the user to a broken page.
-        if (! preg_match('#/(buy|checkout)/[A-Za-z0-9-]{20,}#', $url)) {
-            \Illuminate\Support\Facades\Log::error('Lemon Squeezy returned a suspicious URL', [
+        // Sanity-check: every real signed LS checkout URL carries a
+        // `signature=` query parameter (their HMAC of the checkout).
+        // The malformed fallback we saw during their outage was just
+        // `/checkout?custom=1` with no signature.
+        if (! str_contains($url, 'signature=')) {
+            \Illuminate\Support\Facades\Log::error('Lemon Squeezy returned an unsigned URL', [
                 'url' => $url,
                 'response_body' => $response->body(),
             ]);
