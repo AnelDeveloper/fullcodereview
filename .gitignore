@@ -62,3 +62,11 @@ public/mockServiceWorker.js
 # Env files
 .env*
 !.env.example
+
+# Laravel runtime caches — never commit transient session blobs or compiled views
+/storage/framework/sessions/*
+!/storage/framework/sessions/.gitkeep
+/storage/framework/views/*
+!/storage/framework/views/.gitkeep
+/storage/framework/cache/*
+!/storage/framework/cache/.gitkeep
