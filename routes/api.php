@@ -39,6 +39,7 @@ Route::middleware('auth.api')->group(function () {
     Route::get('me/dashboard', [DashboardController::class, 'index']);
 
     Route::post('lemon-squeezy/checkout', [LemonSqueezyController::class, 'checkout']);
+    Route::post('lemon-squeezy/sync', [LemonSqueezyController::class, 'sync']);
 
     Route::get('github/repos', [GithubController::class, 'repos']);
 

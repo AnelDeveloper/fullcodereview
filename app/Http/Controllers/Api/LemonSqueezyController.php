@@ -112,6 +112,60 @@ class LemonSqueezyController extends Controller
     }
 
     /**
+     * Webhook fallback. Frontend calls this after the LS post-checkout
+     * redirect lands on /review?lemon_success=1. Pulls the user's recent
+     * LS orders by email and creates any missing slots — handles the
+     * case where the webhook is delayed, blocked, or dropped.
+     */
+    public function sync(Request $request, LemonSqueezyService $ls)
+    {
+        $user = $request->user();
+        if (! $user) return response()->json(['message' => 'You must be signed in.'], 401);
+
+        $orders = $ls->listRecentOrdersForEmail($user->email);
+        $created = 0;
+
+        foreach ($orders as $order) {
+            $orderId = (string) ($order['id'] ?? '');
+            if (! $orderId) continue;
+
+            // Skip if we've already issued slots for this order
+            if (RedeemCode::where('lemon_order_id', $orderId)->exists()) continue;
+
+            $attrs = $order['attributes'] ?? [];
+            $custom = $attrs['first_order_item']['custom_data']
+                ?? ($order['meta']['custom_data'] ?? null)
+                ?? [];
+
+            // Only honor orders that originated from our checkout flow
+            // (we set user_id + category_keys in custom_data)
+            $orderUserId = isset($custom['user_id']) ? (int) $custom['user_id'] : null;
+            if ($orderUserId !== $user->id) continue;
+
+            $categoryKeys = $custom['category_keys'] ?? '';
+            $categories = array_values(array_filter(explode(',', $categoryKeys)));
+            if (empty($categories)) continue;
+
+            $usdSubtotalCents = isset($custom['usd_subtotal_cents']) ? (int) $custom['usd_subtotal_cents'] : null;
+
+            $this->issueSlotsForOrder([
+                'order_id' => $orderId,
+                'user_id' => $user->id,
+                'email' => $user->email,
+                'amount_cents' => $usdSubtotalCents ?? (int) ($attrs['total'] ?? 0),
+                'categories' => $categories,
+            ]);
+
+            $created++;
+        }
+
+        return response()->json([
+            'createdOrders' => $created,
+            'sections' => AnalysisController::sectionBreakdown($user),
+        ]);
+    }
+
+    /**
      * Idempotent: one section slot per purchased category. If we've
      * already issued slots for this order_id, no-op.
      */

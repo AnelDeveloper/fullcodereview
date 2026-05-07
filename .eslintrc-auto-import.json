@@ -390,6 +390,7 @@
     "validateCode": true,
     "fetchCatalog": true,
     "fetchCredits": true,
-    "fetchDashboard": true
+    "fetchDashboard": true,
+    "syncLemonOrders": true
   }
 }

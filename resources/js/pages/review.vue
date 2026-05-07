@@ -225,6 +225,7 @@ import {
     runCodeCheck,
     fetchUserRepos,
     githubLoginUrl,
+    syncLemonOrders,
 } from "@/utils/codeCheck"
 import CategoryConfigurator from "@/components/CategoryConfigurator.vue"
 import { useAuthStore } from "@/stores/auth"
@@ -320,13 +321,29 @@ onMounted(async () => {
     if (ghError) { oauthError.value = decodeURIComponent(ghError); clearQuery(["gh_error"]) }
     if (ghConnected) { clearQuery(["gh_connected"]); await loadGithubRepos() }
     if (lemonSuccess) {
-        for (let i = 0; i < 3; i++) {
-            await authStore.refreshCredits()
-            if (authStore.sectionsTotal > 0) break
-            await new Promise(r => setTimeout(r, 1500))
+        // Try the LS webhook landing first; fall back to a direct sync
+        // (fetches the user's recent LS orders by email and creates any
+        // missing slots). This handles delayed/dropped webhooks.
+        try { await syncLemonOrders() } catch { /* sync is best-effort */ }
+        await authStore.refreshCredits()
+
+        // If the sync raced ahead of the webhook, give the webhook one more chance
+        if (authStore.sectionsTotal === 0) {
+            for (let i = 0; i < 4; i++) {
+                await new Promise(r => setTimeout(r, 1200))
+                try { await syncLemonOrders() } catch { /* ignore */ }
+                await authStore.refreshCredits()
+                if (authStore.sectionsTotal > 0) break
+            }
         }
+
         returnBanner.value = "success"
         clearQuery(["lemon_success"])
+
+        // Default-pick all categories the user now has
+        if (picked.value.length === 0) {
+            picked.value = [...authStore.availableCategories]
+        }
     }
 
     // Default-pick all available categories so the user gets a sensible default

@@ -9,6 +9,9 @@ export const fetchDashboard = () => $api("/me/dashboard")
 export const startCheckout = (categories) =>
     $api("/lemon-squeezy/checkout", { method: "POST", body: { categories } })
 
+export const syncLemonOrders = () =>
+    $api("/lemon-squeezy/sync", { method: "POST" })
+
 export const fetchUserRepos = () => $api("/github/repos")
 
 export const githubLoginUrl = () => {

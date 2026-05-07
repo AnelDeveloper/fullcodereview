@@ -26,7 +26,7 @@ export const themes = {
             error: "#EF4444",
             "on-error": "#fff",
             "error-darken-1": "#DC2626",
-            background: "#F5F3FF",
+            background: "#FCFCFD",
             "on-background": "#0F0A1F",
             surface: "#FFFFFF",
             "on-surface": "#0F0A1F",

@@ -111,4 +111,48 @@ class LemonSqueezyService
         $computed = hash_hmac('sha256', $payload, $secret);
         return hash_equals($computed, $signature);
     }
+
+    /**
+     * Pull a single order by id (used by the post-checkout redirect to
+     * heal the case where the webhook hasn't landed yet).
+     */
+    public function getOrder(string $orderId): ?array
+    {
+        $apiKey = config('services.lemonsqueezy.api_key');
+        if (! $apiKey) return null;
+
+        $response = Http::withHeaders([
+            'Accept' => 'application/vnd.api+json',
+            'Authorization' => 'Bearer ' . $apiKey,
+        ])
+            ->timeout(15)
+            ->get(self::API_BASE . '/orders/' . $orderId);
+
+        return $response->successful() ? $response->json() : null;
+    }
+
+    /**
+     * List recent orders for our store filtered by customer email — lets
+     * us reconcile a successful checkout we just got redirected back from
+     * even when the webhook is delayed or missed.
+     */
+    public function listRecentOrdersForEmail(string $email): array
+    {
+        $apiKey = config('services.lemonsqueezy.api_key');
+        $storeId = config('services.lemonsqueezy.store_id');
+        if (! $apiKey || ! $storeId) return [];
+
+        $response = Http::withHeaders([
+            'Accept' => 'application/vnd.api+json',
+            'Authorization' => 'Bearer ' . $apiKey,
+        ])
+            ->timeout(20)
+            ->get(self::API_BASE . '/orders', [
+                'filter[store_id]' => $storeId,
+                'filter[user_email]' => $email,
+                'page[size]' => 20,
+            ]);
+
+        return $response->successful() ? ($response->json('data') ?? []) : [];
+    }
 }
