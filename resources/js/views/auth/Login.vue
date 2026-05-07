@@ -146,6 +146,11 @@ const login = async () => {
         window.location.assign(redirect)
     } catch (e) {
         const data = e?.data || {}
+        if (data.code === "unverified_email") {
+            const target = data.email || form.value.email
+            router.push({ path: "/check-email", query: { email: target } })
+            return
+        }
         if (data.errors) errors.value = data.errors
         else errors.value = { email: [data.message || "Login failed"] }
     } finally {

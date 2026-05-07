@@ -59,19 +59,19 @@
                             rounded="lg"
                             class="vibe-cta"
                             size="large"
-                            to="/"
+                            :loading="resending"
+                            @click="resend"
                         >
-                            Continue to dashboard
+                            Resend verification email
                         </VBtn>
 
                         <VBtn
                             block
-                            variant="text"
+                            variant="outlined"
                             size="default"
-                            :loading="resending"
-                            @click="resend"
+                            to="/login"
                         >
-                            Didn't get it? Resend email
+                            Back to sign in
                         </VBtn>
                     </div>
 
@@ -100,10 +100,14 @@ const resending = ref(false)
 const resendStatus = ref(null)
 
 const resend = async () => {
+    if (!email.value) {
+        resendStatus.value = "error"
+        return
+    }
     resending.value = true
     resendStatus.value = null
     try {
-        await $api("/auth/email/resend", { method: "POST" })
+        await $api("/auth/email/resend", { method: "POST", body: { email: email.value } })
         resendStatus.value = "sent"
     } catch {
         resendStatus.value = "error"
@@ -116,7 +120,8 @@ const resend = async () => {
 
 <style lang="scss" scoped>
 .auth-card {
-    background: rgba(21, 16, 43, 0.65) !important;
+    // Solid card so the orbs don't wash out the text. Matches Login.vue.
+    background: rgba(21, 16, 43, 0.92) !important;
     backdrop-filter: blur(20px) saturate(180%);
     -webkit-backdrop-filter: blur(20px) saturate(180%);
     border: 1px solid rgba(139, 92, 246, 0.18) !important;
@@ -125,20 +130,23 @@ const resend = async () => {
         0 24px 60px -20px rgba(139, 92, 246, 0.4),
         0 8px 32px rgba(0, 0, 0, 0.4);
     border-radius: 20px !important;
+    color: rgba(255, 255, 255, 0.92);
 }
 
 :deep(.v-theme--light) .auth-card {
-    background: rgba(255, 255, 255, 0.7) !important;
+    background: rgba(255, 255, 255, 0.95) !important;
+    color: rgba(15, 10, 31, 0.92);
 }
 
 .mail-icon {
     width: 80px;
     height: 80px;
     border-radius: 24px;
+    margin: 0 auto;            // hard-center within the flex column
     display: grid;
     place-items: center;
-    background: linear-gradient(135deg, rgba(139, 92, 246, 0.15), rgba(236, 72, 153, 0.15));
-    border: 1px solid rgba(139, 92, 246, 0.3);
+    background: linear-gradient(135deg, rgba(139, 92, 246, 0.18), rgba(236, 72, 153, 0.18));
+    border: 1px solid rgba(139, 92, 246, 0.32);
     box-shadow: 0 12px 32px -10px rgba(139, 92, 246, 0.4);
 }
 

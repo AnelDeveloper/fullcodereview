@@ -28,12 +28,15 @@ Route::get('auth/email/verify/{id}/{hash}', [AuthController::class, 'verify'])
     ->middleware(['signed', 'throttle:6,1'])
     ->name('verification.verify');
 
+// Resend — public + throttled. Users hitting the post-register check-email
+// page have no auth token yet, so this can't live behind auth.api.
+Route::post('auth/email/resend', [AuthController::class, 'resendVerification'])
+    ->middleware('throttle:6,1');
+
 // Authenticated
 Route::middleware('auth.api')->group(function () {
     Route::post('auth/logout', [AuthController::class, 'logout']);
     Route::get('auth/me', [AuthController::class, 'me']);
-    Route::post('auth/email/resend', [AuthController::class, 'resendVerification'])
-        ->middleware('throttle:6,1');
 
     Route::get('me/credits', [CreditsController::class, 'index']);
     Route::get('me/dashboard', [DashboardController::class, 'index']);

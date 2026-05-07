@@ -40,10 +40,10 @@ class AuthController extends Controller
             Log::warning('Could not send verification email', ['error' => $e->getMessage(), 'user_id' => $user->id]);
         }
 
+        // No token returned — user must verify their email and then log in.
         return response()->json([
-            'token' => $user->api_token,
-            'user' => $this->presentUser($user),
-            'credits' => 0,
+            'message' => 'Account created. Check your email to verify before signing in.',
+            'email' => $user->email,
         ]);
     }
 
@@ -67,6 +67,14 @@ class AuthController extends Controller
             return response()->json([
                 'message' => 'These credentials do not match our records.',
             ], 401);
+        }
+
+        if (is_null($user->email_verified_at)) {
+            return response()->json([
+                'message' => 'Please confirm your email before signing in. Check your inbox for the verification link.',
+                'code' => 'unverified_email',
+                'email' => $user->email,
+            ], 403);
         }
 
         if (empty($user->api_token)) {
@@ -132,16 +140,29 @@ class AuthController extends Controller
     }
 
     /**
-     * Resend the verification email for the authenticated user.
+     * Resend the verification email. Public + throttled because users on the
+     * post-register check-email page have no auth token yet.
+     *
+     * Always returns 200 with a generic message — never reveal whether an
+     * email is registered (avoids email enumeration).
      */
     public function resendVerification(Request $request)
     {
-        $user = $request->user();
-        if ($user->hasVerifiedEmail()) {
-            return response()->json(['message' => 'Already verified.'], 200);
+        $email = strtolower((string) $request->input('email', ''));
+        if ($email === '') {
+            return response()->json(['message' => 'Email is required.'], 422);
         }
-        $user->sendEmailVerificationNotification();
-        return response()->json(['message' => 'Verification email sent.']);
+
+        $user = User::where('email', $email)->first();
+        if ($user && ! $user->hasVerifiedEmail()) {
+            try {
+                $user->sendEmailVerificationNotification();
+            } catch (\Throwable $e) {
+                Log::warning('Could not resend verification email', ['error' => $e->getMessage(), 'user_id' => $user->id]);
+            }
+        }
+
+        return response()->json(['message' => 'If that email is registered and unverified, a new link is on its way.']);
     }
 
     protected function presentUser(User $user): array

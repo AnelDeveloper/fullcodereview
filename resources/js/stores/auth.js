@@ -47,14 +47,12 @@ export const useAuthStore = defineStore("auth", {
             return res
         },
         async register({ name, email, password, password_confirmation }) {
-            const res = await $api("/auth/register", {
+            // Backend no longer returns a token — user must verify their
+            // email and then log in. We just resolve with the API response.
+            return await $api("/auth/register", {
                 method: "POST",
                 body: { name, email, password, password_confirmation },
             })
-            this.setToken(res.token)
-            this.setUser(res.user)
-            this.setSections({ ...EMPTY_SECTIONS })
-            return res
         },
         async logout() {
             try { await $api("/auth/logout", { method: "POST" }) } catch { /* ignore */ }

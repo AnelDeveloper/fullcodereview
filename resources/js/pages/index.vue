@@ -23,8 +23,6 @@
             </div>
         </div>
 
-        <VerifyEmailBanner />
-
         <VAlert v-if="returnBanner === 'verified'" type="success" variant="tonal" closable class="mb-4" @click:close="returnBanner = null">
             Email confirmed — thanks!
         </VAlert>
@@ -156,7 +154,6 @@
 <script setup>
 import { fetchDashboard } from "@/utils/codeCheck"
 import { useAuthStore } from "@/stores/auth"
-import VerifyEmailBanner from "@/components/VerifyEmailBanner.vue"
 import StatCard from "@/components/StatCard.vue"
 
 const route = useRoute()
