@@ -56,7 +56,14 @@ export const useAuthStore = defineStore("auth", {
                 this.setUser(res.user)
                 this.setSections(res.sections)
                 return res.user
-            } catch {
+            } catch (e) {
+                // Token bad/expired → drop it so the router can bounce the
+                // user to /login instead of keeping the navbar in a "cookie
+                // exists but user is null" zombie state.
+                const status = e?.status ?? e?.response?.status
+                if (status === 401 || status === 403) {
+                    useCookie("accessToken").value = null
+                }
                 this.setUser(null)
                 this.setSections({ ...EMPTY_SECTIONS })
                 return null
