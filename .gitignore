@@ -52,8 +52,9 @@ dist-ssr
 *.sw?
 .yarn
 
-# iconify dist files
-resources/js/plugins/iconify/icons.css
+# NOTE: resources/js/plugins/iconify/icons.css IS tracked.
+# It's a generated bundle (npm run build:icons) but production builds
+# need it to exist or all tabler-* icon classes render as nothing.
 
 # Ignore MSW script
 public/mockServiceWorker.js
