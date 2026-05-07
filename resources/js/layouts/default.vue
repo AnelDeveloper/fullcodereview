@@ -3,13 +3,11 @@ import { useConfigStore } from "@core/stores/config"
 import { AppContentLayoutNav } from "@layouts/enums"
 import { switchToVerticalNavOnLtOverlayNavBreakpoint } from "@layouts/utils"
 
-const DefaultLayoutWithHorizontalNav = defineAsyncComponent(
-    () => import("./components/DefaultLayoutWithHorizontalNav.vue"),
-)
-
-const DefaultLayoutWithVerticalNav = defineAsyncComponent(
-    () => import("./components/DefaultLayoutWithVerticalNav.vue"),
-)
+// Loaded synchronously so the shell is always ready on first paint after
+// route changes (e.g. login → dashboard). Lazy-loading the layout caused
+// a brief window where pages rendered without the navbar/skin classes.
+import DefaultLayoutWithHorizontalNav from "./components/DefaultLayoutWithHorizontalNav.vue"
+import DefaultLayoutWithVerticalNav from "./components/DefaultLayoutWithVerticalNav.vue"
 
 const configStore = useConfigStore()
 

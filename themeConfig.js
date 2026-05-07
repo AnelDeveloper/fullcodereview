@@ -25,7 +25,7 @@ export const { themeConfig, layoutConfig } = defineThemeConfig({
             defaultLocale: 'en',
             langConfig: [],
         },
-        theme: 'dark',
+        theme: 'light',
         skin: Skins.Default,
         iconRenderer: VIcon,
     },

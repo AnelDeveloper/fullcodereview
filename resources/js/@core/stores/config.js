@@ -82,12 +82,12 @@ export const initConfigStore = () => {
         ? 'dark'
         : 'light'
       : configStore.theme
-    
+
     vuetifyTheme.global.name.value = newTheme
-    
+
     // Update meta tag for iPhone safe area
     updateThemeColorMeta(newTheme)
-  })
+  }, { immediate: true })
   
   onMounted(() => {
     if (configStore.theme === 'system') {

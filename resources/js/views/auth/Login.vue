@@ -140,7 +140,10 @@ const login = async () => {
     try {
         await authStore.login(form.value)
         const redirect = route.query.redirect || "/"
-        router.push(redirect)
+        // Hard reload instead of router.push so the auth layout (and its
+        // fixed-position animated background) fully unmounts. SPA nav left
+        // the orbs lingering in the DOM, washing out the dashboard.
+        window.location.assign(redirect)
     } catch (e) {
         const data = e?.data || {}
         if (data.errors) errors.value = data.errors
@@ -155,8 +158,8 @@ const login = async () => {
 @use "@core-scss/template/pages/page-auth.scss";
 
 .auth-card {
-    background: rgba(255, 255, 255, 0.7) !important;
-    .v-theme--dark & { background: rgba(21, 16, 43, 0.65) !important; }
+    background: rgba(255, 255, 255, 0.92) !important;
+    .v-theme--dark & { background: rgba(21, 16, 43, 0.88) !important; }
     backdrop-filter: blur(20px) saturate(180%);
     -webkit-backdrop-filter: blur(20px) saturate(180%);
     border: 1px solid rgba(139, 92, 246, 0.18) !important;
@@ -165,6 +168,44 @@ const login = async () => {
         0 24px 60px -20px rgba(139, 92, 246, 0.4),
         0 8px 32px rgba(0, 0, 0, 0.4);
     border-radius: 20px !important;
+}
+
+// Compact error messages — no block bleed-through, clear visual intent.
+.auth-card .v-input--error .v-messages__message {
+    padding: 6px 10px;
+    margin-top: 4px;
+    background: rgba(220, 38, 38, 0.08);
+    color: #DC2626;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 500;
+    line-height: 1.3;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    opacity: 1;
+
+    &::before {
+        content: "!";
+        display: inline-grid;
+        place-items: center;
+        width: 14px;
+        height: 14px;
+        border-radius: 50%;
+        background: #DC2626;
+        color: #fff;
+        font-size: 10px;
+        font-weight: 700;
+        line-height: 1;
+        flex-shrink: 0;
+    }
+}
+
+.v-theme--dark .auth-card .v-input--error .v-messages__message {
+    background: rgba(220, 38, 38, 0.18);
+    color: #FCA5A5;
+
+    &::before { background: #FCA5A5; color: #1B1340; }
 }
 
 .brand-mark {
@@ -207,5 +248,22 @@ const login = async () => {
     top: 16px;
     right: 16px;
     z-index: 10;
+}
+
+// Force a visible toggle on the auth page regardless of Vuetify's defaults.
+// The auth bg is dark by default → translucent white pill with a light icon.
+.theme-toggle-wrapper .v-btn {
+    background: rgba(255, 255, 255, 0.08) !important;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    color: rgba(255, 255, 255, 0.9) !important;
+    border: 1px solid rgba(255, 255, 255, 0.15) !important;
+}
+
+// Light theme flips the auth bg to pale lavender → dark icon for contrast.
+.v-theme--light .theme-toggle-wrapper .v-btn {
+    background: rgba(15, 10, 31, 0.06) !important;
+    color: rgba(15, 10, 31, 0.78) !important;
+    border-color: rgba(15, 10, 31, 0.12) !important;
 }
 </style>
