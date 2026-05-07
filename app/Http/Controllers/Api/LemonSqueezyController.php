@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\PendingCheckout;
 use App\Models\SectionSlot;
 use App\Services\LemonSqueezyService;
 use Carbon\Carbon;
@@ -43,6 +44,7 @@ class LemonSqueezyController extends Controller
         }
 
         $discountPct = (int) ($tiers[count($selected)] ?? 0);
+        $usdAfterDiscount = $subtotal - (int) round($subtotal * $discountPct / 100);
 
         try {
             $checkout = $ls->createCheckout(
@@ -56,6 +58,18 @@ class LemonSqueezyController extends Controller
             Log::error('Lemon Squeezy checkout failed', ['error' => $e->getMessage()]);
             return response()->json(['message' => 'Could not start checkout.'], 500);
         }
+
+        // Persist what we'll need to credit the user after payment. LS doesn't
+        // surface our custom_data via the Orders API, so reconciliation has to
+        // come from our own record. Match against this row at sync time.
+        PendingCheckout::create([
+            'user_id'         => $user->id,
+            'ls_checkout_id'  => $checkout['id'],
+            'category_keys'   => array_column($selected, 'key'),
+            'usd_total_cents' => $usdAfterDiscount,
+            'discount_pct'    => $discountPct,
+            'status'          => 'pending',
+        ]);
 
         return response()->json($checkout);
     }
@@ -122,46 +136,57 @@ class LemonSqueezyController extends Controller
         $user = $request->user();
         if (! $user) return response()->json(['message' => 'You must be signed in.'], 401);
 
+        // LS's Orders API doesn't return our custom_data, so we reconcile
+        // against PendingCheckout rows we wrote at checkout creation time.
+        // Match each unmatched paid order to a pending checkout by USD total.
         $orders = $ls->listRecentOrdersForEmail($user->email);
+        $pending = PendingCheckout::query()
+            ->where('user_id', $user->id)
+            ->where('status', 'pending')
+            ->orderByDesc('created_at')
+            ->get();
+
         $created = 0;
 
         foreach ($orders as $order) {
             $orderId = (string) ($order['id'] ?? '');
             if (! $orderId) continue;
 
-            // Skip if we've already issued slots for this order
+            $attrs = $order['attributes'] ?? [];
+            if (($attrs['status'] ?? '') !== 'paid') continue;
             if (SectionSlot::where('lemon_order_id', $orderId)->exists()) continue;
 
-            $attrs = $order['attributes'] ?? [];
-            $custom = $attrs['first_order_item']['custom_data']
-                ?? ($order['meta']['custom_data'] ?? null)
-                ?? [];
+            $totalUsdCents = (int) ($attrs['total_usd'] ?? 0);
+            if ($totalUsdCents <= 0) continue;
 
-            // Only honor orders that originated from our checkout flow
-            // (we set user_id + category_keys in custom_data)
-            $orderUserId = isset($custom['user_id']) ? (int) $custom['user_id'] : null;
-            if ($orderUserId !== $user->id) continue;
-
-            $categoryKeys = $custom['category_keys'] ?? '';
-            $categories = array_values(array_filter(explode(',', $categoryKeys)));
-            if (empty($categories)) continue;
-
-            $usdSubtotalCents = isset($custom['usd_subtotal_cents']) ? (int) $custom['usd_subtotal_cents'] : null;
+            // Take the most recent matching pending checkout with the same total.
+            $matchKey = $pending->search(fn ($p) => $p->usd_total_cents === $totalUsdCents);
+            if ($matchKey === false) continue;
+            $match = $pending->get($matchKey);
 
             $this->issueSlotsForOrder([
-                'order_id' => $orderId,
-                'user_id' => $user->id,
-                'email' => $user->email,
-                'amount_cents' => $usdSubtotalCents ?? (int) ($attrs['total'] ?? 0),
-                'categories' => $categories,
+                'order_id'     => $orderId,
+                'user_id'      => $user->id,
+                'email'        => $user->email,
+                'amount_cents' => $totalUsdCents,
+                'categories'   => $match->category_keys,
             ]);
+
+            $match->update([
+                'status'           => 'completed',
+                'matched_order_id' => $orderId,
+                'matched_at'       => now(),
+            ]);
+
+            // Remove from in-memory list so we don't double-match it.
+            $pending->forget($matchKey);
 
             $created++;
         }
 
         return response()->json([
             'createdOrders' => $created,
-            'sections' => AnalysisController::sectionBreakdown($user),
+            'sections'      => AnalysisController::sectionBreakdown($user),
         ]);
     }
 
