@@ -122,6 +122,22 @@ class LemonSqueezyController extends Controller
             'categories' => $selected,
         ]);
 
+        // Mark a matching pending_checkout as completed so the sync fallback
+        // doesn't try to re-match this order to a different unmatched row.
+        if ($userId && $usdSubtotalCents !== null && ! empty($selected)) {
+            PendingCheckout::query()
+                ->where('user_id', $userId)
+                ->where('status', 'pending')
+                ->where('usd_total_cents', $usdSubtotalCents)
+                ->orderBy('created_at')
+                ->limit(1)
+                ->update([
+                    'status'           => 'completed',
+                    'matched_order_id' => $orderId,
+                    'matched_at'       => now(),
+                ]);
+        }
+
         return response()->json(['received' => true]);
     }
 
@@ -146,15 +162,21 @@ class LemonSqueezyController extends Controller
             ->orderByDesc('created_at')
             ->get();
 
+        $alreadyMatched = PendingCheckout::query()
+            ->where('user_id', $user->id)
+            ->whereNotNull('matched_order_id')
+            ->pluck('matched_order_id')
+            ->all();
+
         $created = 0;
 
         foreach ($orders as $order) {
             $orderId = (string) ($order['id'] ?? '');
             if (! $orderId) continue;
+            if (in_array($orderId, $alreadyMatched, true)) continue;
 
             $attrs = $order['attributes'] ?? [];
             if (($attrs['status'] ?? '') !== 'paid') continue;
-            if (SectionSlot::where('lemon_order_id', $orderId)->exists()) continue;
 
             $totalUsdCents = (int) ($attrs['total_usd'] ?? 0);
             if ($totalUsdCents <= 0) continue;
@@ -191,22 +213,27 @@ class LemonSqueezyController extends Controller
     }
 
     /**
-     * Idempotent: one section slot per purchased category. If we've
-     * already issued slots for this order_id, no-op.
+     * Idempotent at the (order_id, category) grain. Skips any (order, cat)
+     * pair already on disk so a partially-credited order — webhook crashed
+     * mid-loop, sync retries, etc. — gets fully reconciled on the next
+     * call instead of either erroring or no-op'ing entirely.
      */
     protected function issueSlotsForOrder(array $data): void
     {
         DB::transaction(function () use ($data) {
-            $exists = SectionSlot::where('lemon_order_id', $data['order_id'])->exists();
-            if ($exists) return;
+            $existing = SectionSlot::where('lemon_order_id', $data['order_id'])
+                ->pluck('category')
+                ->all();
 
             foreach ($data['categories'] as $category) {
+                if (in_array($category, $existing, true)) continue;
+
                 SectionSlot::create([
-                    'user_id' => $data['user_id'],
+                    'user_id'        => $data['user_id'],
                     'lemon_order_id' => $data['order_id'],
-                    'amount_cents' => $data['amount_cents'],
-                    'category' => $category,
-                    'expires_at' => Carbon::now()->addDays(30),
+                    'amount_cents'   => $data['amount_cents'],
+                    'category'       => $category,
+                    'expires_at'     => Carbon::now()->addDays(30),
                 ]);
             }
         });
