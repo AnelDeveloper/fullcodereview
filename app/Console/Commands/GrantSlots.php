@@ -2,7 +2,7 @@
 
 namespace App\Console\Commands;
 
-use App\Models\RedeemCode;
+use App\Models\SectionSlot;
 use App\Models\User;
 use Illuminate\Console\Command;
 
@@ -46,9 +46,8 @@ class GrantSlots extends Command
         }
 
         foreach ($categories as $cat) {
-            RedeemCode::create([
+            SectionSlot::create([
                 'user_id' => $user->id,
-                'email' => $email,
                 'category' => $cat,
                 'lemon_order_id' => 'manual-' . uniqid(),
                 'amount_cents' => 0,

@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Models\RedeemCode;
+use App\Models\SectionSlot;
 use App\Services\LemonSqueezyService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -130,7 +130,7 @@ class LemonSqueezyController extends Controller
             if (! $orderId) continue;
 
             // Skip if we've already issued slots for this order
-            if (RedeemCode::where('lemon_order_id', $orderId)->exists()) continue;
+            if (SectionSlot::where('lemon_order_id', $orderId)->exists()) continue;
 
             $attrs = $order['attributes'] ?? [];
             $custom = $attrs['first_order_item']['custom_data']
@@ -172,13 +172,12 @@ class LemonSqueezyController extends Controller
     protected function issueSlotsForOrder(array $data): void
     {
         DB::transaction(function () use ($data) {
-            $exists = RedeemCode::where('lemon_order_id', $data['order_id'])->exists();
+            $exists = SectionSlot::where('lemon_order_id', $data['order_id'])->exists();
             if ($exists) return;
 
             foreach ($data['categories'] as $category) {
-                RedeemCode::create([
+                SectionSlot::create([
                     'user_id' => $data['user_id'],
-                    'email' => $data['email'] ?: null,
                     'lemon_order_id' => $data['order_id'],
                     'amount_cents' => $data['amount_cents'],
                     'category' => $category,

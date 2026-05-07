@@ -4,24 +4,15 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Str;
 
 /**
- * One row = one **category slot** (e.g. "1 Security review available").
- *
- * Buying Security + Database creates two rows; running a review with both
- * marks one of each as used. A user's "credits" are the count of unused
- * rows grouped by category.
- *
- * The legacy table name `redeem_codes` is kept; semantically these are
- * per-category slots now. `code` and `email` are nullable holdovers from
- * the prior emailed-redeem-code flow (no longer surfaced to users).
+ * One row = one category slot in a user's inventory.
+ * Created when an LS order_created webhook lands; consumed when the
+ * user runs an analysis that includes the slot's category.
  */
-class RedeemCode extends Model
+class SectionSlot extends Model
 {
     protected $fillable = [
-        'code',
-        'email',
         'user_id',
         'lemon_order_id',
         'amount_cents',
@@ -29,12 +20,7 @@ class RedeemCode extends Model
         'used_at',
         'used_by_analysis_id',
         'expires_at',
-        'github_access_token',
-        'github_login',
-        'github_avatar_url',
     ];
-
-    protected $hidden = ['github_access_token'];
 
     protected $casts = [
         'used_at' => 'datetime',
@@ -63,15 +49,6 @@ class RedeemCode extends Model
     public function scopeForCategory(Builder $query, string $category): Builder
     {
         return $query->where('category', $category);
-    }
-
-    public static function generate(): string
-    {
-        $segments = collect(range(1, 3))
-            ->map(fn () => strtoupper(Str::random(4)))
-            ->all();
-
-        return 'VIBE-' . implode('-', $segments);
     }
 
     public function isUsed(): bool

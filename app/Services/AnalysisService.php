@@ -3,7 +3,6 @@
 namespace App\Services;
 
 use App\Models\Analysis;
-use App\Models\RedeemCode;
 use App\Models\User;
 use RuntimeException;
 
@@ -16,7 +15,6 @@ class AnalysisService
     public function runForRepo(
         string $repoSpec,
         ?User $user = null,
-        ?RedeemCode $code = null,
         ?string $githubToken = null,
         array $categories = [],
     ): Analysis {

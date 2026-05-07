@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Mail\AnalysisReportMail;
 use App\Models\Analysis;
-use App\Models\RedeemCode;
+use App\Models\SectionSlot;
 use App\Services\AnalysisService;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
@@ -48,7 +48,7 @@ class AnalysisController extends Controller
         // available, fail before charging the user a real Anthropic call.
         $reservations = [];
         foreach ($valid as $category) {
-            $slot = RedeemCode::query()
+            $slot = SectionSlot::query()
                 ->where('user_id', $user->id)
                 ->forCategory($category)
                 ->available()
@@ -69,7 +69,6 @@ class AnalysisController extends Controller
             $analysis = $service->runForRepo(
                 repoSpec: $repoSpec,
                 user: $user,
-                code: null,
                 githubToken: null,
                 categories: $valid,
             );
@@ -152,7 +151,7 @@ class AnalysisController extends Controller
     public static function sectionBreakdown($user): array
     {
         $catalog = array_keys(config('codereview.categories', []));
-        $counts = RedeemCode::query()
+        $counts = SectionSlot::query()
             ->where('user_id', $user->id)
             ->available()
             ->selectRaw('category, COUNT(*) as c')

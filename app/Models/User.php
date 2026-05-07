@@ -45,9 +45,9 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->hasMany(Analysis::class);
     }
 
-    public function redeemCodes()
+    public function sectionSlots()
     {
-        return $this->hasMany(RedeemCode::class);
+        return $this->hasMany(SectionSlot::class);
     }
 
     public static function generateApiToken(): string

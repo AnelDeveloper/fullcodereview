@@ -40,6 +40,6 @@ class Analysis extends Model
      */
     public function consumedSlots()
     {
-        return $this->hasMany(RedeemCode::class, 'used_by_analysis_id');
+        return $this->hasMany(SectionSlot::class, 'used_by_analysis_id');
     }
 }

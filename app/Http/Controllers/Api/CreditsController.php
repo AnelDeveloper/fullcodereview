@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Models\RedeemCode;
+use App\Models\SectionSlot;
 use Illuminate\Http\Request;
 
 class CreditsController extends Controller
@@ -27,7 +27,7 @@ class CreditsController extends Controller
      */
     public static function availableQuery($user)
     {
-        return RedeemCode::query()
+        return SectionSlot::query()
             ->where('user_id', $user->id)
             ->available();
     }
