@@ -88,7 +88,8 @@ class LemonSqueezyService
             ->timeout(30)
             ->post(self::API_BASE . '/checkouts', $payload);
 
-        if (! $response->ok()) {
+        // LS returns 201 Created on success — `ok()` only matches 200, so use `successful()` (200-299)
+        if (! $response->successful()) {
             throw new RuntimeException('Lemon Squeezy checkout creation failed: ' . $response->status() . ' ' . $response->body());
         }
 
