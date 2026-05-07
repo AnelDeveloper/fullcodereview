@@ -8,7 +8,6 @@ class Analysis extends Model
 {
     protected $fillable = [
         'user_id',
-        'redeem_code_id',
         'repo_full_name',
         'repo_url',
         'repo_default_branch',
@@ -35,8 +34,12 @@ class Analysis extends Model
         return $this->belongsTo(User::class);
     }
 
-    public function redeemCode()
+    /**
+     * The section slots that were consumed by this analysis (one per
+     * category that was reviewed).
+     */
+    public function consumedSlots()
     {
-        return $this->belongsTo(RedeemCode::class);
+        return $this->hasMany(RedeemCode::class, 'used_by_analysis_id');
     }
 }

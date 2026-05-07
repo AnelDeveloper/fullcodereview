@@ -40,10 +40,10 @@
             <!-- Stat tiles -->
             <VRow class="mb-2">
                 <VCol cols="12" sm="6" md="3">
-                    <StatCard icon="tabler-coins" accent="primary" :value="stats.credits" label="Review credits">
+                    <StatCard icon="tabler-stack-2" accent="primary" :value="stats.sectionsTotal || 0" label="Review scopes">
                         <template #footer>
-                            <VBtn v-if="stats.credits === 0" size="small" variant="tonal" color="primary" to="/review">Buy credits</VBtn>
-                            <span v-else class="text-caption text-medium-emphasis">Each review uses one</span>
+                            <VBtn v-if="(stats.sectionsTotal || 0) === 0" size="small" variant="tonal" color="primary" to="/review">Buy scopes</VBtn>
+                            <span v-else class="text-caption text-medium-emphasis">{{ sectionsBreakdown }}</span>
                         </template>
                     </StatCard>
                 </VCol>
@@ -164,7 +164,17 @@ const router = useRouter()
 const authStore = useAuthStore()
 
 const loading = ref(true)
-const stats = ref({ credits: 0, totalReviews: 0, monthReviews: 0, avgScore: null, totalIssues: 0 })
+const stats = ref({ sections: {}, sectionsTotal: 0, totalReviews: 0, monthReviews: 0, avgScore: null, totalIssues: 0 })
+
+const sectionsBreakdown = computed(() => {
+    const s = stats.value.sections || {}
+    const parts = []
+    if (s.security) parts.push(`${s.security}× sec`)
+    if (s.database) parts.push(`${s.database}× db`)
+    if (s.backend) parts.push(`${s.backend}× be`)
+    if (s.frontend) parts.push(`${s.frontend}× fe`)
+    return parts.join(" · ") || "—"
+})
 const recent = ref([])
 const returnBanner = ref(null)
 
@@ -215,7 +225,7 @@ onMounted(async () => {
         const r = await fetchDashboard()
         stats.value = r.stats
         recent.value = r.recent
-        authStore.setCredits(r.stats.credits)
+        authStore.setSections(r.stats.sections)
     } catch { /* ignore */ }
     finally { loading.value = false }
 })

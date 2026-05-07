@@ -33,7 +33,7 @@ class DashboardController extends Controller
                 'createdAt' => $a->created_at->toIso8601String(),
             ]);
 
-        $credits = CreditsController::availableQuery($user)->count();
+        $byCategory = AnalysisController::sectionBreakdown($user);
 
         return response()->json([
             'stats' => [
@@ -41,7 +41,8 @@ class DashboardController extends Controller
                 'monthReviews' => $monthReviews,
                 'avgScore' => $avgScore ? (int) round($avgScore) : null,
                 'totalIssues' => $totalIssues,
-                'credits' => $credits,
+                'sections' => $byCategory,
+                'sectionsTotal' => array_sum($byCategory),
             ],
             'recent' => $recent,
         ]);

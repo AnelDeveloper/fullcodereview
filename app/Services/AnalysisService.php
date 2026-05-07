@@ -13,10 +13,15 @@ class AnalysisService
         protected AnthropicService $anthropic,
     ) {}
 
-    public function runForRepo(string $repoSpec, ?User $user = null, ?RedeemCode $code = null, ?string $githubToken = null, array $categories = []): Analysis
-    {
+    public function runForRepo(
+        string $repoSpec,
+        ?User $user = null,
+        ?RedeemCode $code = null,
+        ?string $githubToken = null,
+        array $categories = [],
+    ): Analysis {
         ['owner' => $owner, 'repo' => $repoName] = GithubService::parseRepoUrl($repoSpec);
-        $token = $githubToken ?: $user?->github_access_token ?: $code?->github_access_token;
+        $token = $githubToken ?: $user?->github_access_token;
         $github = GithubService::withToken($token);
 
         $repo = $github->getRepo($owner, $repoName);
@@ -52,13 +57,10 @@ class AnalysisService
             throw new RuntimeException('No reviewable code files found in this repo.');
         }
 
-        $effectiveCategories = $categories ?: ($code?->selected_categories ?? []);
-
-        $review = $this->anthropic->review($files, $effectiveCategories);
+        $review = $this->anthropic->review($files, $categories);
 
         return Analysis::create([
             'user_id' => $user?->id,
-            'redeem_code_id' => $code?->id,
             'repo_full_name' => "{$owner}/{$repoName}",
             'repo_url' => "https://github.com/{$owner}/{$repoName}",
             'repo_default_branch' => $branch,
@@ -69,7 +71,7 @@ class AnalysisService
             'performance_score' => $review['performanceScore'],
             'quality_score' => $review['qualityScore'],
             'issues_json' => $review['issues'],
-            'selected_categories' => $effectiveCategories ?: null,
+            'selected_categories' => $categories ?: null,
             'status' => 'completed',
         ]);
     }

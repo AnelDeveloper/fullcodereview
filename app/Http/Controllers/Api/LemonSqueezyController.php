@@ -3,14 +3,12 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Mail\RedeemCodeMail;
 use App\Models\RedeemCode;
 use App\Services\LemonSqueezyService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Validator;
 
 class LemonSqueezyController extends Controller
@@ -102,51 +100,37 @@ class LemonSqueezyController extends Controller
         $categoryKeys = $customData['category_keys'] ?? null;
         $selected = $categoryKeys ? array_values(array_filter(explode(',', $categoryKeys))) : [];
 
-        $this->issueCodeForOrder([
+        $this->issueSlotsForOrder([
             'order_id' => $orderId,
             'user_id' => $userId,
             'email' => $email,
             'amount_cents' => $usdSubtotalCents ?? $totalCents,
-            'selected_categories' => $selected,
+            'categories' => $selected,
         ]);
 
         return response()->json(['received' => true]);
     }
 
-    protected function issueCodeForOrder(array $data): RedeemCode
+    /**
+     * Idempotent: one section slot per purchased category. If we've
+     * already issued slots for this order_id, no-op.
+     */
+    protected function issueSlotsForOrder(array $data): void
     {
-        return DB::transaction(function () use ($data) {
-            $existing = RedeemCode::where('lemon_order_id', $data['order_id'])->first();
-            if ($existing) return $existing;
+        DB::transaction(function () use ($data) {
+            $exists = RedeemCode::where('lemon_order_id', $data['order_id'])->exists();
+            if ($exists) return;
 
-            $code = RedeemCode::create([
-                'code' => $this->generateUniqueCode(),
-                'email' => $data['email'],
-                'user_id' => $data['user_id'],
-                'lemon_order_id' => $data['order_id'],
-                'amount_cents' => $data['amount_cents'],
-                'selected_categories' => $data['selected_categories'],
-                'expires_at' => Carbon::now()->addDays(30),
-            ]);
-
-            try {
-                if ($data['email']) {
-                    Mail::to($data['email'])->send(new RedeemCodeMail($code));
-                }
-            } catch (\Throwable $e) {
-                Log::warning('Redeem code email failed', ['error' => $e->getMessage(), 'code_id' => $code->id]);
+            foreach ($data['categories'] as $category) {
+                RedeemCode::create([
+                    'user_id' => $data['user_id'],
+                    'email' => $data['email'] ?: null,
+                    'lemon_order_id' => $data['order_id'],
+                    'amount_cents' => $data['amount_cents'],
+                    'category' => $category,
+                    'expires_at' => Carbon::now()->addDays(30),
+                ]);
             }
-
-            return $code;
         });
-    }
-
-    protected function generateUniqueCode(): string
-    {
-        do {
-            $candidate = RedeemCode::generate();
-        } while (RedeemCode::where('code', $candidate)->exists());
-
-        return $candidate;
     }
 }

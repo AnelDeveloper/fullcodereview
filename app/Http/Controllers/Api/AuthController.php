@@ -94,11 +94,14 @@ class AuthController extends Controller
     public function me(Request $request)
     {
         $user = $request->user();
-        $credits = $user ? CreditsController::availableQuery($user)->count() : 0;
+
+        $byCategory = $user ? AnalysisController::sectionBreakdown($user) : [];
+        $credits = array_sum($byCategory);
 
         return response()->json([
             'user' => $user ? $this->presentUser($user) : null,
             'credits' => $credits,
+            'sections' => $byCategory,
         ]);
     }
 
