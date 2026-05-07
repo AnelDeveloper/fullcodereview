@@ -147,6 +147,15 @@ class LemonSqueezyService
      * List recent orders for our store filtered by customer email — lets
      * us reconcile a successful checkout we just got redirected back from
      * even when the webhook is delayed or missed.
+     *
+     * Uses `?include=order-items` so each order's `order-item` (which
+     * carries our `custom_data: { user_id, category_keys, … }`) is
+     * embedded in the response. The basic /orders listing does NOT include
+     * this — without the include, custom_data is unreachable and sync
+     * silently skips the order.
+     *
+     * Returns each order with `attributes.first_order_item.custom_data`
+     * populated from the included resources.
      */
     public function listRecentOrdersForEmail(string $email): array
     {
@@ -162,9 +171,39 @@ class LemonSqueezyService
             ->get(self::API_BASE . '/orders', [
                 'filter[store_id]' => $storeId,
                 'filter[user_email]' => $email,
+                'include' => 'order-items',
                 'page[size]' => 20,
             ]);
 
-        return $response->successful() ? ($response->json('data') ?? []) : [];
+        if (! $response->successful()) return [];
+
+        $orders = $response->json('data') ?? [];
+        $included = $response->json('included') ?? [];
+
+        // Index custom_data from included order-items by their order_id so
+        // we can attach it back onto each order. JSON:API includes share
+        // the document, so we resolve here once.
+        $customByOrderId = [];
+        foreach ($included as $resource) {
+            if (($resource['type'] ?? null) !== 'order-items') continue;
+            $attrs = $resource['attributes'] ?? [];
+            $orderId = (string) ($attrs['order_id'] ?? '');
+            if ($orderId === '') continue;
+            // Keep the first one we find (orders today are single-item).
+            if (isset($customByOrderId[$orderId])) continue;
+            $customByOrderId[$orderId] = $attrs['custom_data'] ?? [];
+        }
+
+        foreach ($orders as &$order) {
+            $orderId = (string) ($order['id'] ?? '');
+            if ($orderId === '') continue;
+            $custom = $customByOrderId[$orderId] ?? null;
+            if ($custom !== null) {
+                $order['attributes']['first_order_item']['custom_data'] = $custom;
+            }
+        }
+        unset($order);
+
+        return $orders;
     }
 }
