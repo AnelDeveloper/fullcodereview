@@ -2,9 +2,9 @@
 
 // Light theme gradient background
 .v-application.v-theme--light {
-  background: linear-gradient(135deg, #f0f4fa 0%, #e6ecf5 35%, #dde6f2 65%, #d4e0ee 100%) !important;
+  background: linear-gradient(135deg, #fafbfd 0%, #f5f7fb 35%, #f1f4f9 65%, #eef2f8 100%) !important;
   min-height: 100vh;
-  
+
   // Subtle overlay for depth with blue accents
   &::before {
     content: '';
@@ -13,11 +13,16 @@
     left: 0;
     right: 0;
     bottom: 0;
-    background: radial-gradient(ellipse at top right, rgba(180, 200, 240, 0.2) 0%, transparent 50%),
-                radial-gradient(ellipse at bottom left, rgba(190, 210, 250, 0.15) 0%, transparent 50%),
-                radial-gradient(ellipse at center, rgba(200, 215, 245, 0.12) 0%, transparent 60%);
+    background: radial-gradient(ellipse at top right, rgba(180, 200, 240, 0.12) 0%, transparent 50%),
+                radial-gradient(ellipse at bottom left, rgba(190, 210, 250, 0.08) 0%, transparent 50%),
+                radial-gradient(ellipse at center, rgba(200, 215, 245, 0.06) 0%, transparent 60%);
     pointer-events: none;
     z-index: 0;
+  }
+
+  // Give outlined cards a subtle white fill so they stand out against the bg
+  .v-card.v-card--variant-outlined {
+    background-color: rgba(255, 255, 255, 0.7) !important;
   }
 }
 
