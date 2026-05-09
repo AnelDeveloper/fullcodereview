@@ -15,7 +15,11 @@ use Illuminate\Support\Facades\Route;
 Route::get('catalog', [CatalogController::class, 'index']);
 Route::post('auth/register', [AuthController::class, 'register']);
 Route::post('auth/login', [AuthController::class, 'login']);
-Route::get('github/login', [GithubController::class, 'login']);
+
+// GitHub OAuth callback is public on purpose — GitHub redirects the user
+// back here after they authorize, and at that moment we don't yet have an
+// auth cookie context (the user is identified via the cached `state`
+// parameter we sent to GitHub). Keep public.
 Route::get('github/callback', [GithubController::class, 'callback']);
 
 Route::get('auth/google/redirect', [GoogleAuthController::class, 'redirectToGoogle']);
@@ -45,6 +49,7 @@ Route::middleware('auth.api')->group(function () {
     Route::post('lemon-squeezy/checkout', [LemonSqueezyController::class, 'checkout']);
     Route::post('lemon-squeezy/sync', [LemonSqueezyController::class, 'sync']);
 
+    Route::get('github/login', [GithubController::class, 'login']);
     Route::get('github/repos', [GithubController::class, 'repos']);
 
     Route::post('analyses/run', [AnalysisController::class, 'run']);
