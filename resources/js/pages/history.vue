@@ -33,28 +33,42 @@
             <!-- Filters -->
             <VCard variant="outlined" class="mb-4">
                 <VCardText class="py-3 px-4">
-                    <div class="d-flex flex-wrap align-center ga-2">
-                        <div class="text-caption text-medium-emphasis font-weight-bold mr-1">
-                            STATUS
+                    <div class="d-flex flex-wrap align-center ga-x-4 ga-y-3">
+                        <div class="d-flex flex-wrap align-center ga-2">
+                            <div class="text-caption text-medium-emphasis font-weight-bold">
+                                STATUS
+                            </div>
+                            <VChip
+                                v-for="opt in readinessOptions"
+                                :key="opt.value"
+                                :variant="readinessFilter === opt.value ? 'flat' : 'tonal'"
+                                :color="readinessFilter === opt.value ? 'primary' : 'default'"
+                                size="small"
+                                class="font-weight-bold"
+                                @click="readinessFilter = opt.value"
+                            >
+                                {{ opt.label }}
+                            </VChip>
                         </div>
-                        <VBtnToggle v-model="readinessFilter" density="compact" rounded="pill" color="primary" mandatory>
-                            <VBtn value="all" size="small">All</VBtn>
-                            <VBtn value="launch_ready" size="small">Launch ready</VBtn>
-                            <VBtn value="needs_attention" size="small">Needs attention</VBtn>
-                            <VBtn value="blocked" size="small">Blocked</VBtn>
-                        </VBtnToggle>
 
-                        <VDivider vertical class="mx-3" />
+                        <VDivider vertical class="d-none d-md-block" />
 
-                        <div class="text-caption text-medium-emphasis font-weight-bold mr-1">
-                            VERIFICATION
+                        <div class="d-flex flex-wrap align-center ga-2">
+                            <div class="text-caption text-medium-emphasis font-weight-bold">
+                                VERIFICATION
+                            </div>
+                            <VChip
+                                v-for="opt in verificationOptions"
+                                :key="opt.value"
+                                :variant="verificationFilter === opt.value ? 'flat' : 'tonal'"
+                                :color="verificationFilter === opt.value ? 'primary' : 'default'"
+                                size="small"
+                                class="font-weight-bold"
+                                @click="verificationFilter = opt.value"
+                            >
+                                {{ opt.label }}
+                            </VChip>
                         </div>
-                        <VBtnToggle v-model="verificationFilter" density="compact" rounded="pill" color="primary" mandatory>
-                            <VBtn value="all" size="small">All</VBtn>
-                            <VBtn value="human_verified" size="small">Verified</VBtn>
-                            <VBtn value="human_review_pending" size="small">Pending</VBtn>
-                            <VBtn value="ai_scan_complete" size="small">AI only</VBtn>
-                        </VBtnToggle>
 
                         <VSpacer />
                         <span class="text-caption text-medium-emphasis">
@@ -142,6 +156,20 @@ const loading = ref(true)
 const error = ref("")
 const readinessFilter = ref("all")
 const verificationFilter = ref("all")
+
+const readinessOptions = [
+    { value: "all",             label: "All" },
+    { value: "launch_ready",    label: "Launch ready" },
+    { value: "needs_attention", label: "Needs attention" },
+    { value: "blocked",         label: "Blocked" },
+]
+
+const verificationOptions = [
+    { value: "all",                  label: "All" },
+    { value: "human_verified",       label: "Verified" },
+    { value: "human_review_pending", label: "Pending" },
+    { value: "ai_scan_complete",     label: "AI only" },
+]
 
 const load = async () => {
     loading.value = true
