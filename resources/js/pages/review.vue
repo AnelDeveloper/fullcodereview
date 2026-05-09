@@ -457,12 +457,12 @@ const handleAnalyze = async () => {
 <style lang="scss" scoped>
 .empty-state {
     .big-icon {
-        width: 80px; height: 80px;
-        border-radius: 22px;
+        width: 72px; height: 72px;
+        border-radius: 16px;
         margin: 0 auto;
         display: grid; place-items: center;
-        background: linear-gradient(135deg, rgba(139, 92, 246, 0.15), rgba(236, 72, 153, 0.15));
-        border: 1px solid rgba(139, 92, 246, 0.3);
+        background: rgba(124, 58, 237, 0.1);
+        border: 1px solid rgba(124, 58, 237, 0.25);
     }
 }
 
@@ -484,11 +484,11 @@ const handleAnalyze = async () => {
     color: rgb(var(--v-theme-on-surface));
     transition: all .18s ease;
 
-    &:hover:not(:disabled) { border-color: rgb(var(--v-theme-primary)); transform: translateX(2px); }
+    &:hover:not(:disabled) { border-color: rgb(var(--v-theme-primary)); }
 
     &--picked {
         border-color: rgb(var(--v-theme-primary)) !important;
-        background: linear-gradient(135deg, rgba(139, 92, 246, 0.08), rgba(236, 72, 153, 0.04));
+        background: rgba(124, 58, 237, 0.06);
         box-shadow: 0 0 0 1px rgb(var(--v-theme-primary));
     }
 
@@ -550,9 +550,8 @@ const handleAnalyze = async () => {
 
         &--active {
             opacity: 1;
-            background: linear-gradient(135deg, #8B5CF6 0%, #EC4899 100%);
+            background: #7C3AED;
             color: #fff;
-            box-shadow: 0 6px 16px -6px rgba(139, 92, 246, 0.6);
         }
     }
 }
@@ -563,13 +562,13 @@ const handleAnalyze = async () => {
     gap: 16px;
     padding: 18px;
     border-radius: 14px;
-    border: 1px dashed rgba(139, 92, 246, 0.3);
-    background: rgba(139, 92, 246, 0.04);
+    border: 1px dashed rgba(124, 58, 237, 0.3);
+    background: rgba(124, 58, 237, 0.04);
 
     > .v-icon { flex-shrink: 0; }
 }
 
-.connected-bar { background: linear-gradient(135deg, rgba(16, 185, 129, 0.05), transparent) !important; }
+.connected-bar { background: rgba(16, 185, 129, 0.05) !important; }
 
 .repos-card {
     overflow-y: auto;
@@ -577,11 +576,10 @@ const handleAnalyze = async () => {
 }
 
 .vibe-cta {
-    background: linear-gradient(135deg, #8B5CF6 0%, #EC4899 100%) !important;
+    background: #7C3AED !important;
     color: #fff !important;
     font-weight: 600 !important;
-    box-shadow: 0 12px 28px -10px rgba(139, 92, 246, 0.7), 0 0 0 1px rgba(255, 255, 255, 0.1) inset !important;
-    &:hover { filter: brightness(1.07); }
-    &:disabled { background: rgba(150, 150, 160, 0.2) !important; color: rgba(150, 150, 160, 0.5) !important; box-shadow: none !important; }
+    &:hover { background: #6D28D9 !important; }
+    &:disabled { background: rgba(150, 150, 160, 0.2) !important; color: rgba(150, 150, 160, 0.5) !important; }
 }
 </style>

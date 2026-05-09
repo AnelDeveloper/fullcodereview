@@ -305,13 +305,11 @@ onMounted(async () => {
     color: rgb(var(--v-theme-on-surface));
     opacity: .55;
 
-    &--active { opacity: 1; background: rgba(139, 92, 246, 0.1); }
+    &--active { opacity: 1; background: rgba(124, 58, 237, 0.1); }
     &--current {
         opacity: 1;
-        background: linear-gradient(135deg, #8B5CF6 0%, #EC4899 100%);
+        background: #7C3AED;
         color: #fff;
-        box-shadow: 0 8px 24px -8px rgba(139, 92, 246, .6);
-        transform: scale(1.02);
     }
 
     &__label {
@@ -329,21 +327,19 @@ onMounted(async () => {
 }
 
 .category-card {
-    transition: border-color .2s, transform .2s;
-    &:hover { transform: translateY(-2px); }
+    transition: border-color .2s;
     &.category-card--active {
         border-color: rgb(var(--v-theme-primary)) !important;
-        box-shadow: 0 0 0 1px rgb(var(--v-theme-primary)), 0 12px 32px -16px rgba(139, 92, 246, .5);
+        box-shadow: 0 0 0 1px rgb(var(--v-theme-primary));
     }
 }
 
 .category-icon {
-    width: 44px; height: 44px;
-    border-radius: 12px;
+    width: 40px; height: 40px;
+    border-radius: 8px;
     display: grid;
     place-items: center;
-    background: linear-gradient(135deg, rgba(139, 92, 246, .15), rgba(236, 72, 153, .15));
-    border: 1px solid rgba(139, 92, 246, .25);
+    background: rgba(124, 58, 237, 0.1);
 }
 
 .check-box {
@@ -380,7 +376,7 @@ onMounted(async () => {
 }
 
 .gradient-chip {
-    background: linear-gradient(135deg, #8B5CF6 0%, #EC4899 100%) !important;
+    background: #7C3AED !important;
     color: #fff !important;
 }
 

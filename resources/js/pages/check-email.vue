@@ -139,32 +139,29 @@ const resend = async () => {
 }
 
 .mail-icon {
-    width: 80px;
-    height: 80px;
-    border-radius: 24px;
-    margin: 0 auto;            // hard-center within the flex column
+    width: 72px;
+    height: 72px;
+    border-radius: 16px;
+    margin: 0 auto;
     display: grid;
     place-items: center;
-    background: linear-gradient(135deg, rgba(139, 92, 246, 0.18), rgba(236, 72, 153, 0.18));
-    border: 1px solid rgba(139, 92, 246, 0.32);
-    box-shadow: 0 12px 32px -10px rgba(139, 92, 246, 0.4);
+    background: rgba(124, 58, 237, 0.1);
+    border: 1px solid rgba(124, 58, 237, 0.25);
 }
 
 .gradient-text {
-    background: linear-gradient(90deg, #8B5CF6 0%, #EC4899 50%, #06B6D4 100%);
-    -webkit-background-clip: text;
-    background-clip: text;
-    -webkit-text-fill-color: transparent;
-    color: transparent;
+    color: #7C3AED;
+}
+
+:global(.v-theme--dark) .gradient-text {
+    color: #C4B5FD;
 }
 
 .vibe-cta {
-    background: linear-gradient(135deg, #8B5CF6 0%, #EC4899 100%) !important;
+    background: #7C3AED !important;
     color: #fff !important;
     font-weight: 600 !important;
-    box-shadow:
-        0 12px 28px -10px rgba(139, 92, 246, 0.7),
-        0 0 0 1px rgba(255, 255, 255, 0.1) inset !important;
-    &:hover { filter: brightness(1.07); }
+
+    &:hover { background: #6D28D9 !important; }
 }
 </style>

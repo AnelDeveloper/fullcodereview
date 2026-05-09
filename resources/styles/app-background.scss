@@ -1,53 +1,21 @@
-// App background gradients for light and dark themes
+// Flat app background — no gradients, no overlays.
 
-// Light theme gradient background
 .v-application.v-theme--light {
-  background: linear-gradient(135deg, #fafbfd 0%, #f5f7fb 35%, #f1f4f9 65%, #eef2f8 100%) !important;
+  background: #FAFAFA !important;
   min-height: 100vh;
 
-  // Subtle overlay for depth with blue accents
-  &::before {
-    content: '';
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: radial-gradient(ellipse at top right, rgba(180, 200, 240, 0.12) 0%, transparent 50%),
-                radial-gradient(ellipse at bottom left, rgba(190, 210, 250, 0.08) 0%, transparent 50%),
-                radial-gradient(ellipse at center, rgba(200, 215, 245, 0.06) 0%, transparent 60%);
-    pointer-events: none;
-    z-index: 0;
-  }
-
-  // Give outlined cards a subtle white fill so they stand out against the bg
+  // Give outlined cards a clean white fill against the off-white app bg
   .v-card.v-card--variant-outlined {
-    background-color: rgba(255, 255, 255, 0.7) !important;
+    background-color: #FFFFFF !important;
   }
 }
 
-// Dark theme gradient background - Better contrast
 .v-application.v-theme--dark {
-  background: linear-gradient(135deg, #1a1a28 0%, #1e1e30 35%, #212135 65%, #252540 100%) !important;
+  background: #15102B !important;
   min-height: 100vh;
-  
-  // Add subtle color accents for depth
-  &::before {
-    content: '';
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: radial-gradient(ellipse at top right, rgba(60, 60, 100, 0.15) 0%, transparent 50%),
-                radial-gradient(ellipse at bottom left, rgba(50, 70, 120, 0.12) 0%, transparent 50%),
-                radial-gradient(ellipse at center, rgba(55, 55, 90, 0.1) 0%, transparent 60%);
-    pointer-events: none;
-    z-index: 0;
-  }
 }
 
-// Ensure content is above the gradient overlay
+// Ensure content stacks above any positioned siblings
 .v-application > .v-locale-provider,
 .v-application .v-main,
 .v-application .v-navigation-drawer,
@@ -56,11 +24,7 @@
   z-index: 1;
 }
 
-// Override for auth pages to use transparent background
+// Auth (blank-layout) pages keep their own background
 .layout-blank .v-application {
   background: transparent !important;
-  
-  &::before {
-    display: none;
-  }
 }

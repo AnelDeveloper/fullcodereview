@@ -261,13 +261,12 @@ onMounted(async () => {
 }
 
 .quick-icon {
-    width: 40px; height: 40px; border-radius: 10px;
-    background: linear-gradient(135deg, rgba(139, 92, 246, 0.15), rgba(236, 72, 153, 0.15));
-    border: 1px solid rgba(139, 92, 246, 0.25);
+    width: 40px; height: 40px; border-radius: 8px;
+    background: rgba(124, 58, 237, 0.1);
     display: grid; place-items: center; flex-shrink: 0;
 }
 
-.coverage-card { background: linear-gradient(180deg, rgba(139, 92, 246, 0.04), transparent); }
+.coverage-card { background: transparent; }
 
 .coverage-item {
     display: flex; align-items: center; gap: 12px;
