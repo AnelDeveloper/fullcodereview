@@ -398,6 +398,8 @@
     "submitForReview": true,
     "disconnectGithub": true,
     "fetchAdminUsers": true,
-    "setUserReviewer": true
+    "setUserReviewer": true,
+    "changePassword": true,
+    "updateProfile": true
   }
 }

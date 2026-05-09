@@ -61,3 +61,13 @@ export const setUserReviewer = (id, isReviewer) =>
         method: "POST",
         body: { is_reviewer: !!isReviewer },
     })
+
+// My profile
+export const updateProfile = (name, email) =>
+    $api("/me/profile", { method: "PUT", body: { name, email } })
+
+export const changePassword = (current_password, password, password_confirmation) =>
+    $api("/me/password", {
+        method: "POST",
+        body: { current_password, password, password_confirmation },
+    })

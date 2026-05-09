@@ -31,11 +31,11 @@
                             <VListItemSubtitle class="text-disabled">{{ user.email }}</VListItemSubtitle>
                         </VListItem>
                         <VDivider class="my-2" />
-                        <VListItem to="/history">
+                        <VListItem to="/profile">
                             <template #prepend>
-                                <VIcon icon="tabler-history" size="22" class="me-2" />
+                                <VIcon icon="tabler-user-circle" size="22" class="me-2" />
                             </template>
-                            <VListItemTitle>History</VListItemTitle>
+                            <VListItemTitle>Profile</VListItemTitle>
                         </VListItem>
                         <VListItem @click="logout">
                             <template #prepend>

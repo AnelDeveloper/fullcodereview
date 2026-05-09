@@ -165,6 +165,87 @@ class AuthController extends Controller
         return response()->json(['message' => 'If that email is registered and unverified, a new link is on its way.']);
     }
 
+    /**
+     * PUT /me/profile — update display name and/or email.
+     * If the email changes, we re-verify (clear email_verified_at and
+     * fire the verification mail again).
+     */
+    public function updateProfile(Request $request)
+    {
+        $user = $request->user();
+        if (! $user) return response()->json(['message' => 'Unauthenticated.'], 401);
+
+        $validator = Validator::make($request->all(), [
+            'name'  => ['required', 'string', 'max:120'],
+            'email' => ['required', 'email', 'max:191', 'unique:users,email,' . $user->id],
+        ]);
+        if ($validator->fails()) {
+            return response()->json(['message' => 'Validation failed.', 'errors' => $validator->errors()], 422);
+        }
+
+        $newEmail = strtolower($request->input('email'));
+        $emailChanged = $newEmail !== $user->email;
+
+        $user->name = $request->input('name');
+        if ($emailChanged) {
+            $user->email = $newEmail;
+            $user->email_verified_at = null;
+        }
+        $user->save();
+
+        if ($emailChanged) {
+            try {
+                $user->sendEmailVerificationNotification();
+            } catch (\Throwable $e) {
+                Log::warning('Could not send re-verification email', ['error' => $e->getMessage(), 'user_id' => $user->id]);
+            }
+        }
+
+        return response()->json([
+            'ok' => true,
+            'emailChanged' => $emailChanged,
+            'message' => $emailChanged
+                ? 'Profile updated. Please verify your new email address — we sent you a confirmation link.'
+                : 'Profile updated.',
+            'user' => $this->presentUser($user->fresh()),
+        ]);
+    }
+
+    /**
+     * POST /me/password — change password (requires current password).
+     */
+    public function changePassword(Request $request)
+    {
+        $user = $request->user();
+        if (! $user) return response()->json(['message' => 'Unauthenticated.'], 401);
+
+        $validator = Validator::make($request->all(), [
+            'current_password' => ['required', 'string'],
+            'password'         => ['required', 'string', 'min:8', 'confirmed'],
+        ]);
+        if ($validator->fails()) {
+            return response()->json(['message' => 'Validation failed.', 'errors' => $validator->errors()], 422);
+        }
+
+        if (! Hash::check($request->input('current_password'), $user->password)) {
+            return response()->json([
+                'message' => 'Current password is incorrect.',
+                'errors'  => ['current_password' => ['Current password is incorrect.']],
+            ], 422);
+        }
+
+        $user->password = $request->input('password');
+        // Rotate the API token so any other sessions are kicked out.
+        $user->api_token = User::generateApiToken();
+        $user->save();
+
+        return response()->json([
+            'ok' => true,
+            'message' => 'Password updated. Other sessions have been signed out.',
+            'token' => $user->api_token,
+        ]);
+    }
+
     protected function presentUser(User $user): array
     {
         return [

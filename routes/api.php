@@ -44,6 +44,9 @@ Route::middleware('auth.api')->group(function () {
     Route::post('auth/logout', [AuthController::class, 'logout']);
     Route::get('auth/me', [AuthController::class, 'me']);
 
+    Route::put('me/profile', [AuthController::class, 'updateProfile']);
+    Route::post('me/password', [AuthController::class, 'changePassword']);
+
     Route::get('me/credits', [CreditsController::class, 'index']);
     Route::get('me/dashboard', [DashboardController::class, 'index']);
 
