@@ -24,4 +24,10 @@ export default [
         icon: { icon: "tabler-clipboard-check" },
         requiresReviewer: true,
     },
+    {
+        title: "User management",
+        to: { path: "/reviewer/users" },
+        icon: { icon: "tabler-users" },
+        requiresReviewer: true,
+    },
 ]

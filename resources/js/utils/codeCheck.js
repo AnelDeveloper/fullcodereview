@@ -46,3 +46,18 @@ export const finalizeAnalysis = (id) =>
 
 export const fetchReviewerQueue = () =>
     $api("/reviewer/queue")
+
+// Admin (reviewer-only) — user management
+export const fetchAdminUsers = (search = "", reviewersOnly = false) => {
+    const params = new URLSearchParams()
+    if (search) params.set("search", search)
+    if (reviewersOnly) params.set("reviewers_only", "1")
+    const qs = params.toString()
+    return $api(`/admin/users${qs ? "?" + qs : ""}`)
+}
+
+export const setUserReviewer = (id, isReviewer) =>
+    $api(`/admin/users/${id}/reviewer`, {
+        method: "POST",
+        body: { is_reviewer: !!isReviewer },
+    })

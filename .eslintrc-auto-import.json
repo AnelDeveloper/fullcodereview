@@ -396,6 +396,8 @@
     "fetchReviewerQueue": true,
     "finalizeAnalysis": true,
     "submitForReview": true,
-    "disconnectGithub": true
+    "disconnectGithub": true,
+    "fetchAdminUsers": true,
+    "setUserReviewer": true
   }
 }
