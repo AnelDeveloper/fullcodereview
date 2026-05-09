@@ -57,7 +57,8 @@
         .seg-count    { font-size: 9px; color: #6b6f87; padding-left: 6px; vertical-align: middle; }
 
         /* Executive summary */
-        .exec-summary { background: #f8f9fc; border: 1px solid #e0e2eb; border-radius: 8px; padding: 14px 16px; margin-bottom: 18px; page-break-inside: avoid; }
+        .exec-summary { background: #f8f9fc; border: 1px solid #e0e2eb; border-radius: 8px; padding: 14px 16px; margin: 22px 0 18px; page-break-inside: avoid; }
+        .exec-summary .exec-heading { margin: 0 0 10px; }
         .exec-summary .plain { font-size: 11.5px; line-height: 1.55; margin-bottom: 10px; }
         .exec-summary ul.risks { margin: 0; padding-left: 0; list-style: none; }
         .exec-summary ul.risks li { padding: 6px 0; border-bottom: 1px dotted #d8dae3; }
@@ -257,15 +258,18 @@
         </table>
     @endif
 
-    {{-- Executive summary block (only when present) --}}
+    {{-- Executive summary block (only when present).
+         The heading is inside the .exec-summary container so DomPDF treats
+         them as a single page-break unit — otherwise the heading shows on
+         one page and the content on the next, looking empty. --}}
     @if ($execSummary && (
             ! empty($execSummary['plain_english'])
             || ! empty($execSummary['business_risks'])
             || ! empty($execSummary['top_critical'])
             || ! empty($execSummary['next_steps'])
         ))
-        <h2>Executive summary</h2>
         <div class="exec-summary">
+            <h2 class="exec-heading">Executive summary</h2>
             @if (! empty($execSummary['plain_english']))
                 <div class="plain">{{ $execSummary['plain_english'] }}</div>
             @endif
