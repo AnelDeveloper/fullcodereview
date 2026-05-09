@@ -28,6 +28,8 @@ class User extends Authenticatable implements MustVerifyEmail
         'github_access_token',
         'github_login',
         'github_avatar_url',
+        'is_reviewer',
+        'api_token',
     ];
 
     protected $hidden = ['password', 'remember_token', 'api_token', 'github_access_token'];
