@@ -395,6 +395,7 @@
     "approveAnalysis": true,
     "fetchReviewerQueue": true,
     "finalizeAnalysis": true,
-    "submitForReview": true
+    "submitForReview": true,
+    "disconnectGithub": true
   }
 }

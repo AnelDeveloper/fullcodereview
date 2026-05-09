@@ -136,7 +136,18 @@
                                                 <div class="text-body-2 font-weight-semibold">@{{ githubLogin }}</div>
                                             </div>
                                         </div>
-                                        <VIcon icon="tabler-circle-check" color="success" />
+                                        <div class="d-flex align-center ga-2">
+                                            <VIcon icon="tabler-circle-check" color="success" />
+                                            <VBtn
+                                                size="small"
+                                                variant="text"
+                                                color="error"
+                                                :loading="disconnecting"
+                                                @click="handleDisconnectGithub"
+                                            >
+                                                Disconnect
+                                            </VBtn>
+                                        </div>
                                     </VCard>
 
                                     <div v-if="loadingRepos" class="d-flex align-center ga-2 text-body-2 text-medium-emphasis py-4">
@@ -226,6 +237,7 @@ import {
     fetchUserRepos,
     githubLoginUrl,
     syncLemonOrders,
+    disconnectGithub,
 } from "@/utils/codeCheck"
 import CategoryConfigurator from "@/components/CategoryConfigurator.vue"
 import { useAuthStore } from "@/stores/auth"
@@ -255,6 +267,7 @@ const reposError = ref("")
 const githubConnected = ref(false)
 const githubLogin = ref(null)
 const githubAvatar = ref(null)
+const disconnecting = ref(false)
 const selectedRepo = ref(null)
 const oauthError = ref("")
 
@@ -384,6 +397,27 @@ const loadGithubRepos = async ({ silent = false } = {}) => {
 const handleConnectGithub = () => {
     oauthError.value = ""
     window.location.href = githubLoginUrl()
+}
+
+const handleDisconnectGithub = async () => {
+    if (! confirm("Disconnect GitHub from Full Code Review? You'll need to reconnect to scan private repos.")) return
+    disconnecting.value = true
+    oauthError.value = ""
+    try {
+        await disconnectGithub()
+        // Clear local state immediately
+        githubConnected.value = false
+        githubLogin.value = null
+        githubAvatar.value = null
+        repos.value = []
+        selectedRepo.value = null
+        // Refresh user object so authStore.user.githubLogin is null
+        await authStore.fetchMe()
+    } catch (e) {
+        oauthError.value = e?.data?.message || e.message || "Could not disconnect."
+    } finally {
+        disconnecting.value = false
+    }
 }
 
 const handleAnalyze = async () => {

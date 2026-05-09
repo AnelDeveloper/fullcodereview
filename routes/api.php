@@ -51,6 +51,7 @@ Route::middleware('auth.api')->group(function () {
 
     Route::get('github/login', [GithubController::class, 'login']);
     Route::get('github/repos', [GithubController::class, 'repos']);
+    Route::post('github/disconnect', [GithubController::class, 'disconnect']);
 
     Route::post('analyses/run', [AnalysisController::class, 'run']);
     Route::get('analyses/history', [AnalysisController::class, 'history']);

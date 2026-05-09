@@ -19,6 +19,9 @@ export const githubLoginUrl = () => {
     return `/api/github/login?token=${encodeURIComponent(token)}`
 }
 
+export const disconnectGithub = () =>
+    $api("/github/disconnect", { method: "POST" })
+
 export const runCodeCheck = (opts) =>
     $api("/analyses/run", { method: "POST", body: opts })
 

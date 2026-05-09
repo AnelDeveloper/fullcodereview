@@ -94,4 +94,27 @@ class GithubController extends Controller
             'repos' => $repos,
         ]);
     }
+
+    /**
+     * Clears the user's stored GitHub access token (and login/avatar metadata).
+     * The OAuth grant on GitHub's side stays in place — the user must remove
+     * "Full Code Review" from github.com/settings/applications to revoke it
+     * fully — but our app immediately stops being able to read their repos.
+     */
+    public function disconnect(Request $request)
+    {
+        $user = $request->user();
+        if (! $user) return response()->json(['message' => 'Sign in first.'], 401);
+
+        $user->update([
+            'github_access_token' => null,
+            'github_login' => null,
+            'github_avatar_url' => null,
+        ]);
+
+        return response()->json([
+            'ok' => true,
+            'message' => 'GitHub disconnected. To fully revoke access on GitHub\'s side, visit github.com/settings/applications.',
+        ]);
+    }
 }
