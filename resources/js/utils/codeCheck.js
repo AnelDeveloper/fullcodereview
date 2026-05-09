@@ -27,3 +27,19 @@ export const fetchHistory = () =>
 
 export const fetchAnalysis = (id) =>
     $api(`/analyses/${id}`)
+
+// Verification workflow
+export const submitForReview = (id) =>
+    $api(`/analyses/${id}/verification/submit-for-review`, { method: "POST" })
+
+export const approveAnalysis = (id, notes = "", internal = "") =>
+    $api(`/analyses/${id}/verification/approve`, {
+        method: "POST",
+        body: { reviewer_notes: notes, internal_comments: internal },
+    })
+
+export const finalizeAnalysis = (id) =>
+    $api(`/analyses/${id}/verification/finalize`, { method: "POST" })
+
+export const fetchReviewerQueue = () =>
+    $api("/reviewer/queue")

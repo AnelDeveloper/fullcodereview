@@ -21,6 +21,8 @@ class AnalysisService
 
     public function __construct(
         protected AnthropicService $anthropic,
+        protected ReadinessScorer $scorer,
+        protected ExecutiveSummaryGenerator $summarizer,
     ) {}
 
     public function runForRepo(
@@ -98,7 +100,7 @@ class AnalysisService
         $linesAnalyzed = 0;
         foreach ($allFilesByPath as $content) $linesAnalyzed += substr_count($content, "\n") + 1;
 
-        return Analysis::create([
+        $analysis = Analysis::create([
             'user_id' => $user?->id,
             'repo_full_name' => "{$owner}/{$repoName}",
             'repo_url' => "https://github.com/{$owner}/{$repoName}",
@@ -112,7 +114,36 @@ class AnalysisService
             'issues_json' => $merged['issues'],
             'selected_categories' => $categories ?: null,
             'status' => 'completed',
+            'verification_status' => Analysis::VERIFICATION_AI_SCAN_COMPLETE,
         ]);
+
+        // Compute & persist the production-readiness layer (pure function over
+        // existing scan results — no extra AI cost, no I/O).
+        $readiness = $this->scorer->score($analysis);
+        $analysis->fill([
+            'readiness_score'        => $readiness['readinessScore'],
+            'readiness_status'       => $readiness['readinessStatus'],
+            'critical_blocker_count' => $readiness['criticalBlockerCount'],
+            'high_blocker_count'     => $readiness['highBlockerCount'],
+        ])->save();
+
+        // Generate the business-language executive summary. Wrapped in try so
+        // a Claude failure here never breaks the scan that already succeeded.
+        if (config('codereview.generate_executive_summary', true)) {
+            try {
+                $summary = $this->summarizer->generate($analysis);
+                if ($summary !== null) {
+                    $analysis->fill(['executive_summary_json' => $summary])->save();
+                }
+            } catch (\Throwable $e) {
+                \Log::warning('Executive summary generation threw', [
+                    'analysis_id' => $analysis->id,
+                    'error' => $e->getMessage(),
+                ]);
+            }
+        }
+
+        return $analysis;
     }
 
     /**

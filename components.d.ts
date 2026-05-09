@@ -30,11 +30,13 @@ declare module 'vue' {
     CustomRadiosWithImage: typeof import('./resources/js/@core/components/app-form-elements/CustomRadiosWithImage.vue')['default']
     DialogCloseBtn: typeof import('./resources/js/@core/components/DialogCloseBtn.vue')['default']
     DropZone: typeof import('./resources/js/@core/components/DropZone.vue')['default']
+    ExecutiveSummaryBlock: typeof import('./resources/js/components/ExecutiveSummaryBlock.vue')['default']
     I18n: typeof import('./resources/js/@core/components/I18n.vue')['default']
     IssueCard: typeof import('./resources/js/components/IssueCard.vue')['default']
     IssueSection: typeof import('./resources/js/components/IssueSection.vue')['default']
     MoreBtn: typeof import('./resources/js/@core/components/MoreBtn.vue')['default']
     Notifications: typeof import('./resources/js/@core/components/Notifications.vue')['default']
+    ReadinessScoreCard: typeof import('./resources/js/components/ReadinessScoreCard.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
     ScoreRing: typeof import('./resources/js/components/ScoreRing.vue')['default']
@@ -44,6 +46,8 @@ declare module 'vue' {
     TablePagination: typeof import('./resources/js/@core/components/TablePagination.vue')['default']
     TheCustomizer: typeof import('./resources/js/@core/components/TheCustomizer.vue')['default']
     ThemeSwitcher: typeof import('./resources/js/@core/components/ThemeSwitcher.vue')['default']
+    TrustBanner: typeof import('./resources/js/components/TrustBanner.vue')['default']
+    VerificationBadge: typeof import('./resources/js/components/VerificationBadge.vue')['default']
     VerifyEmailBanner: typeof import('./resources/js/components/VerifyEmailBanner.vue')['default']
   }
 }

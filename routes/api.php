@@ -8,6 +8,7 @@ use App\Http\Controllers\Api\DashboardController;
 use App\Http\Controllers\Api\GithubController;
 use App\Http\Controllers\Api\GoogleAuthController;
 use App\Http\Controllers\Api\LemonSqueezyController;
+use App\Http\Controllers\Api\VerificationController;
 use Illuminate\Support\Facades\Route;
 
 // Public
@@ -50,4 +51,14 @@ Route::middleware('auth.api')->group(function () {
     Route::get('analyses/history', [AnalysisController::class, 'history']);
     Route::get('analyses/{id}', [AnalysisController::class, 'show'])->whereNumber('id');
     Route::get('analyses/{id}/report.pdf', [AnalysisController::class, 'reportPdf'])->whereNumber('id');
+
+    // Owner-only: send my analysis to the senior-engineer review queue
+    Route::post('analyses/{id}/verification/submit-for-review', [VerificationController::class, 'submitForReview'])->whereNumber('id');
+
+    // Reviewer-only: queue, approve, finalize
+    Route::middleware('reviewer')->group(function () {
+        Route::get('reviewer/queue', [VerificationController::class, 'queue']);
+        Route::post('analyses/{id}/verification/approve', [VerificationController::class, 'approve'])->whereNumber('id');
+        Route::post('analyses/{id}/verification/finalize', [VerificationController::class, 'finalize'])->whereNumber('id');
+    });
 });

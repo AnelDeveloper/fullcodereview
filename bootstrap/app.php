@@ -22,6 +22,7 @@ return Application::configure(basePath: dirname(__DIR__))
 
         $middleware->alias([
             'auth.api' => \App\Http\Middleware\AuthApiToken::class,
+            'reviewer' => \App\Http\Middleware\EnsureReviewer::class,
         ]);
 
         // Trust Railway's edge proxies so HTTPS / Host detection works

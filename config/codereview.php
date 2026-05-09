@@ -13,6 +13,11 @@
 return [
     'min_total_cents' => 2000,
 
+    // Generate a Claude-authored business-language summary on top of every
+    // scan. Adds ~$0.05 per scan. Set CODEREVIEW_EXECUTIVE_SUMMARY=false to
+    // disable.
+    'generate_executive_summary' => env('CODEREVIEW_EXECUTIVE_SUMMARY', true),
+
     'bundle_discount_pct' => [
         2 => 10,
         3 => 15,

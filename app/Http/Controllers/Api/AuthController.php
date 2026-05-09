@@ -174,6 +174,7 @@ class AuthController extends Controller
             'emailVerified' => ! is_null($user->email_verified_at),
             'githubLogin' => $user->github_login,
             'githubAvatarUrl' => $user->github_avatar_url,
+            'isReviewer' => (bool) ($user->is_reviewer ?? false),
             'createdAt' => $user->created_at?->toIso8601String(),
         ];
     }

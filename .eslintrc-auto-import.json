@@ -391,6 +391,10 @@
     "fetchCatalog": true,
     "fetchCredits": true,
     "fetchDashboard": true,
-    "syncLemonOrders": true
+    "syncLemonOrders": true,
+    "approveAnalysis": true,
+    "fetchReviewerQueue": true,
+    "finalizeAnalysis": true,
+    "submitForReview": true
   }
 }

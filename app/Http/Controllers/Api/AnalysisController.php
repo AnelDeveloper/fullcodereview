@@ -104,9 +104,11 @@ class AnalysisController extends Controller
 
     public function show(Request $request, int $id)
     {
-        $analysis = Analysis::findOrFail($id);
+        $analysis = Analysis::with('reviewer')->findOrFail($id);
         $user = $request->user();
-        if ($analysis->user_id && $analysis->user_id !== $user?->id) {
+        $isOwner = $analysis->user_id && $analysis->user_id === $user?->id;
+        $isReviewer = (bool) ($user?->is_reviewer ?? false);
+        if (! $isOwner && ! $isReviewer) {
             return response()->json(['message' => 'Not authorized.'], 403);
         }
         return response()->json(['analysis' => $this->present($analysis)]);
@@ -129,6 +131,12 @@ class AnalysisController extends Controller
                 'securityScore' => $a->security_score,
                 'performanceScore' => $a->performance_score,
                 'qualityScore' => $a->quality_score,
+                'readinessScore' => $a->readiness_score,
+                'readinessStatus' => $a->readiness_status,
+                'criticalBlockerCount' => $a->critical_blocker_count,
+                'highBlockerCount' => $a->high_blocker_count,
+                'verificationStatus' => $a->verification_status,
+                'verifiedAt' => $a->verified_at?->toIso8601String(),
                 'filesScanned' => $a->files_scanned,
                 'linesAnalyzed' => $a->lines_analyzed,
                 'totalIssues' => collect($a->issues_json ?? [])->flatten(1)->count(),
@@ -140,9 +148,11 @@ class AnalysisController extends Controller
 
     public function reportPdf(Request $request, int $id)
     {
-        $analysis = Analysis::findOrFail($id);
+        $analysis = Analysis::with('reviewer')->findOrFail($id);
         $user = $request->user();
-        if ($analysis->user_id && $analysis->user_id !== $user?->id) {
+        $isOwner = $analysis->user_id && $analysis->user_id === $user?->id;
+        $isReviewer = (bool) ($user?->is_reviewer ?? false);
+        if (! $isOwner && ! $isReviewer) {
             return response()->json(['message' => 'Not authorized.'], 403);
         }
 
@@ -184,6 +194,24 @@ class AnalysisController extends Controller
             'issues' => $a->issues_json,
             'selectedCategories' => $a->selected_categories ?? [],
             'createdAt' => $a->created_at?->toIso8601String(),
+
+            // Readiness layer
+            'readinessScore' => $a->readiness_score,
+            'readinessStatus' => $a->readiness_status,
+            'criticalBlockerCount' => $a->critical_blocker_count,
+            'highBlockerCount' => $a->high_blocker_count,
+
+            // Executive summary (Phase B will populate this; null for now)
+            'executiveSummary' => $a->executive_summary_json,
+
+            // Verification workflow
+            'verificationStatus' => $a->verification_status,
+            'reviewerNotes' => $a->reviewer_notes,
+            'verifiedAt' => $a->verified_at?->toIso8601String(),
+            'reviewer' => $a->reviewer ? [
+                'id' => $a->reviewer->id,
+                'name' => $a->reviewer->name,
+            ] : null,
         ];
     }
 }

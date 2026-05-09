@@ -1,3 +1,7 @@
+/**
+ * Static nav items. The `requiresReviewer` flag is filtered out for
+ * non-reviewers in the layout components.
+ */
 export default [
     {
         title: "Dashboard",
@@ -13,5 +17,11 @@ export default [
         title: "History",
         to: { path: "/history" },
         icon: { icon: "tabler-history" },
+    },
+    {
+        title: "Reviewer queue",
+        to: { path: "/reviewer/queue" },
+        icon: { icon: "tabler-clipboard-check" },
+        requiresReviewer: true,
     },
 ]
