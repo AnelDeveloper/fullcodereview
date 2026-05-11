@@ -1,7 +1,7 @@
 {
     "name": "codereview/app",
     "type": "project",
-    "description": "Code Review tool for vibe coders.",
+    "description": "QodeShark — code review tool for vibe coders.",
     "keywords": ["codereview", "ai", "laravel"],
     "license": "MIT",
     "require": {

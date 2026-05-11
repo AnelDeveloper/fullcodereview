@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta charset="utf-8">
-    <title>Code Review — {{ $a->repo_full_name }}</title>
+    <title>QodeShark — {{ $a->repo_full_name }}</title>
     <style>
         @page { margin: 36px 32px; }
         body { font-family: DejaVu Sans, sans-serif; color: #1c1f2b; font-size: 11px; }
@@ -344,7 +344,7 @@
     @endforeach
 
     <div class="footer">
-        Full Code Review · AI-powered audit
+        QodeShark · AI-powered audit
         @if ($isVerified) · Verified by senior engineer @endif
     </div>
 </body>

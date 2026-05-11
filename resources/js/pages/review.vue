@@ -400,7 +400,7 @@ const handleConnectGithub = () => {
 }
 
 const handleDisconnectGithub = async () => {
-    if (! confirm("Disconnect GitHub from Full Code Review? You'll need to reconnect to scan private repos.")) return
+    if (! confirm("Disconnect GitHub from QodeShark? You'll need to reconnect to scan private repos.")) return
     disconnecting.value = true
     oauthError.value = ""
     try {

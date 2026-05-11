@@ -98,7 +98,7 @@ class GithubController extends Controller
     /**
      * Clears the user's stored GitHub access token (and login/avatar metadata).
      * The OAuth grant on GitHub's side stays in place — the user must remove
-     * "Full Code Review" from github.com/settings/applications to revoke it
+     * "QodeShark" from github.com/settings/applications to revoke it
      * fully — but our app immediately stops being able to read their repos.
      */
     public function disconnect(Request $request)

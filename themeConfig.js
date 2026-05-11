@@ -6,13 +6,13 @@ import { AppContentLayoutNav, ContentWidth, FooterType, NavbarType } from '@layo
 
 const logoMark = h('img', {
     src: '/favicon.png',
-    alt: 'Full Code Review',
+    alt: 'QodeShark',
     style: 'width:34px;height:34px;border-radius:9px;flex-shrink:0;',
 })
 
 export const { themeConfig, layoutConfig } = defineThemeConfig({
     app: {
-        title: 'Full Code Review',
+        title: 'QodeShark',
         logo: logoMark,
         logoDark: logoMark,
         logoIconLight: logoMark,

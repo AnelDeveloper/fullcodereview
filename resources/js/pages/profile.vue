@@ -303,7 +303,7 @@ const onConnectGithub = () => {
 }
 
 const onDisconnectGithub = async () => {
-    if (! confirm("Disconnect GitHub from Full Code Review?")) return
+    if (! confirm("Disconnect GitHub from QodeShark?")) return
     disconnectingGithub.value = true
     try {
         await disconnectGithub()

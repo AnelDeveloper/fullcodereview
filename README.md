@@ -123,7 +123,7 @@ The repo ships with [nixpacks.toml](nixpacks.toml) and [railway.json](railway.js
 3. In the service → **Variables**, set the env. The minimum is:
 
    ```
-   APP_NAME="Full Code Review"
+   APP_NAME="QodeShark"
    APP_ENV=production
    APP_DEBUG=false
    APP_URL=https://${{RAILWAY_PUBLIC_DOMAIN}}
@@ -156,8 +156,8 @@ The repo ships with [nixpacks.toml](nixpacks.toml) and [railway.json](railway.js
    # Mail (Resend or SES recommended for production)
    MAIL_MAILER=resend
    RESEND_KEY=
-   MAIL_FROM_ADDRESS=hello@fullcodereview.com
-   MAIL_FROM_NAME="Full Code Review"
+   MAIL_FROM_ADDRESS=hello@qodeshark.com
+   MAIL_FROM_NAME="QodeShark"
    ```
 
 4. Trigger a deploy. Nixpacks will:
@@ -181,11 +181,11 @@ php artisan key:generate --show
 ```
 Copy the `base64:...` value into `APP_KEY` on Railway. Don't share it.
 
-### Custom domain — `app.fullcodereview.com`
+### Custom domain — `app.qodeshark.com`
 
-The marketing site lives at `fullcodereview.com` (separate `codereview-landingpage` repo). The app runs at the `app.` subdomain.
+The marketing site lives at `qodeshark.com` (separate `codereview-landingpage` repo). The app runs at the `app.` subdomain.
 
-**1. In Railway** → Service → Settings → Networking → **Custom Domain**, click "Add Domain" and enter `app.fullcodereview.com`. Railway shows you a CNAME target like `xxxx.up.railway.app`.
+**1. In Railway** → Service → Settings → Networking → **Custom Domain**, click "Add Domain" and enter `app.qodeshark.com`. Railway shows you a CNAME target like `xxxx.up.railway.app`.
 
 **2. In your DNS provider** (where you set the Resend records), add:
 
@@ -198,15 +198,15 @@ Save and wait for propagation (usually a few minutes). Railway issues a Let's En
 **3. In Railway → Variables**, swap any URL-shaped vars to the canonical domain:
 
 ```
-APP_URL=https://app.fullcodereview.com
-STRIPE_SUCCESS_URL=https://app.fullcodereview.com/?session_id={CHECKOUT_SESSION_ID}
-STRIPE_CANCEL_URL=https://app.fullcodereview.com/?canceled=1
-GITHUB_REDIRECT_URI=https://app.fullcodereview.com/api/github/callback
+APP_URL=https://app.qodeshark.com
+STRIPE_SUCCESS_URL=https://app.qodeshark.com/?session_id={CHECKOUT_SESSION_ID}
+STRIPE_CANCEL_URL=https://app.qodeshark.com/?canceled=1
+GITHUB_REDIRECT_URI=https://app.qodeshark.com/api/github/callback
 ```
 
 **4. Update external integrations:**
-- **Stripe** → Webhooks → endpoint URL → `https://app.fullcodereview.com/api/stripe/webhook`. Copy the new signing secret into `STRIPE_WEBHOOK_SECRET`.
-- **GitHub OAuth app** → Authorization callback URL → `https://app.fullcodereview.com/api/github/callback`.
+- **Stripe** → Webhooks → endpoint URL → `https://app.qodeshark.com/api/stripe/webhook`. Copy the new signing secret into `STRIPE_WEBHOOK_SECRET`.
+- **GitHub OAuth app** → Authorization callback URL → `https://app.qodeshark.com/api/github/callback`.
 
 **5. Trigger a redeploy** so Laravel picks up the new `APP_URL` (verification emails, signed URLs, redirects all use it).
 

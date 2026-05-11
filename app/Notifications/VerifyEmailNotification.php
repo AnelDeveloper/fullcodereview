@@ -29,7 +29,7 @@ class VerifyEmailNotification extends BaseVerifyEmail
     public function toMail($notifiable): MailMessage
     {
         $url = $this->verificationUrl($notifiable);
-        $appName = config('app.name', 'Full Code Review');
+        $appName = config('app.name', 'QodeShark');
 
         return (new MailMessage())
             ->subject("Confirm your email for {$appName}")

@@ -162,7 +162,7 @@ const hideTitleAndIcon = configStore.isVerticalNavMini(isHovered)
     </div>
     <div class="nav-footer">
       <span class="text-medium-emphasis">
-        &copy; {{ new Date().getFullYear() }} Code Review
+        &copy; {{ new Date().getFullYear() }} QodeShark
       </span>
     </div>
   </Component>

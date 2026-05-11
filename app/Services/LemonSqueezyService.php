@@ -48,11 +48,11 @@ class LemonSqueezyService
                 'type' => 'checkouts',
                 'attributes' => [
                     'product_options' => [
-                        'name' => 'Code Review',
+                        'name' => 'QodeShark',
                         'description' => 'AI-powered code review of one GitHub repository.',
                         'redirect_url' => config('services.lemonsqueezy.success_url')
                             ?: rtrim(config('app.url'), '/') . '/review?lemon_success=1',
-                        'receipt_button_text' => 'Back to Full Code Review',
+                        'receipt_button_text' => 'Back to QodeShark',
                         'receipt_link_url' => rtrim(config('app.url'), '/') . '/review',
                     ],
                     'checkout_options' => [

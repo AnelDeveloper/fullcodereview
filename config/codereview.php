@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Full Code Review — category catalog & bundle discount.
+ * QodeShark — category catalog & bundle discount.
  *
  * Single source of truth for what we sell and how it's priced. Mirrored on
  * the landing page (codereview-landingpage). Keep them in sync.

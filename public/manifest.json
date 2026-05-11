@@ -1,6 +1,6 @@
 {
-  "name": "Code Review",
-  "short_name": "CodeReview",
+  "name": "QodeShark",
+  "short_name": "QodeShark",
   "description": "AI-powered code review for your GitHub repositories.",
   "start_url": "/",
   "display": "standalone",
