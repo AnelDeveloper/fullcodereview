@@ -15,10 +15,10 @@
                 :class="$vuetify.display.smAndUp ? 'pa-6' : 'pa-4'"
             >
                 <VCardItem class="d-flex flex-column align-center text-center pt-2">
-                    <RouterLink to="/" class="brand-mark mb-3">
+                    <RouterLink to="/" class="brand-mark">
                         <img src="/logos/Shark Logo Itself white.svg" alt="QodeShark" />
                     </RouterLink>
-                    <h1 class="text-h4 font-weight-bold gradient-text mb-1">Welcome back</h1>
+                    <h1 class="text-h4 font-weight-bold gradient-text mb-1" style="margin-top: -24px">Welcome back</h1>
                     <p class="text-body-2 text-medium-emphasis">Sign in to run AI-powered code reviews on your repos.</p>
                 </VCardItem>
 
@@ -163,9 +163,9 @@ const login = async () => {
 
 // Light defaults — overridden under .v-theme--dark below.
 .auth-card {
-    background: #ffffff !important;
-    border: 1px solid rgba(0, 0, 0, 0.08) !important;
-    box-shadow: 0 24px 60px -20px rgba(0, 0, 0, 0.18);
+    background: #000000 !important;
+    border: 1px solid rgba(255, 255, 255, 0.12) !important;
+    box-shadow: 0 24px 60px -20px rgba(0, 0, 0, 0.6);
     border-radius: 20px !important;
 }
 
@@ -235,16 +235,18 @@ const login = async () => {
     align-items: center;
     justify-content: center;
     text-decoration: none;
-    width: 88px;
-    height: 88px;
-    border-radius: 22px;
-    background: #000000;
+    width: 90px;
+    height: 50px;
+    overflow: hidden;
 
     img {
-        width: 64px;
-        height: 64px;
-        object-fit: contain;
+        width: 90px;
+        height: 90px;
         display: block;
+        flex-shrink: 0;
+        transform: scale(2);
+        transform-origin: 53% 41%;
+        mix-blend-mode: screen;
     }
 }
 

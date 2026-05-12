@@ -8,7 +8,7 @@
     inset: 0;
     pointer-events: none;
     z-index: 0;
-    background: #FAFAFA;
+    background: #1a1a1a;
 }
 
 :global(.v-theme--dark) .auth-bg {
