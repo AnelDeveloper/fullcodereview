@@ -3,12 +3,7 @@
         <AuthAnimatedBackground />
 
         <div class="theme-toggle-wrapper">
-            <VBtn
-                icon
-                variant="text"
-                size="small"
-                @click="toggleTheme"
-            >
+            <VBtn icon variant="text" size="small" @click="toggleTheme">
                 <VIcon :icon="isDark ? 'tabler-sun' : 'tabler-moon'" />
             </VBtn>
         </div>
@@ -21,7 +16,7 @@
             >
                 <VCardItem class="d-flex flex-column align-center text-center pt-2">
                     <RouterLink to="/" class="brand-mark mb-3">
-                        <img src="/logo.png" alt="QodeShark" />
+                        <img src="/logos/Shark Logo Itself white.svg" alt="QodeShark" />
                     </RouterLink>
                     <h1 class="text-h4 font-weight-bold gradient-text mb-1">Welcome back</h1>
                     <p class="text-body-2 text-medium-emphasis">Sign in to run AI-powered code reviews on your repos.</p>
@@ -113,7 +108,11 @@ const router = useRouter()
 const vuetifyTheme = useTheme()
 const configStore = useConfigStore()
 const isDark = computed(() => vuetifyTheme.global.current.value.dark)
-const toggleTheme = () => { configStore.theme = isDark.value ? "light" : "dark" }
+const toggleTheme = () => {
+    const newTheme = isDark.value ? "light" : "dark"
+    vuetifyTheme.global.name.value = newTheme
+    configStore.theme = newTheme
+}
 
 const form = ref({ email: "", password: "" })
 const errors = ref({})
@@ -162,24 +161,43 @@ const login = async () => {
 <style lang="scss">
 @use "@core-scss/template/pages/page-auth.scss";
 
+// Light defaults — overridden under .v-theme--dark below.
 .auth-card {
-    background: rgba(255, 255, 255, 0.92) !important;
-    .v-theme--dark & { background: rgba(21, 16, 43, 0.88) !important; }
-    backdrop-filter: blur(20px) saturate(180%);
-    -webkit-backdrop-filter: blur(20px) saturate(180%);
-    border: 1px solid rgba(139, 92, 246, 0.18) !important;
-    box-shadow:
-        0 1px 0 rgba(255, 255, 255, 0.06) inset,
-        0 24px 60px -20px rgba(139, 92, 246, 0.4),
-        0 8px 32px rgba(0, 0, 0, 0.4);
+    background: #ffffff !important;
+    border: 1px solid rgba(0, 0, 0, 0.08) !important;
+    box-shadow: 0 24px 60px -20px rgba(0, 0, 0, 0.18);
     border-radius: 20px !important;
 }
 
-// Compact error messages — no block bleed-through, clear visual intent.
+.v-theme--dark .auth-card {
+    background: #111111 !important;
+    border: 1px solid rgba(255, 255, 255, 0.12) !important;
+    box-shadow: 0 24px 60px -20px rgba(0, 0, 0, 0.6);
+}
+
+// Force readable label + input text in both themes — Vuetify's emphasis
+// opacities can read as muddy purple on the new flat dark palette.
+.auth-card .v-label,
+.auth-card .v-field-label,
+.auth-card .v-field input,
+.auth-card .text-medium-emphasis {
+    color: rgba(0, 0, 0, 0.78) !important;
+    opacity: 1;
+}
+.v-theme--dark .auth-card .v-label,
+.v-theme--dark .auth-card .v-field-label,
+.v-theme--dark .auth-card .v-field input,
+.v-theme--dark .auth-card .text-medium-emphasis {
+    color: rgba(255, 255, 255, 0.85) !important;
+}
+
+.auth-card .v-field input::placeholder { color: rgba(0, 0, 0, 0.4); }
+.v-theme--dark .auth-card .v-field input::placeholder { color: rgba(255, 255, 255, 0.4); }
+
 .auth-card .v-input--error .v-messages__message {
     padding: 6px 10px;
     margin-top: 4px;
-    background: rgba(220, 38, 38, 0.08);
+    background: rgba(220, 38, 38, 0.12);
     color: #DC2626;
     border-radius: 8px;
     font-size: 12px;
@@ -205,44 +223,47 @@ const login = async () => {
         flex-shrink: 0;
     }
 }
-
 .v-theme--dark .auth-card .v-input--error .v-messages__message {
     background: rgba(220, 38, 38, 0.18);
     color: #FCA5A5;
-
-    &::before { background: #FCA5A5; color: #1B1340; }
+    &::before { background: #FCA5A5; color: #111111; }
 }
 
+// Brand mark — white shark inside a dark rounded square so it reads on either bg.
 .brand-mark {
     display: inline-flex;
     align-items: center;
     justify-content: center;
     text-decoration: none;
-    filter: drop-shadow(0 12px 24px rgba(139, 92, 246, 0.4));
+    width: 88px;
+    height: 88px;
+    border-radius: 22px;
+    background: #000000;
 
     img {
-        width: 88px;
-        height: 88px;
+        width: 64px;
+        height: 64px;
         object-fit: contain;
         display: block;
     }
 }
 
-.gradient-text {
-    color: #7C3AED;
-}
+.gradient-text { color: #000000; }
+.v-theme--dark .gradient-text { color: #ffffff; }
 
-:global(.v-theme--dark) .gradient-text {
-    color: #C4B5FD;
-}
-
+// CTA button: black-on-white in light mode, white-on-black in dark — same as
+// landing page's `.btn-vibe`.
 .vibe-cta {
-    background: #7C3AED !important;
-    color: #fff !important;
+    background: #000000 !important;
+    color: #ffffff !important;
     font-weight: 600 !important;
     letter-spacing: 0.2px;
-
-    &:hover { background: #6D28D9 !important; }
+    &:hover { background: #1a1a1a !important; }
+}
+.v-theme--dark .vibe-cta {
+    background: #ffffff !important;
+    color: #000000 !important;
+    &:hover { background: #e5e5e5 !important; }
 }
 
 .theme-toggle-wrapper {
@@ -251,21 +272,14 @@ const login = async () => {
     right: 16px;
     z-index: 10;
 }
-
-// Force a visible toggle on the auth page regardless of Vuetify's defaults.
-// The auth bg is dark by default → translucent white pill with a light icon.
 .theme-toggle-wrapper .v-btn {
-    background: rgba(255, 255, 255, 0.08) !important;
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-    color: rgba(255, 255, 255, 0.9) !important;
-    border: 1px solid rgba(255, 255, 255, 0.15) !important;
+    background: rgba(0, 0, 0, 0.06) !important;
+    color: rgba(0, 0, 0, 0.78) !important;
+    border: 1px solid rgba(0, 0, 0, 0.12) !important;
 }
-
-// Light theme flips the auth bg to pale lavender → dark icon for contrast.
-.v-theme--light .theme-toggle-wrapper .v-btn {
-    background: rgba(15, 10, 31, 0.06) !important;
-    color: rgba(15, 10, 31, 0.78) !important;
-    border-color: rgba(15, 10, 31, 0.12) !important;
+.v-theme--dark .theme-toggle-wrapper .v-btn {
+    background: rgba(255, 255, 255, 0.08) !important;
+    color: rgba(255, 255, 255, 0.9) !important;
+    border-color: rgba(255, 255, 255, 0.15) !important;
 }
 </style>

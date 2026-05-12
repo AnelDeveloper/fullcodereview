@@ -135,8 +135,8 @@ const severityColor = (sev) => {
     width: 24px;
     height: 24px;
     border-radius: 6px;
-    background: rgba(124, 58, 237, 0.12);
-    color: #7C3AED;
+    background: rgba(var(--v-theme-on-surface), 0.08);
+    color: rgb(var(--v-theme-on-surface));
     font-weight: 800;
     font-size: 12px;
     display: grid;
@@ -144,6 +144,6 @@ const severityColor = (sev) => {
     margin-top: 1px;
 }
 
-.border-t { border-top: 1px solid rgba(150, 150, 160, 0.18); }
+.border-t { border-top: 1px solid rgba(var(--v-border-color), var(--v-border-opacity)); }
 .min-w-0 { min-width: 0; }
 </style>

@@ -48,54 +48,30 @@ export const initConfigStore = () => {
   const vuetifyTheme = useTheme()
   const configStore = useConfigStore()
 
-  // Update theme-color meta tag for iPhone safe area and bottom bar
-  const updateThemeColorMeta = (themeName) => {
-    const metaThemeColor = document.querySelector('#theme-color-meta')
-    const metaMsNavButton = document.querySelector('#msapplication-navbutton-color')
-    const metaAppleStatusBar = document.querySelector('#apple-status-bar-style')
-    
-    const color = themeName === 'dark' ? '#25293C' : '#ffffff'
-    
-    if (metaThemeColor) {
-      metaThemeColor.setAttribute('content', color)
+  const updateThemeColorMeta = themeName => {
+    const color = themeName === 'dark' ? '#000000' : '#ffffff'
+    for (const id of ['#theme-color-meta', '#msapplication-navbutton-color']) {
+      const meta = document.querySelector(id)
+      if (meta) meta.setAttribute('content', color)
     }
-    if (metaMsNavButton) {
-      metaMsNavButton.setAttribute('content', color)
-    }
-    if (metaAppleStatusBar) {
-      metaAppleStatusBar.setAttribute('content', 'black-translucent')
-    }
-    
-    // Force Safari to re-read the theme-color by removing and re-adding it
-    if (metaThemeColor) {
-      const parent = metaThemeColor.parentNode
-      const nextSibling = metaThemeColor.nextSibling
-      parent.removeChild(metaThemeColor)
-      metaThemeColor.setAttribute('content', color)
-      parent.insertBefore(metaThemeColor, nextSibling)
-    }
+    const statusBar = document.querySelector('#apple-status-bar-style')
+    if (statusBar) statusBar.setAttribute('content', themeName === 'dark' ? 'black-translucent' : 'default')
   }
 
   watch([() => configStore.theme, userPreferredColorScheme], () => {
     const newTheme = configStore.theme === 'system'
-      ? userPreferredColorScheme.value === 'dark'
-        ? 'dark'
-        : 'light'
+      ? userPreferredColorScheme.value === 'dark' ? 'dark' : 'light'
       : configStore.theme
 
     vuetifyTheme.global.name.value = newTheme
-
-    // Update meta tag for iPhone safe area
     updateThemeColorMeta(newTheme)
   }, { immediate: true })
-  
+
   onMounted(() => {
-    if (configStore.theme === 'system') {
-      vuetifyTheme.global.name.value = userPreferredColorScheme.value
-      updateThemeColorMeta(userPreferredColorScheme.value)
-    } else {
-      updateThemeColorMeta(configStore.theme)
-    }
+    const initial = configStore.theme === 'system'
+      ? userPreferredColorScheme.value
+      : configStore.theme
+    updateThemeColorMeta(initial)
   })
 }
 // !SECTION

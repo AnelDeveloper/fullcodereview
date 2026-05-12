@@ -3,12 +3,7 @@
         <AuthAnimatedBackground />
 
         <div class="theme-toggle-wrapper">
-            <VBtn
-                icon
-                variant="text"
-                size="small"
-                @click="toggleTheme"
-            >
+            <VBtn icon variant="text" size="small" @click="toggleTheme">
                 <VIcon :icon="isDark ? 'tabler-sun' : 'tabler-moon'" />
             </VBtn>
         </div>
@@ -21,7 +16,7 @@
             >
                 <VCardItem class="d-flex flex-column align-center text-center pt-2">
                     <RouterLink to="/" class="brand-mark mb-3">
-                        <img src="/logo.png" alt="QodeShark" />
+                        <img src="/logos/Shark Logo Itself white.svg" alt="QodeShark" />
                     </RouterLink>
                     <h1 class="text-h4 font-weight-bold gradient-text mb-1">Create your account</h1>
                     <p class="text-body-2 text-medium-emphasis">Run AI-powered code reviews on your GitHub repos.</p>
@@ -124,11 +119,15 @@ import { useTheme } from "vuetify"
 import { useConfigStore } from "@core/stores/config"
 
 const authStore = useAuthStore()
+const router = useRouter()
 const vuetifyTheme = useTheme()
 const configStore = useConfigStore()
 const isDark = computed(() => vuetifyTheme.global.current.value.dark)
-const toggleTheme = () => { configStore.theme = isDark.value ? "light" : "dark" }
-const router = useRouter()
+const toggleTheme = () => {
+    const newTheme = isDark.value ? "light" : "dark"
+    vuetifyTheme.global.name.value = newTheme
+    configStore.theme = newTheme
+}
 
 const form = ref({ name: "", email: "", password: "", password_confirmation: "" })
 const errors = ref({})
@@ -167,48 +166,66 @@ const register = async () => {
 @use "@core-scss/template/pages/page-auth.scss";
 
 .auth-card {
-    background: rgba(255, 255, 255, 0.7) !important;
-    .v-theme--dark & { background: rgba(21, 16, 43, 0.65) !important; }
-    backdrop-filter: blur(20px) saturate(180%);
-    -webkit-backdrop-filter: blur(20px) saturate(180%);
-    border: 1px solid rgba(139, 92, 246, 0.18) !important;
-    box-shadow:
-        0 1px 0 rgba(255, 255, 255, 0.06) inset,
-        0 24px 60px -20px rgba(139, 92, 246, 0.4),
-        0 8px 32px rgba(0, 0, 0, 0.4);
+    background: #ffffff !important;
+    border: 1px solid rgba(0, 0, 0, 0.08) !important;
+    box-shadow: 0 24px 60px -20px rgba(0, 0, 0, 0.18);
     border-radius: 20px !important;
 }
+.v-theme--dark .auth-card {
+    background: #111111 !important;
+    border: 1px solid rgba(255, 255, 255, 0.12) !important;
+    box-shadow: 0 24px 60px -20px rgba(0, 0, 0, 0.6);
+}
+
+.auth-card .v-label,
+.auth-card .v-field-label,
+.auth-card .v-field input,
+.auth-card .text-medium-emphasis {
+    color: rgba(0, 0, 0, 0.78) !important;
+    opacity: 1;
+}
+.v-theme--dark .auth-card .v-label,
+.v-theme--dark .auth-card .v-field-label,
+.v-theme--dark .auth-card .v-field input,
+.v-theme--dark .auth-card .text-medium-emphasis {
+    color: rgba(255, 255, 255, 0.85) !important;
+}
+
+.auth-card .v-field input::placeholder { color: rgba(0, 0, 0, 0.4); }
+.v-theme--dark .auth-card .v-field input::placeholder { color: rgba(255, 255, 255, 0.4); }
 
 .brand-mark {
     display: inline-flex;
     align-items: center;
     justify-content: center;
     text-decoration: none;
-    filter: drop-shadow(0 12px 24px rgba(139, 92, 246, 0.4));
+    width: 88px;
+    height: 88px;
+    border-radius: 22px;
+    background: #000000;
 
     img {
-        width: 88px;
-        height: 88px;
+        width: 64px;
+        height: 64px;
         object-fit: contain;
         display: block;
     }
 }
 
-.gradient-text {
-    color: #7C3AED;
-}
-
-:global(.v-theme--dark) .gradient-text {
-    color: #C4B5FD;
-}
+.gradient-text { color: #000000; }
+.v-theme--dark .gradient-text { color: #ffffff; }
 
 .vibe-cta {
-    background: #7C3AED !important;
-    color: #fff !important;
+    background: #000000 !important;
+    color: #ffffff !important;
     font-weight: 600 !important;
     letter-spacing: 0.2px;
-
-    &:hover { background: #6D28D9 !important; }
+    &:hover { background: #1a1a1a !important; }
+}
+.v-theme--dark .vibe-cta {
+    background: #ffffff !important;
+    color: #000000 !important;
+    &:hover { background: #e5e5e5 !important; }
 }
 
 .theme-toggle-wrapper {
@@ -216,5 +233,15 @@ const register = async () => {
     top: 16px;
     right: 16px;
     z-index: 10;
+}
+.theme-toggle-wrapper .v-btn {
+    background: rgba(0, 0, 0, 0.06) !important;
+    color: rgba(0, 0, 0, 0.78) !important;
+    border: 1px solid rgba(0, 0, 0, 0.12) !important;
+}
+.v-theme--dark .theme-toggle-wrapper .v-btn {
+    background: rgba(255, 255, 255, 0.08) !important;
+    color: rgba(255, 255, 255, 0.9) !important;
+    border-color: rgba(255, 255, 255, 0.15) !important;
 }
 </style>

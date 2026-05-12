@@ -120,22 +120,17 @@ const resend = async () => {
 
 <style lang="scss" scoped>
 .auth-card {
-    // Solid card so the orbs don't wash out the text. Matches Login.vue.
-    background: rgba(21, 16, 43, 0.92) !important;
-    backdrop-filter: blur(20px) saturate(180%);
-    -webkit-backdrop-filter: blur(20px) saturate(180%);
-    border: 1px solid rgba(139, 92, 246, 0.18) !important;
-    box-shadow:
-        0 1px 0 rgba(255, 255, 255, 0.06) inset,
-        0 24px 60px -20px rgba(139, 92, 246, 0.4),
-        0 8px 32px rgba(0, 0, 0, 0.4);
+    background: #ffffff !important;
+    border: 1px solid rgba(0, 0, 0, 0.08) !important;
+    box-shadow: 0 24px 60px -20px rgba(0, 0, 0, 0.18);
     border-radius: 20px !important;
-    color: rgba(255, 255, 255, 0.92);
+    color: rgba(0, 0, 0, 0.92);
 }
-
-:deep(.v-theme--light) .auth-card {
-    background: rgba(255, 255, 255, 0.95) !important;
-    color: rgba(15, 10, 31, 0.92);
+:global(.v-theme--dark) .auth-card {
+    background: #111111 !important;
+    border: 1px solid rgba(255, 255, 255, 0.12) !important;
+    box-shadow: 0 24px 60px -20px rgba(0, 0, 0, 0.6);
+    color: rgba(255, 255, 255, 0.92);
 }
 
 .mail-icon {
@@ -145,23 +140,26 @@ const resend = async () => {
     margin: 0 auto;
     display: grid;
     place-items: center;
-    background: rgba(124, 58, 237, 0.1);
-    border: 1px solid rgba(124, 58, 237, 0.25);
+    background: rgba(0, 0, 0, 0.04);
+    border: 1px solid rgba(0, 0, 0, 0.12);
+}
+:global(.v-theme--dark) .mail-icon {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.12);
 }
 
-.gradient-text {
-    color: #7C3AED;
-}
-
-:global(.v-theme--dark) .gradient-text {
-    color: #C4B5FD;
-}
+.gradient-text { color: #000000; }
+:global(.v-theme--dark) .gradient-text { color: #ffffff; }
 
 .vibe-cta {
-    background: #7C3AED !important;
-    color: #fff !important;
+    background: #000000 !important;
+    color: #ffffff !important;
     font-weight: 600 !important;
-
-    &:hover { background: #6D28D9 !important; }
+    &:hover { background: #1a1a1a !important; }
+}
+:global(.v-theme--dark) .vibe-cta {
+    background: #ffffff !important;
+    color: #000000 !important;
+    &:hover { background: #e5e5e5 !important; }
 }
 </style>

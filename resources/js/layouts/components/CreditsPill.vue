@@ -71,13 +71,13 @@ const goBuy = () => {
 
 <style lang="scss" scoped>
 .credits-pill {
-    background: rgba(124, 58, 237, 0.1);
-    border: 1px solid rgba(124, 58, 237, 0.25);
+    background: rgba(var(--v-theme-on-surface), 0.06);
+    border: 1px solid rgba(var(--v-border-color), var(--v-border-opacity));
     color: rgb(var(--v-theme-on-surface));
     transition: border-color .2s ease;
     user-select: none;
     &:hover {
-        border-color: rgb(var(--v-theme-primary));
+        border-color: rgba(var(--v-theme-on-surface), 0.4);
     }
 }
 

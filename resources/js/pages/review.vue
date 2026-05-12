@@ -236,7 +236,7 @@ import {
     runCodeCheck,
     fetchUserRepos,
     githubLoginUrl,
-    syncLemonOrders,
+    syncStripeOrders,
     disconnectGithub,
 } from "@/utils/codeCheck"
 import CategoryConfigurator from "@/components/CategoryConfigurator.vue"
@@ -325,7 +325,8 @@ const onOpenBuy = () => { buyDialog.value = true }
 onMounted(async () => {
     window.addEventListener("codereview:open-buy", onOpenBuy)
 
-    const lemonSuccess = route.query.lemon_success
+    const stripeSuccess = route.query.stripe_success
+    const stripeSessionId = route.query.session_id
     const ghConnected = route.query.gh_connected
     const ghError = route.query.gh_error
     const buy = route.query.buy
@@ -333,25 +334,26 @@ onMounted(async () => {
     if (buy) { buyDialog.value = true; clearQuery(["buy"]) }
     if (ghError) { oauthError.value = decodeURIComponent(ghError); clearQuery(["gh_error"]) }
     if (ghConnected) { clearQuery(["gh_connected"]); await loadGithubRepos() }
-    if (lemonSuccess) {
-        // Try the LS webhook landing first; fall back to a direct sync
-        // (fetches the user's recent LS orders by email and creates any
-        // missing slots). This handles delayed/dropped webhooks.
-        try { await syncLemonOrders() } catch { /* sync is best-effort */ }
+    if (stripeSuccess) {
+        // Sync the specific Stripe session we just returned from. The
+        // webhook may already have fired and credited the slots; sync is
+        // idempotent and handles the "webhook delayed/dropped" case too.
+        try { await syncStripeOrders(stripeSessionId) } catch { /* sync is best-effort */ }
         await authStore.refreshCredits()
 
-        // If the sync raced ahead of the webhook, give the webhook one more chance
+        // If the webhook still hasn't landed, retry the same session a
+        // few times — Stripe's `paid` flag may take a moment to flip.
         if (authStore.sectionsTotal === 0) {
             for (let i = 0; i < 4; i++) {
                 await new Promise(r => setTimeout(r, 1200))
-                try { await syncLemonOrders() } catch { /* ignore */ }
+                try { await syncStripeOrders(stripeSessionId) } catch { /* ignore */ }
                 await authStore.refreshCredits()
                 if (authStore.sectionsTotal > 0) break
             }
         }
 
         returnBanner.value = "success"
-        clearQuery(["lemon_success"])
+        clearQuery(["stripe_success", "session_id"])
 
         // Default-pick all categories the user now has
         if (picked.value.length === 0) {
@@ -495,8 +497,8 @@ const handleAnalyze = async () => {
         border-radius: 16px;
         margin: 0 auto;
         display: grid; place-items: center;
-        background: rgba(124, 58, 237, 0.1);
-        border: 1px solid rgba(124, 58, 237, 0.25);
+        background: rgba(var(--v-theme-on-surface), 0.06);
+        border: 1px solid rgba(var(--v-border-color), var(--v-border-opacity));
     }
 }
 
@@ -505,7 +507,7 @@ const handleAnalyze = async () => {
 .scope-row {
     appearance: none;
     background: transparent;
-    border: 1px solid rgba(150, 150, 160, 0.18);
+    border: 1px solid rgba(var(--v-border-color), var(--v-border-opacity));
     border-radius: 12px;
     padding: 12px 14px;
     width: 100%;
@@ -518,12 +520,12 @@ const handleAnalyze = async () => {
     color: rgb(var(--v-theme-on-surface));
     transition: all .18s ease;
 
-    &:hover:not(:disabled) { border-color: rgb(var(--v-theme-primary)); }
+    &:hover:not(:disabled) { border-color: rgba(var(--v-theme-on-surface), 0.4); }
 
     &--picked {
-        border-color: rgb(var(--v-theme-primary)) !important;
-        background: rgba(124, 58, 237, 0.06);
-        box-shadow: 0 0 0 1px rgb(var(--v-theme-primary));
+        border-color: rgb(var(--v-theme-on-surface)) !important;
+        background: rgba(var(--v-theme-on-surface), 0.04);
+        box-shadow: 0 0 0 1px rgba(var(--v-theme-on-surface), 0.5);
     }
 
     &--disabled { opacity: 0.5; cursor: not-allowed; }
@@ -545,8 +547,8 @@ const handleAnalyze = async () => {
     align-items: center;
     padding: 2px 10px;
     border-radius: 999px;
-    background: rgba(139, 92, 246, 0.15);
-    color: rgb(var(--v-theme-primary));
+    background: rgba(var(--v-theme-on-surface), 0.1);
+    color: rgb(var(--v-theme-on-surface));
     font-size: 12px;
     font-weight: 700;
 }
@@ -562,8 +564,8 @@ const handleAnalyze = async () => {
     display: inline-flex;
     padding: 4px;
     border-radius: 999px;
-    border: 1px solid rgba(150, 150, 160, 0.18);
-    background: rgba(150, 150, 160, 0.04);
+    border: 1px solid rgba(var(--v-border-color), var(--v-border-opacity));
+    background: rgba(var(--v-theme-on-surface), 0.03);
 
     &__btn {
         appearance: none;
@@ -584,8 +586,8 @@ const handleAnalyze = async () => {
 
         &--active {
             opacity: 1;
-            background: #7C3AED;
-            color: #fff;
+            background: rgb(var(--v-theme-on-surface));
+            color: rgb(var(--v-theme-surface));
         }
     }
 }
@@ -596,8 +598,8 @@ const handleAnalyze = async () => {
     gap: 16px;
     padding: 18px;
     border-radius: 14px;
-    border: 1px dashed rgba(124, 58, 237, 0.3);
-    background: rgba(124, 58, 237, 0.04);
+    border: 1px dashed rgba(var(--v-border-color), var(--v-border-opacity));
+    background: rgba(var(--v-theme-on-surface), 0.03);
 
     > .v-icon { flex-shrink: 0; }
 }
@@ -609,11 +611,15 @@ const handleAnalyze = async () => {
     max-height: 340px;
 }
 
+// White-on-black in dark, black-on-white in light — matches landing page btn-vibe.
 .vibe-cta {
-    background: #7C3AED !important;
-    color: #fff !important;
+    background: rgb(var(--v-theme-on-surface)) !important;
+    color: rgb(var(--v-theme-surface)) !important;
     font-weight: 600 !important;
-    &:hover { background: #6D28D9 !important; }
-    &:disabled { background: rgba(150, 150, 160, 0.2) !important; color: rgba(150, 150, 160, 0.5) !important; }
+    &:hover { background: rgba(var(--v-theme-on-surface), 0.85) !important; }
+    &:disabled {
+        background: rgba(var(--v-theme-on-surface), 0.15) !important;
+        color: rgba(var(--v-theme-on-surface), 0.4) !important;
+    }
 }
 </style>

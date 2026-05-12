@@ -8,10 +8,10 @@
     inset: 0;
     pointer-events: none;
     z-index: 0;
-    background: #0B0817;
+    background: #FAFAFA;
 }
 
-:global(.v-theme--light) .auth-bg {
-    background: #FAFAFA;
+:global(.v-theme--dark) .auth-bg {
+    background: #000000;
 }
 </style>

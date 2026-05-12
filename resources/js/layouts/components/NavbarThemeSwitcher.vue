@@ -17,10 +17,6 @@ const icon = computed(() =>
 
 const toggleTheme = () => {
     const newTheme = vuetifyTheme.global.current.value.dark ? "light" : "dark"
-    // Flip Vuetify synchronously so CSS vars switch in the same frame as
-    // any reactive components watching configStore.theme. Cookie write
-    // (via the watcher in initConfigStore) still happens, just doesn't
-    // gate the visual switch.
     vuetifyTheme.global.name.value = newTheme
     configStore.theme = newTheme
 }

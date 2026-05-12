@@ -230,8 +230,8 @@ onMounted(async () => {
 
 <style lang="scss" scoped>
 .empty-state {
-    background: rgba(139, 92, 246, 0.04);
-    border: 1px dashed rgba(139, 92, 246, 0.25);
+    background: rgba(var(--v-theme-on-surface), 0.03);
+    border: 1px dashed rgba(var(--v-border-color), var(--v-border-opacity));
     border-radius: 14px;
     padding: 32px 16px;
 }
@@ -245,11 +245,14 @@ onMounted(async () => {
     gap: 16px;
     padding: 14px 16px;
     border-radius: 12px;
-    border: 1px solid rgba(150, 150, 160, 0.1);
+    border: 1px solid rgba(var(--v-border-color), var(--v-border-opacity));
     cursor: pointer;
     transition: all .18s ease;
 
-    &:hover { border-color: rgb(var(--v-theme-primary)); transform: translateX(4px); }
+    &:hover {
+        border-color: rgba(var(--v-theme-on-surface), 0.4);
+        transform: translateX(4px);
+    }
 
     &__score {
         width: 48px; height: 48px; border-radius: 12px;
@@ -262,7 +265,7 @@ onMounted(async () => {
 
 .quick-icon {
     width: 40px; height: 40px; border-radius: 8px;
-    background: rgba(124, 58, 237, 0.1);
+    background: rgba(var(--v-theme-on-surface), 0.06);
     display: grid; place-items: center; flex-shrink: 0;
 }
 
@@ -272,6 +275,6 @@ onMounted(async () => {
     display: flex; align-items: center; gap: 12px;
     padding: 8px 12px; border-radius: 10px;
     transition: background .18s ease;
-    &:hover { background: rgba(139, 92, 246, 0.06); }
+    &:hover { background: rgba(var(--v-theme-on-surface), 0.04); }
 }
 </style>

@@ -50,7 +50,7 @@
                                             class="check-box"
                                             :class="{ 'check-box--on': isSelected(cat.key) }"
                                         >
-                                            <VIcon v-if="isSelected(cat.key)" icon="tabler-check" size="14" color="white" />
+                                            <VIcon v-if="isSelected(cat.key)" icon="tabler-check" size="14" />
                                         </div>
                                     </div>
 
@@ -291,9 +291,8 @@ onMounted(async () => {
     gap: 8px;
     padding: 8px;
     border-radius: 16px;
-    background: rgba(139, 92, 246, 0.04);
-    border: 1px solid rgba(139, 92, 246, 0.18);
-    backdrop-filter: blur(10px);
+    background: rgba(var(--v-theme-on-surface), 0.03);
+    border: 1px solid rgba(var(--v-border-color), var(--v-border-opacity));
 }
 
 .tier-pill {
@@ -305,11 +304,11 @@ onMounted(async () => {
     color: rgb(var(--v-theme-on-surface));
     opacity: .55;
 
-    &--active { opacity: 1; background: rgba(124, 58, 237, 0.1); }
+    &--active { opacity: 1; background: rgba(var(--v-theme-on-surface), 0.06); }
     &--current {
         opacity: 1;
-        background: #7C3AED;
-        color: #fff;
+        background: rgb(var(--v-theme-on-surface));
+        color: rgb(var(--v-theme-surface));
     }
 
     &__label {
@@ -329,8 +328,8 @@ onMounted(async () => {
 .category-card {
     transition: border-color .2s;
     &.category-card--active {
-        border-color: rgb(var(--v-theme-primary)) !important;
-        box-shadow: 0 0 0 1px rgb(var(--v-theme-primary));
+        border-color: rgb(var(--v-theme-on-surface)) !important;
+        box-shadow: 0 0 0 1px rgba(var(--v-theme-on-surface), 0.5);
     }
 }
 
@@ -339,20 +338,21 @@ onMounted(async () => {
     border-radius: 8px;
     display: grid;
     place-items: center;
-    background: rgba(124, 58, 237, 0.1);
+    background: rgba(var(--v-theme-on-surface), 0.06);
 }
 
 .check-box {
     width: 24px; height: 24px;
     border-radius: 6px;
-    border: 2px solid rgba(150, 150, 160, 0.4);
+    border: 2px solid rgba(var(--v-theme-on-surface), 0.3);
     display: grid;
     place-items: center;
     transition: all .2s ease;
 
     &--on {
-        background: rgb(var(--v-theme-primary));
-        border-color: rgb(var(--v-theme-primary));
+        background: rgb(var(--v-theme-on-surface));
+        border-color: rgb(var(--v-theme-on-surface));
+        color: rgb(var(--v-theme-surface));
     }
 }
 
@@ -366,7 +366,7 @@ onMounted(async () => {
     margin-top: 6px;
     width: 4px; height: 4px;
     border-radius: 50%;
-    background: rgb(var(--v-theme-primary));
+    background: rgb(var(--v-theme-on-surface));
     flex-shrink: 0;
 }
 
@@ -376,11 +376,11 @@ onMounted(async () => {
 }
 
 .gradient-chip {
-    background: #7C3AED !important;
-    color: #fff !important;
+    background: rgb(var(--v-theme-on-surface)) !important;
+    color: rgb(var(--v-theme-surface)) !important;
 }
 
 .discount-line {
-    border-top: 1px dashed rgba(139, 92, 246, .35);
+    border-top: 1px dashed rgba(var(--v-border-color), var(--v-border-opacity));
 }
 </style>
