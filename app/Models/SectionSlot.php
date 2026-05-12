@@ -14,7 +14,7 @@ class SectionSlot extends Model
 {
     protected $fillable = [
         'user_id',
-        'lemon_order_id',
+        'stripe_session_id',
         'amount_cents',
         'category',
         'used_at',

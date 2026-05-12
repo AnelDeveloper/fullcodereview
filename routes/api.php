@@ -7,7 +7,7 @@ use App\Http\Controllers\Api\CreditsController;
 use App\Http\Controllers\Api\DashboardController;
 use App\Http\Controllers\Api\GithubController;
 use App\Http\Controllers\Api\GoogleAuthController;
-use App\Http\Controllers\Api\LemonSqueezyController;
+use App\Http\Controllers\Api\StripeController;
 use App\Http\Controllers\Api\AdminController;
 use App\Http\Controllers\Api\VerificationController;
 use Illuminate\Support\Facades\Route;
@@ -26,8 +26,8 @@ Route::get('github/callback', [GithubController::class, 'callback']);
 Route::get('auth/google/redirect', [GoogleAuthController::class, 'redirectToGoogle']);
 Route::get('auth/google/callback', [GoogleAuthController::class, 'handleGoogleCallback']);
 
-// Lemon Squeezy webhook — signed by the LS-side secret, no auth required
-Route::post('lemon-squeezy/webhook', [LemonSqueezyController::class, 'webhook']);
+// Stripe webhook — verified by Stripe-Signature header, no auth required
+Route::post('stripe/webhook', [StripeController::class, 'webhook']);
 
 // Email verification — link from the email is signed, no auth required
 Route::get('auth/email/verify/{id}/{hash}', [AuthController::class, 'verify'])
@@ -50,8 +50,8 @@ Route::middleware('auth.api')->group(function () {
     Route::get('me/credits', [CreditsController::class, 'index']);
     Route::get('me/dashboard', [DashboardController::class, 'index']);
 
-    Route::post('lemon-squeezy/checkout', [LemonSqueezyController::class, 'checkout']);
-    Route::post('lemon-squeezy/sync', [LemonSqueezyController::class, 'sync']);
+    Route::post('stripe/checkout', [StripeController::class, 'checkout']);
+    Route::post('stripe/sync', [StripeController::class, 'sync']);
 
     Route::get('github/login', [GithubController::class, 'login']);
     Route::get('github/repos', [GithubController::class, 'repos']);

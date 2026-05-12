@@ -7,10 +7,10 @@ export const fetchCredits = () => $api("/me/credits")
 export const fetchDashboard = () => $api("/me/dashboard")
 
 export const startCheckout = (categories) =>
-    $api("/lemon-squeezy/checkout", { method: "POST", body: { categories } })
+    $api("/stripe/checkout", { method: "POST", body: { categories } })
 
-export const syncLemonOrders = () =>
-    $api("/lemon-squeezy/sync", { method: "POST" })
+export const syncStripeOrders = (sessionId = null) =>
+    $api("/stripe/sync", { method: "POST", body: sessionId ? { session_id: sessionId } : {} })
 
 export const fetchUserRepos = () => $api("/github/repos")
 

@@ -9,7 +9,7 @@ class PendingCheckout extends Model
 {
     protected $fillable = [
         'user_id',
-        'ls_checkout_id',
+        'stripe_session_id',
         'category_keys',
         'usd_total_cents',
         'discount_pct',

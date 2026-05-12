@@ -7,9 +7,9 @@ use App\Models\User;
 use Illuminate\Console\Command;
 
 /**
- * Grant section slots to a user without going through Lemon Squeezy.
- * Useful for local dev (where LS webhooks can't reach codereview.test)
- * or for manual ops (refunds, gifts, support replays).
+ * Grant section slots to a user without going through Stripe.
+ * Useful for local dev (where Stripe webhooks can't reach codereview.test
+ * without `stripe listen`) or for manual ops (refunds, gifts, support replays).
  *
  * Usage:
  *   php artisan codereview:grant-slots demo@codereview.test security database
@@ -49,7 +49,7 @@ class GrantSlots extends Command
             SectionSlot::create([
                 'user_id' => $user->id,
                 'category' => $cat,
-                'lemon_order_id' => 'manual-' . uniqid(),
+                'stripe_session_id' => 'manual-' . uniqid(),
                 'amount_cents' => 0,
                 'expires_at' => now()->addDays($days),
             ]);
