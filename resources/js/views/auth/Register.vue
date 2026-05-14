@@ -179,12 +179,16 @@ const register = async () => {
     align-items: center;
     justify-content: center;
     text-decoration: none;
+    width: 140px;
+    height: 140px;
+    overflow: hidden;
 
     img {
-        width: 96px;
-        height: 96px;
+        width: 140px;
+        height: 140px;
         object-fit: contain;
         display: block;
+        transform: scale(1.95);
     }
 }
 

@@ -171,19 +171,23 @@ const login = async () => {
     border-radius: 20px;
 }
 
-// Brand mark — swap full SVG per theme (black-on-light / white-on-dark) so
-// the logo always reads correctly without blend-mode tricks.
+// Brand mark — swap full SVG per theme. Container clips the SVG's empty
+// canvas padding and scale fills the box with the shark itself.
 .brand-mark {
     display: inline-flex;
     align-items: center;
     justify-content: center;
     text-decoration: none;
+    width: 140px;
+    height: 140px;
+    overflow: hidden;
 
     img {
-        width: 96px;
-        height: 96px;
+        width: 140px;
+        height: 140px;
         object-fit: contain;
         display: block;
+        transform: scale(1.95);
     }
 }
 
