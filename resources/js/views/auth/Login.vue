@@ -15,12 +15,7 @@
                 :class="$vuetify.display.smAndUp ? 'pa-6' : 'pa-4'"
             >
                 <VCardItem class="d-flex flex-column align-center text-center pt-2">
-                    <RouterLink to="/" class="brand-mark mb-2">
-                        <img
-                            :src="isDark ? '/logos/Shark Logo Itself white.svg' : '/logos/Shark Logo Black.svg'"
-                            alt="QodeShark"
-                        />
-                    </RouterLink>
+                    <RouterLink to="/" class="brand-mark mb-2" aria-label="QodeShark" :style="brandStyle" />
                     <h1 class="text-h4 font-weight-bold mb-1">Welcome back</h1>
                     <p class="text-body-2 text-medium-emphasis">Sign in to run AI-powered code reviews on your repos.</p>
                 </VCardItem>
@@ -111,6 +106,15 @@ const router = useRouter()
 const vuetifyTheme = useTheme()
 const configStore = useConfigStore()
 const isDark = computed(() => vuetifyTheme.global.current.value.dark)
+
+// One source asset for both themes — light mode flips it to black via filter
+// so size/position stays identical across themes.
+const brandStyle = computed(() => ({
+    backgroundImage: "url('/logos/Shark Logo Itself white.svg')",
+    backgroundSize: "195% auto",
+    backgroundPosition: "center 40%",
+    filter: isDark.value ? "none" : "brightness(0)",
+}))
 const toggleTheme = () => {
     const newTheme = isDark.value ? "light" : "dark"
     vuetifyTheme.global.name.value = newTheme
@@ -171,24 +175,14 @@ const login = async () => {
     border-radius: 20px;
 }
 
-// Brand mark — swap full SVG per theme. Container clips the SVG's empty
-// canvas padding and scale fills the box with the shark itself.
+// Brand mark — render as background-image so the element box hugs the
+// visible shark instead of carrying the SVG's empty canvas padding.
 .brand-mark {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
+    display: inline-block;
     text-decoration: none;
     width: 140px;
-    height: 140px;
-    overflow: hidden;
-
-    img {
-        width: 140px;
-        height: 140px;
-        object-fit: contain;
-        display: block;
-        transform: scale(1.95);
-    }
+    height: 78px;
+    background-repeat: no-repeat;
 }
 
 .theme-toggle-wrapper {
