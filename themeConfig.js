@@ -13,8 +13,8 @@ const logoMark = h('span', {
     class: 'app-logo-mark',
     style: [
         'display:inline-block',
-        'width:36px',
-        'height:36px',
+        'width:48px',
+        'height:48px',
         'flex-shrink:0',
         "background-image:url('/logos/Shark Logo Itself white.svg')",
         'background-size:195% auto',

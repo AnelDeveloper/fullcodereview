@@ -11,8 +11,13 @@
 }
 
 .v-application.v-theme--dark {
-  background: #1d1f23 !important;
+  background: #000000 !important;
   min-height: 100vh;
+
+  // Give outlined cards a nardo-gray fill against the pure-black app bg
+  .v-card.v-card--variant-outlined {
+    background-color: #1d1f23 !important;
+  }
 }
 
 // Ensure content stacks above any positioned siblings

@@ -12,8 +12,8 @@
 
                 <VSpacer />
 
-                <CreditsPill class="me-3" />
-                <NavbarThemeSwitcher class="me-2" />
+                <CreditsPill class="ml-15" />
+                <NavbarThemeSwitcher class="mr-5 ml-5" />
                 <UserProfile />
             </div>
         </template>
@@ -27,14 +27,14 @@
 </template>
 
 <script setup>
-import { computed, onMounted } from "vue"
-import { VerticalNavLayout } from "@layouts"
-import navItemsRaw from "@/navigation/vertical"
+import CreditsPill from "@/layouts/components/CreditsPill.vue"
+import Footer from "@/layouts/components/Footer.vue"
 import NavbarThemeSwitcher from "@/layouts/components/NavbarThemeSwitcher.vue"
 import UserProfile from "@/layouts/components/UserProfile.vue"
-import Footer from "@/layouts/components/Footer.vue"
-import CreditsPill from "@/layouts/components/CreditsPill.vue"
+import navItemsRaw from "@/navigation/vertical"
 import { useAuthStore } from "@/stores/auth"
+import { VerticalNavLayout } from "@layouts"
+import { computed, onMounted } from "vue"
 
 const authStore = useAuthStore()
 

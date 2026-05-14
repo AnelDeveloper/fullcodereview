@@ -104,7 +104,7 @@ export const themes = {
             "error-darken-1": "#DC2626",
             background: "#000000",
             "on-background": "#f0f0f0",
-            surface: "#111111",
+            surface: "#1d1f23",
             "on-surface": "#f0f0f0",
             "grey-50": "#080808",
             "grey-100": "#111111",
@@ -119,7 +119,7 @@ export const themes = {
             "grey-light": "#111111",
             "perfect-scrollbar-thumb": "#333333",
             "skin-bordered-background": "#000000",
-            "skin-bordered-surface": "#111111",
+            "skin-bordered-surface": "#1d1f23",
         },
         variables: {
             "code-color": "#ffffff",
