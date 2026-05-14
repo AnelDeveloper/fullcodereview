@@ -48,6 +48,11 @@
     margin: 0;
 }
 
+// App logo (sidebar / navbar) — white asset, inverted to black in light theme.
+.v-theme--light .app-logo-mark {
+    filter: brightness(0);
+}
+
 // Set background for html and body (gradients handled by app-background.scss)
 html {
     min-height: 100vh;

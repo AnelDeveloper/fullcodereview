@@ -4,30 +4,24 @@ import { defineThemeConfig } from '@core'
 import { Skins } from '@core/enums'
 import { AppContentLayoutNav, ContentWidth, FooterType, NavbarType } from '@layouts/enums'
 
-// White shark wrapped in a black rounded square so it's visible on either
-// light or dark navbar backgrounds (mirrors the landing page favicon).
-const logoMark = h(
-    'span',
-    {
-        style: [
-            'display:inline-flex',
-            'align-items:center',
-            'justify-content:center',
-            'width:36px',
-            'height:36px',
-            'border-radius:9px',
-            'background:#000',
-            'flex-shrink:0',
-        ].join(';'),
-    },
-    [
-        h('img', {
-            src: '/logos/Shark Logo Itself white.svg',
-            alt: 'QodeShark',
-            style: 'width:28px;height:28px;object-fit:contain;display:block;',
-        }),
-    ],
-)
+// Single white-shark asset rendered as background-image so we can crop the
+// SVG's empty canvas padding and make the shark fill the box. Light theme
+// inverts to black via CSS filter (see styles.scss).
+const logoMark = h('span', {
+    'aria-label': 'QodeShark',
+    role: 'img',
+    class: 'app-logo-mark',
+    style: [
+        'display:inline-block',
+        'width:36px',
+        'height:36px',
+        'flex-shrink:0',
+        "background-image:url('/logos/Shark Logo Itself white.svg')",
+        'background-size:195% auto',
+        'background-position:center 40%',
+        'background-repeat:no-repeat',
+    ].join(';'),
+})
 
 export const { themeConfig, layoutConfig } = defineThemeConfig({
     app: {
