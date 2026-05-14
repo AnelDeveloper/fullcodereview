@@ -15,10 +15,13 @@
                 :class="$vuetify.display.smAndUp ? 'pa-6' : 'pa-4'"
             >
                 <VCardItem class="d-flex flex-column align-center text-center pt-2">
-                    <RouterLink to="/" class="brand-mark">
-                        <img src="/logos/Shark Logo Itself white.svg" alt="QodeShark" />
+                    <RouterLink to="/" class="brand-mark mb-2">
+                        <img
+                            :src="isDark ? '/logos/Shark Logo Itself white.svg' : '/logos/Shark Logo Black.svg'"
+                            alt="QodeShark"
+                        />
                     </RouterLink>
-                    <h1 class="text-h4 font-weight-bold gradient-text mb-1" style="margin-top: -24px">Welcome back</h1>
+                    <h1 class="text-h4 font-weight-bold mb-1">Welcome back</h1>
                     <p class="text-body-2 text-medium-emphasis">Sign in to run AI-powered code reviews on your repos.</p>
                 </VCardItem>
 
@@ -168,27 +171,19 @@ const login = async () => {
     border-radius: 20px;
 }
 
-// Shark logo cropped via overflow + scale. Sits inside a small dark pill so
-// the white SVG content is visible on both light and dark cards.
+// Brand mark — swap full SVG per theme (black-on-light / white-on-dark) so
+// the logo always reads correctly without blend-mode tricks.
 .brand-mark {
     display: inline-flex;
     align-items: center;
     justify-content: center;
     text-decoration: none;
-    width: 90px;
-    height: 50px;
-    overflow: hidden;
-    border-radius: 12px;
-    background: #000000;
 
     img {
-        width: 90px;
-        height: 90px;
+        width: 96px;
+        height: 96px;
+        object-fit: contain;
         display: block;
-        flex-shrink: 0;
-        transform: scale(2);
-        transform-origin: 53% 41%;
-        mix-blend-mode: screen;
     }
 }
 
