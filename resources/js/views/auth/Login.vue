@@ -158,78 +158,18 @@ const login = async () => {
 }
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 @use "@core-scss/template/pages/page-auth.scss";
 
-// Light defaults — overridden under .v-theme--dark below.
+// Card uses Vuetify surface tokens so it auto-flips with the theme.
 .auth-card {
-    background: #000000 !important;
-    border: 1px solid rgba(255, 255, 255, 0.12) !important;
-    box-shadow: 0 24px 60px -20px rgba(0, 0, 0, 0.6);
-    border-radius: 20px !important;
+    background: rgb(var(--v-theme-surface));
+    border: 1px solid rgba(var(--v-border-color), var(--v-border-opacity));
+    border-radius: 20px;
 }
 
-.v-theme--dark .auth-card {
-    background: #111111 !important;
-    border: 1px solid rgba(255, 255, 255, 0.12) !important;
-    box-shadow: 0 24px 60px -20px rgba(0, 0, 0, 0.6);
-}
-
-// Force readable label + input text in both themes — Vuetify's emphasis
-// opacities can read as muddy purple on the new flat dark palette.
-.auth-card .v-label,
-.auth-card .v-field-label,
-.auth-card .v-field input,
-.auth-card .text-medium-emphasis {
-    color: rgba(0, 0, 0, 0.78) !important;
-    opacity: 1;
-}
-.v-theme--dark .auth-card .v-label,
-.v-theme--dark .auth-card .v-field-label,
-.v-theme--dark .auth-card .v-field input,
-.v-theme--dark .auth-card .text-medium-emphasis {
-    color: rgba(255, 255, 255, 0.85) !important;
-}
-
-.auth-card .v-field input::placeholder { color: rgba(0, 0, 0, 0.4); }
-.v-theme--dark .auth-card .v-field input::placeholder { color: rgba(255, 255, 255, 0.4); }
-
-.auth-card .v-input--error .v-messages__message {
-    padding: 6px 10px;
-    margin-top: 4px;
-    background: rgba(220, 38, 38, 0.12);
-    color: #DC2626;
-    border-radius: 8px;
-    font-size: 12px;
-    font-weight: 500;
-    line-height: 1.3;
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    opacity: 1;
-
-    &::before {
-        content: "!";
-        display: inline-grid;
-        place-items: center;
-        width: 14px;
-        height: 14px;
-        border-radius: 50%;
-        background: #DC2626;
-        color: #fff;
-        font-size: 10px;
-        font-weight: 700;
-        line-height: 1;
-        flex-shrink: 0;
-    }
-}
-.v-theme--dark .auth-card .v-input--error .v-messages__message {
-    background: rgba(220, 38, 38, 0.18);
-    color: #FCA5A5;
-    &::before { background: #FCA5A5; color: #111111; }
-}
-
-// Brand mark — white shark inside a dark rounded square so it reads on either bg.
+// Shark logo cropped via overflow + scale. Sits inside a small dark pill so
+// the white SVG content is visible on both light and dark cards.
 .brand-mark {
     display: inline-flex;
     align-items: center;
@@ -238,6 +178,8 @@ const login = async () => {
     width: 90px;
     height: 50px;
     overflow: hidden;
+    border-radius: 12px;
+    background: #000000;
 
     img {
         width: 90px;
@@ -250,38 +192,10 @@ const login = async () => {
     }
 }
 
-.gradient-text { color: #000000; }
-.v-theme--dark .gradient-text { color: #ffffff; }
-
-// CTA button: black-on-white in light mode, white-on-black in dark — same as
-// landing page's `.btn-vibe`.
-.vibe-cta {
-    background: #000000 !important;
-    color: #ffffff !important;
-    font-weight: 600 !important;
-    letter-spacing: 0.2px;
-    &:hover { background: #1a1a1a !important; }
-}
-.v-theme--dark .vibe-cta {
-    background: #ffffff !important;
-    color: #000000 !important;
-    &:hover { background: #e5e5e5 !important; }
-}
-
 .theme-toggle-wrapper {
     position: fixed;
     top: 16px;
     right: 16px;
     z-index: 10;
-}
-.theme-toggle-wrapper .v-btn {
-    background: rgba(0, 0, 0, 0.06) !important;
-    color: rgba(0, 0, 0, 0.78) !important;
-    border: 1px solid rgba(0, 0, 0, 0.12) !important;
-}
-.v-theme--dark .theme-toggle-wrapper .v-btn {
-    background: rgba(255, 255, 255, 0.08) !important;
-    color: rgba(255, 255, 255, 0.9) !important;
-    border-color: rgba(255, 255, 255, 0.15) !important;
 }
 </style>

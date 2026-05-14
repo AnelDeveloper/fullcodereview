@@ -120,17 +120,9 @@ const resend = async () => {
 
 <style lang="scss" scoped>
 .auth-card {
-    background: #ffffff !important;
-    border: 1px solid rgba(0, 0, 0, 0.08) !important;
-    box-shadow: 0 24px 60px -20px rgba(0, 0, 0, 0.18);
-    border-radius: 20px !important;
-    color: rgba(0, 0, 0, 0.92);
-}
-:global(.v-theme--dark) .auth-card {
-    background: #111111 !important;
-    border: 1px solid rgba(255, 255, 255, 0.12) !important;
-    box-shadow: 0 24px 60px -20px rgba(0, 0, 0, 0.6);
-    color: rgba(255, 255, 255, 0.92);
+    background: rgb(var(--v-theme-surface));
+    border: 1px solid rgba(var(--v-border-color), var(--v-border-opacity));
+    border-radius: 20px;
 }
 
 .mail-icon {
@@ -140,26 +132,7 @@ const resend = async () => {
     margin: 0 auto;
     display: grid;
     place-items: center;
-    background: rgba(0, 0, 0, 0.04);
-    border: 1px solid rgba(0, 0, 0, 0.12);
-}
-:global(.v-theme--dark) .mail-icon {
-    background: rgba(255, 255, 255, 0.05);
-    border-color: rgba(255, 255, 255, 0.12);
-}
-
-.gradient-text { color: #000000; }
-:global(.v-theme--dark) .gradient-text { color: #ffffff; }
-
-.vibe-cta {
-    background: #000000 !important;
-    color: #ffffff !important;
-    font-weight: 600 !important;
-    &:hover { background: #1a1a1a !important; }
-}
-:global(.v-theme--dark) .vibe-cta {
-    background: #ffffff !important;
-    color: #000000 !important;
-    &:hover { background: #e5e5e5 !important; }
+    background: rgba(var(--v-theme-on-surface), 0.05);
+    border: 1px solid rgba(var(--v-border-color), var(--v-border-opacity));
 }
 </style>

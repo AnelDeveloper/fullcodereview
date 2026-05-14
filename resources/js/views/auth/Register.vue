@@ -162,32 +162,14 @@ const register = async () => {
 }
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 @use "@core-scss/template/pages/page-auth.scss";
 
 .auth-card {
-    background: #000000 !important;
-    border: 1px solid rgba(255, 255, 255, 0.12) !important;
-    box-shadow: 0 24px 60px -20px rgba(0, 0, 0, 0.6);
-    border-radius: 20px !important;
+    background: rgb(var(--v-theme-surface));
+    border: 1px solid rgba(var(--v-border-color), var(--v-border-opacity));
+    border-radius: 20px;
 }
-
-.auth-card .v-label,
-.auth-card .v-field-label,
-.auth-card .v-field input,
-.auth-card .text-medium-emphasis {
-    color: rgba(0, 0, 0, 0.78) !important;
-    opacity: 1;
-}
-.v-theme--dark .auth-card .v-label,
-.v-theme--dark .auth-card .v-field-label,
-.v-theme--dark .auth-card .v-field input,
-.v-theme--dark .auth-card .text-medium-emphasis {
-    color: rgba(255, 255, 255, 0.85) !important;
-}
-
-.auth-card .v-field input::placeholder { color: rgba(0, 0, 0, 0.4); }
-.v-theme--dark .auth-card .v-field input::placeholder { color: rgba(255, 255, 255, 0.4); }
 
 .brand-mark {
     display: inline-flex;
@@ -197,6 +179,8 @@ const register = async () => {
     width: 90px;
     height: 50px;
     overflow: hidden;
+    border-radius: 12px;
+    background: #000000;
 
     img {
         width: 90px;
@@ -209,36 +193,10 @@ const register = async () => {
     }
 }
 
-.gradient-text { color: #000000; }
-.v-theme--dark .gradient-text { color: #ffffff; }
-
-.vibe-cta {
-    background: #000000 !important;
-    color: #ffffff !important;
-    font-weight: 600 !important;
-    letter-spacing: 0.2px;
-    &:hover { background: #1a1a1a !important; }
-}
-.v-theme--dark .vibe-cta {
-    background: #ffffff !important;
-    color: #000000 !important;
-    &:hover { background: #e5e5e5 !important; }
-}
-
 .theme-toggle-wrapper {
     position: fixed;
     top: 16px;
     right: 16px;
     z-index: 10;
-}
-.theme-toggle-wrapper .v-btn {
-    background: rgba(0, 0, 0, 0.06) !important;
-    color: rgba(0, 0, 0, 0.78) !important;
-    border: 1px solid rgba(0, 0, 0, 0.12) !important;
-}
-.v-theme--dark .theme-toggle-wrapper .v-btn {
-    background: rgba(255, 255, 255, 0.08) !important;
-    color: rgba(255, 255, 255, 0.9) !important;
-    border-color: rgba(255, 255, 255, 0.15) !important;
 }
 </style>
