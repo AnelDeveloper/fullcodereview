@@ -4,7 +4,7 @@
         <div class="d-flex align-center justify-space-between flex-wrap ga-4 mb-6">
             <div>
                 <h1 class="text-h4 font-weight-bold mb-1">
-                    Welcome back<span v-if="firstName">, {{ firstName }}</span> 👋
+                    Welcome back<span v-if="firstName">, {{ firstName }}</span>
                 </h1>
                 <p class="text-body-2 text-medium-emphasis">
                     Your code, audited by AI. Pick what to fix next.
