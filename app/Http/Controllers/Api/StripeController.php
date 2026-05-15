@@ -55,7 +55,21 @@ class StripeController extends Controller
                 discountPct: $discountPct,
             );
         } catch (\Throwable $e) {
-            Log::error('Stripe checkout failed', ['error' => $e->getMessage()]);
+            // StripeService wraps the SDK exception as a RuntimeException with
+            // the original on `getPrevious()`. Surface the structured fields
+            // (request id, http status, stripe error code/type) so prod
+            // failures don't require re-running with verbose logging.
+            $prev = $e->getPrevious();
+            $context = ['error' => $e->getMessage()];
+            if ($prev instanceof \Stripe\Exception\ApiErrorException) {
+                $context['stripe_request_id'] = $prev->getRequestId();
+                $context['stripe_http_status'] = $prev->getHttpStatus();
+                $context['stripe_code'] = $prev->getStripeCode();
+                $context['stripe_type'] = $prev->getError()?->type;
+                $context['stripe_param'] = $prev->getError()?->param;
+                $context['stripe_message'] = $prev->getMessage();
+            }
+            Log::error('Stripe checkout failed', $context);
             return response()->json(['message' => 'Could not start checkout.'], 500);
         }
 
