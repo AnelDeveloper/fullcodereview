@@ -96,7 +96,7 @@
     </style>
 </head>
 <body>
-    <h1>Code Review Report</h1>
+    <h1>Code Audit Report</h1>
     <div class="meta">
         <strong>{{ $a->repo_full_name }}</strong> ·
         {{ $a->files_scanned }} files · {{ number_format($a->lines_analyzed) }} lines ·

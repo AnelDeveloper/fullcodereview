@@ -12,7 +12,7 @@
         <div class="d-flex align-center justify-space-between flex-wrap ga-3">
             <div>
                 <strong>Confirm your email</strong> — we sent a confirmation link to
-                <span class="font-mono">{{ user.email }}</span>. Click it to receive your code-review reports by email.
+                <span class="font-mono">{{ user.email }}</span>. Click it to receive your code audit reports by email.
             </div>
             <VBtn
                 size="small"

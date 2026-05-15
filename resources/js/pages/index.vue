@@ -126,7 +126,7 @@
                                 <h3 class="text-subtitle-1 font-weight-bold">Quick actions</h3>
                             </div>
                             <div class="d-flex flex-column ga-2">
-                                <VBtn block color="primary" rounded="pill" prepend-icon="tabler-sparkles" to="/review">Run a new review</VBtn>
+                                <VBtn block color="primary" rounded="pill" prepend-icon="tabler-sparkles" to="/review">Run a new audit</VBtn>
                                 <VBtn block variant="outlined" rounded="pill" prepend-icon="tabler-coins" to="/review?buy=1">Buy more credits</VBtn>
                                 <VBtn block variant="text" rounded="pill" prepend-icon="tabler-history" to="/history">View all history</VBtn>
                             </div>

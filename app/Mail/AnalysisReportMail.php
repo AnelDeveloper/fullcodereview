@@ -18,7 +18,7 @@ class AnalysisReportMail extends Mailable
 
     public function envelope(): Envelope
     {
-        return new Envelope(subject: "Code review report — {$this->analysis->repo_full_name}");
+        return new Envelope(subject: "Code audit report — {$this->analysis->repo_full_name}");
     }
 
     public function content(): Content
