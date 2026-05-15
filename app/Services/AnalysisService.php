@@ -25,12 +25,45 @@ class AnalysisService
         protected ExecutiveSummaryGenerator $summarizer,
     ) {}
 
+    /**
+     * Fill an already-created pending Analysis row with the results of the
+     * actual scan. Used by RunAnalysisJob so the API can return immediately
+     * with an id while the heavy work happens on the queue.
+     */
+    public function populateForRepo(
+        Analysis $analysis,
+        string $repoSpec,
+        ?User $user = null,
+        ?string $githubToken = null,
+        array $categories = [],
+    ): Analysis {
+        $this->runScan($analysis, $repoSpec, $user, $githubToken, $categories);
+        return $analysis;
+    }
+
     public function runForRepo(
         string $repoSpec,
         ?User $user = null,
         ?string $githubToken = null,
         array $categories = [],
     ): Analysis {
+        $analysis = Analysis::create([
+            'user_id' => $user?->id,
+            'repo_full_name' => $repoSpec,
+            'status' => 'pending',
+            'selected_categories' => $categories ?: null,
+            'verification_status' => Analysis::VERIFICATION_AI_SCAN_COMPLETE,
+        ]);
+        return $this->populateForRepo($analysis, $repoSpec, $user, $githubToken, $categories);
+    }
+
+    protected function runScan(
+        Analysis $analysis,
+        string $repoSpec,
+        ?User $user,
+        ?string $githubToken,
+        array $categories,
+    ): void {
         ['owner' => $owner, 'repo' => $repoName] = GithubService::parseRepoUrl($repoSpec);
         $token = $githubToken ?: $user?->github_access_token;
         $github = GithubService::withToken($token);
@@ -100,8 +133,12 @@ class AnalysisService
         $linesAnalyzed = 0;
         foreach ($allFilesByPath as $content) $linesAnalyzed += substr_count($content, "\n") + 1;
 
-        $analysis = Analysis::create([
-            'user_id' => $user?->id,
+        // If the user cancelled while the Anthropic calls were in flight, the
+        // row is already 'failed' with slots refunded — don't clobber that.
+        if ($analysis->fresh()?->status === 'failed') return;
+
+        $analysis->fill([
+            'user_id' => $analysis->user_id ?? $user?->id,
             'repo_full_name' => "{$owner}/{$repoName}",
             'repo_url' => "https://github.com/{$owner}/{$repoName}",
             'repo_default_branch' => $branch,
@@ -112,10 +149,10 @@ class AnalysisService
             'performance_score' => $merged['performanceScore'],
             'quality_score' => $merged['qualityScore'],
             'issues_json' => $merged['issues'],
-            'selected_categories' => $categories ?: null,
+            'selected_categories' => $categories ?: $analysis->selected_categories,
             'status' => 'completed',
             'verification_status' => Analysis::VERIFICATION_AI_SCAN_COMPLETE,
-        ]);
+        ])->save();
 
         // Compute & persist the production-readiness layer (pure function over
         // existing scan results — no extra AI cost, no I/O).
@@ -143,7 +180,6 @@ class AnalysisService
             }
         }
 
-        return $analysis;
     }
 
     /**

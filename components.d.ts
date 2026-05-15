@@ -39,6 +39,7 @@ declare module 'vue' {
     ReadinessScoreCard: typeof import('./resources/js/components/ReadinessScoreCard.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
+    RunningAnalysisBanner: typeof import('./resources/js/components/RunningAnalysisBanner.vue')['default']
     ScoreRing: typeof import('./resources/js/components/ScoreRing.vue')['default']
     ScrollToTop: typeof import('./resources/js/@core/components/ScrollToTop.vue')['default']
     Shortcuts: typeof import('./resources/js/@core/components/Shortcuts.vue')['default']

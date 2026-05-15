@@ -25,6 +25,12 @@ export const disconnectGithub = () =>
 export const runCodeCheck = (opts) =>
     $api("/analyses/run", { method: "POST", body: opts })
 
+export const fetchAnalysisStatus = (id) =>
+    $api(`/analyses/${id}/status`)
+
+export const cancelAnalysis = (id) =>
+    $api(`/analyses/${id}/cancel`, { method: "POST" })
+
 export const fetchHistory = () =>
     $api("/analyses/history")
 

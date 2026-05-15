@@ -59,6 +59,8 @@ Route::middleware('auth.api')->group(function () {
 
     Route::post('analyses/run', [AnalysisController::class, 'run']);
     Route::get('analyses/history', [AnalysisController::class, 'history']);
+    Route::get('analyses/{id}/status', [AnalysisController::class, 'status'])->whereNumber('id');
+    Route::post('analyses/{id}/cancel', [AnalysisController::class, 'cancel'])->whereNumber('id');
     Route::get('analyses/{id}', [AnalysisController::class, 'show'])->whereNumber('id');
     Route::get('analyses/{id}/report.pdf', [AnalysisController::class, 'reportPdf'])->whereNumber('id');
 

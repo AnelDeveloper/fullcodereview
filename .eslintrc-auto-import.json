@@ -401,6 +401,8 @@
     "setUserReviewer": true,
     "changePassword": true,
     "updateProfile": true,
-    "syncStripeOrders": true
+    "syncStripeOrders": true,
+    "fetchAnalysisStatus": true,
+    "cancelAnalysis": true
   }
 }

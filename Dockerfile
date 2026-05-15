@@ -44,6 +44,8 @@ RUN mkdir -p storage/framework/cache/data \
 # Increase PHP upload + memory limits
 RUN echo "upload_max_filesize=512M\npost_max_size=512M\nmemory_limit=512M" > /usr/local/etc/php/conf.d/uploads.ini
 
+RUN chmod +x docker-entrypoint.sh
+
 EXPOSE 8080
 
-CMD php artisan migrate --force && php artisan storage:link --force && php artisan serve --host=0.0.0.0 --port=${PORT:-8080}
+CMD ["./docker-entrypoint.sh"]

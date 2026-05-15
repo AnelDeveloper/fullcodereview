@@ -3,24 +3,18 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Mail\AnalysisReportMail;
+use App\Jobs\RunAnalysisJob;
 use App\Models\Analysis;
 use App\Models\SectionSlot;
-use App\Services\AnalysisService;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Validator;
 
 class AnalysisController extends Controller
 {
-    public function run(Request $request, AnalysisService $service)
+    public function run(Request $request)
     {
-        // Anthropic review can run longer than php.ini's max_execution_time (30s).
-        set_time_limit(0);
-
         $user = $request->user();
         if (! $user) return response()->json(['message' => 'You must be signed in.'], 401);
 
@@ -47,58 +41,129 @@ class AnalysisController extends Controller
             return response()->json(['message' => 'No valid categories selected.'], 422);
         }
 
-        // Reserve one slot per requested category. If any category has none
-        // available, fail before charging the user a real Anthropic call.
-        $reservations = [];
-        foreach ($valid as $category) {
-            $slot = SectionSlot::query()
-                ->where('user_id', $user->id)
-                ->forCategory($category)
-                ->available()
-                ->orderBy('expires_at')
-                ->first();
-
-            if (! $slot) {
-                return response()->json([
-                    'message' => "You don't have any {$category} slots available. Buy one to continue.",
-                    'code' => 'no_slots',
-                    'missingCategory' => $category,
-                ], 402);
-            }
-            $reservations[$category] = $slot;
+        // One run at a time per user. Surfaces the in-flight analysis so the
+        // client can route the user to it instead of double-charging slots.
+        $active = Analysis::where('user_id', $user->id)
+            ->whereIn('status', ['pending', 'running'])
+            ->orderByDesc('id')
+            ->first();
+        if ($active) {
+            return response()->json([
+                'message' => 'An audit is already running. View it in your dashboard or wait for it to finish.',
+                'code' => 'audit_in_progress',
+                'analysis' => $this->present($active),
+            ], 409);
         }
 
+        // Atomically create the pending analysis row + reserve one slot per
+        // category. We reserve up-front (set used_at + used_by_analysis_id)
+        // so two concurrent dispatches can't grab the same slot. If the job
+        // fails, RunAnalysisJob::markFailed() refunds them.
         try {
-            $analysis = $service->runForRepo(
-                repoSpec: $repoSpec,
-                user: $user,
-                githubToken: null,
-                categories: $valid,
-            );
-        } catch (\Throwable $e) {
-            Log::error('Analysis failed', ['error' => $e->getMessage(), 'user_id' => $user->id]);
-            return response()->json(['message' => $e->getMessage()], 502);
-        }
-
-        // Mark each reserved slot as consumed by this analysis
-        DB::transaction(function () use ($reservations, $analysis) {
-            foreach ($reservations as $slot) {
-                $slot->update([
-                    'used_at' => now(),
-                    'used_by_analysis_id' => $analysis->id,
+            [$analysis, $slotIds] = DB::transaction(function () use ($user, $valid, $repoSpec) {
+                $analysis = Analysis::create([
+                    'user_id' => $user->id,
+                    'repo_full_name' => $repoSpec,
+                    'status' => 'pending',
+                    'selected_categories' => $valid,
                 ]);
-            }
-        });
 
-        try {
-            Mail::to($user->email)->send(new AnalysisReportMail($analysis));
-        } catch (\Throwable $e) {
-            Log::warning('Could not email analysis report', ['error' => $e->getMessage()]);
+                $slotIds = [];
+                foreach ($valid as $category) {
+                    $slot = SectionSlot::query()
+                        ->where('user_id', $user->id)
+                        ->forCategory($category)
+                        ->available()
+                        ->orderBy('expires_at')
+                        ->lockForUpdate()
+                        ->first();
+
+                    if (! $slot) {
+                        throw new \RuntimeException(
+                            "You don't have any {$category} slots available. Buy one to continue.",
+                            402,
+                        );
+                    }
+                    $slot->update([
+                        'used_at' => now(),
+                        'used_by_analysis_id' => $analysis->id,
+                    ]);
+                    $slotIds[] = $slot->id;
+                }
+
+                return [$analysis, $slotIds];
+            });
+        } catch (\RuntimeException $e) {
+            return response()->json([
+                'message' => $e->getMessage(),
+                'code' => 'no_slots',
+            ], $e->getCode() ?: 402);
         }
+
+        // Pin to the database connection so dispatch never falls back to
+        // the global QUEUE_CONNECTION=sync, which would re-block the request.
+        RunAnalysisJob::dispatch(
+            analysisId: $analysis->id,
+            repoSpec: $repoSpec,
+            userId: $user->id,
+            categories: $valid,
+            slotIds: $slotIds,
+        )->onConnection('database');
 
         return response()->json([
             'analysis' => $this->present($analysis),
             'sectionsRemaining' => $this->sectionBreakdown($user),
+        ], 202);
+    }
+
+    public function cancel(Request $request, int $id)
+    {
+        $analysis = Analysis::findOrFail($id);
+        $user = $request->user();
+        if (! $user || $analysis->user_id !== $user->id) {
+            return response()->json(['message' => 'Not authorized.'], 403);
+        }
+        if (! in_array($analysis->status, ['pending', 'running'], true)) {
+            return response()->json([
+                'message' => 'This audit has already finished and cannot be cancelled.',
+                'analysis' => $this->present($analysis),
+            ], 422);
+        }
+
+        DB::transaction(function () use ($analysis) {
+            // Refund every slot we reserved for this run. The queue worker's
+            // failed() handler checks status, so if it picks up the job after
+            // this it will be a no-op.
+            SectionSlot::where('used_by_analysis_id', $analysis->id)
+                ->update(['used_at' => null, 'used_by_analysis_id' => null]);
+            $analysis->update([
+                'status' => 'failed',
+                'error_message' => 'Cancelled by user.',
+            ]);
+        });
+
+        return response()->json([
+            'analysis' => $this->present($analysis->fresh()),
+            'sectionsRemaining' => $this->sectionBreakdown($user),
+        ]);
+    }
+
+    public function status(Request $request, int $id)
+    {
+        $analysis = Analysis::findOrFail($id);
+        $user = $request->user();
+        $isOwner = $analysis->user_id && $analysis->user_id === $user?->id;
+        $isReviewer = (bool) ($user?->is_reviewer ?? false);
+        if (! $isOwner && ! $isReviewer) {
+            return response()->json(['message' => 'Not authorized.'], 403);
+        }
+
+        return response()->json([
+            'id' => $analysis->id,
+            'status' => $analysis->status,
+            'repoFullName' => $analysis->repo_full_name,
+            'errorMessage' => $analysis->error_message,
+            'sectionsRemaining' => $user ? $this->sectionBreakdown($user) : null,
         ]);
     }
 
@@ -183,6 +248,8 @@ class AnalysisController extends Controller
     {
         return [
             'id' => $a->id,
+            'status' => $a->status,
+            'errorMessage' => $a->error_message,
             'repoName' => $a->repo_full_name,
             'repoUrl' => $a->repo_url,
             'overallScore' => $a->overall_score,

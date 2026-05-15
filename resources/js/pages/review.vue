@@ -1,7 +1,7 @@
 <template>
     <div>
         <!-- Header -->
-        <div v-if="step !== 'analyzing'" class="d-flex align-center justify-space-between flex-wrap ga-4 mb-6">
+        <div class="d-flex align-center justify-space-between flex-wrap ga-4 mb-6">
             <div>
                 <h1 class="text-h4 font-weight-bold mb-1">Run a code audit</h1>
                 <p class="text-body-2 text-medium-emphasis">
@@ -22,26 +22,46 @@
             GitHub connection failed: {{ oauthError }}
         </VAlert>
 
-        <!-- ANALYZING -->
-        <div v-if="step === 'analyzing'" class="mx-auto" style="max-width:560px">
-            <VCard variant="outlined" class="text-center">
-                <VCardText class="pa-10">
-                    <div class="d-flex justify-center mb-6">
-                        <VProgressCircular indeterminate size="64" width="4" color="primary" />
-                    </div>
-                    <h3 class="text-h5 font-weight-bold mb-2">Analyzing your code</h3>
-                    <p class="text-body-2 text-medium-emphasis font-mono mb-6 text-truncate">{{ analyzingTarget }}</p>
-                    <VProgressLinear :model-value="progress" color="primary" rounded class="mb-2" />
-                    <div class="d-flex justify-space-between text-caption text-medium-emphasis">
-                        <span>{{ progressLabel }}</span>
-                        <span class="font-weight-semibold">{{ Math.round(progress) }}%</span>
-                    </div>
-                </VCardText>
-            </VCard>
-        </div>
+        <!-- Active audit takeover: no second run while one is in flight -->
+        <VCard v-if="analysisRun.isActive" variant="outlined" class="text-center">
+            <VCardText class="pa-10">
+                <div class="d-flex justify-center mb-6">
+                    <VProgressCircular indeterminate size="56" width="4" color="primary" />
+                </div>
+                <h3 class="text-h5 font-weight-bold mb-2">An audit is already running</h3>
+                <p v-if="analysisRun.repoFullName" class="text-body-2 text-medium-emphasis font-mono mb-4 text-truncate">
+                    {{ analysisRun.repoFullName }}
+                </p>
+                <p class="text-body-2 text-medium-emphasis mb-6" style="max-width:480px;margin:0 auto;">
+                    Only one audit can run at a time. You can wait here, view its progress on the
+                    report page, or carry on with other work — we'll notify you when it's done.
+                </p>
+                <div class="d-flex justify-center flex-wrap ga-3">
+                    <VBtn
+                        v-if="analysisRun.id"
+                        color="primary"
+                        rounded="pill"
+                        prepend-icon="tabler-eye"
+                        :to="`/analyses/${analysisRun.id}`"
+                    >
+                        View current audit
+                    </VBtn>
+                    <VBtn
+                        color="error"
+                        variant="outlined"
+                        rounded="pill"
+                        prepend-icon="tabler-x"
+                        :loading="cancelling"
+                        @click="onCancelAudit"
+                    >
+                        Cancel audit
+                    </VBtn>
+                </div>
+            </VCardText>
+        </VCard>
 
         <template v-else>
-            <!-- Empty inventory -->
+        <!-- Empty inventory -->
             <VCard v-if="totalSections === 0" variant="outlined">
                 <VCardText class="empty-state text-center py-12">
                     <div class="big-icon mb-4">
@@ -233,7 +253,6 @@
 
 <script setup>
 import {
-    runCodeCheck,
     fetchUserRepos,
     githubLoginUrl,
     syncStripeOrders,
@@ -241,10 +260,12 @@ import {
 } from "@/utils/codeCheck"
 import CategoryConfigurator from "@/components/CategoryConfigurator.vue"
 import { useAuthStore } from "@/stores/auth"
+import { useAnalysisRunStore } from "@/stores/analysisRun"
 
 const route = useRoute()
 const router = useRouter()
 const authStore = useAuthStore()
+const analysisRun = useAnalysisRunStore()
 
 const SCOPE_META = {
     security: { label: "Security", icon: "tabler-shield", color: "error", tagline: "Auth, injection, secrets" },
@@ -253,7 +274,6 @@ const SCOPE_META = {
     frontend: { label: "Frontend", icon: "tabler-code", color: "primary", tagline: "XSS, perf, state" },
 }
 
-const step = ref("home")
 const returnBanner = ref(null)
 const buyDialog = ref(false)
 
@@ -272,8 +292,15 @@ const selectedRepo = ref(null)
 const oauthError = ref("")
 
 const analysisError = ref("")
-const progress = ref(0)
-const progressLabel = ref("")
+const cancelling = ref(false)
+
+const onCancelAudit = async () => {
+    if (!confirm("Cancel this audit? Your credits will be refunded.")) return
+    cancelling.value = true
+    try { await analysisRun.cancel() }
+    catch (e) { analysisError.value = e?.data?.message || e?.message || "Could not cancel." }
+    finally { cancelling.value = false }
+}
 
 const totalSections = computed(() => authStore.sectionsTotal)
 const pickedCount = computed(() => picked.value.length)
@@ -300,12 +327,6 @@ const filteredRepos = computed(() => {
         (r.description || "").toLowerCase().includes(q),
     )
 })
-
-const analyzingTarget = computed(() =>
-    repoSource.value === "connected" && selectedRepo.value
-        ? selectedRepo.value.fullName
-        : repoUrl.value
-)
 
 const repoChosen = computed(() => {
     if (repoSource.value === "connected") return !!selectedRepo.value
@@ -436,57 +457,15 @@ const handleAnalyze = async () => {
         opts.repoUrl = repoUrl.value.trim()
     }
 
-    step.value = "analyzing"
-    progress.value = 0
-
-    const intro = [
-        ["Reserving credits…", 8, 400],
-        ["Fetching repository metadata…", 18, 700],
-        ["Reading source files…", 32, 900],
-        ["Mapping the stack…", 45, 800],
-        ["Running selected checks…", 58, 900],
-        ["Analyzing patterns…", 70, 800],
-    ]
-    const waitLabels = [
-        "Auditing with AI…",
-        "Auditing access patterns…",
-        "Checking for known footguns…",
-        "Synthesizing findings…",
-        "Cross-checking severity…",
-        "Almost done…",
-    ]
-
-    const requestPromise = runCodeCheck(opts).catch(e => e)
-
-    for (const [label, pct, delay] of intro) {
-        progressLabel.value = label
-        await new Promise(r => setTimeout(r, delay))
-        progress.value = pct
+    try {
+        const analysis = await analysisRun.start(opts)
+        // Land on the analysis detail page; it handles the pending/running
+        // states and watches the store. The global banner follows the user
+        // wherever they navigate.
+        router.push(`/analyses/${analysis.id}`)
+    } catch (e) {
+        analysisError.value = e?.data?.message || e?.message || "Could not start audit."
     }
-
-    let labelIndex = 0
-    progressLabel.value = waitLabels[0]
-    const ticker = window.setInterval(() => {
-        progress.value = Math.min(95, progress.value + Math.max(0.3, (95 - progress.value) * 0.04))
-        labelIndex = (labelIndex + 1) % waitLabels.length
-        progressLabel.value = waitLabels[labelIndex]
-    }, 2000)
-
-    const r = await requestPromise
-    window.clearInterval(ticker)
-
-    if (r instanceof Error || (r && r.message && !r.analysis)) {
-        analysisError.value = r?.data?.message || r?.message || "Analysis failed."
-        step.value = "home"
-        return
-    }
-
-    progressLabel.value = "Compiling report…"
-    progress.value = 100
-    if (r.sectionsRemaining) authStore.setSections(r.sectionsRemaining)
-
-    await new Promise(res => setTimeout(res, 400))
-    router.push(`/analyses/${r.analysis.id}`)
 }
 </script>
 

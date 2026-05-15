@@ -8,6 +8,7 @@ import { switchToVerticalNavOnLtOverlayNavBreakpoint } from "@layouts/utils"
 // a brief window where pages rendered without the navbar/skin classes.
 import DefaultLayoutWithHorizontalNav from "./components/DefaultLayoutWithHorizontalNav.vue"
 import DefaultLayoutWithVerticalNav from "./components/DefaultLayoutWithVerticalNav.vue"
+import RunningAnalysisBanner from "@/components/RunningAnalysisBanner.vue"
 
 const configStore = useConfigStore()
 
@@ -57,6 +58,8 @@ watch(
                 <Component :is="Component" />
             </Suspense>
         </RouterView>
+
+        <RunningAnalysisBanner />
     </Component>
 </template>
 

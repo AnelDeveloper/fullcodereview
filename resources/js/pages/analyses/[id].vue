@@ -13,6 +13,34 @@
             <VProgressCircular indeterminate color="primary" />
         </div>
 
+        <VCard v-else-if="isRunning" variant="outlined" class="text-center">
+            <VCardText class="pa-10">
+                <div class="d-flex justify-center mb-6">
+                    <VProgressCircular indeterminate size="64" width="4" color="primary" />
+                </div>
+                <h3 class="text-h5 font-weight-bold mb-2">Auditing your code…</h3>
+                <p v-if="analysis?.repoName" class="text-body-2 text-medium-emphasis font-mono mb-4 text-truncate">
+                    {{ analysis.repoName }}
+                </p>
+                <p class="text-body-2 text-medium-emphasis" style="max-width:480px;margin:0 auto;">
+                    This usually takes a minute or two. You can navigate to other pages —
+                    we'll keep going in the background and let you know when it's ready.
+                </p>
+            </VCardText>
+        </VCard>
+
+        <VCard v-else-if="isFailed" variant="outlined">
+            <VCardText class="pa-10 text-center">
+                <VIcon icon="tabler-alert-triangle" size="48" color="error" class="mb-4" />
+                <h3 class="text-h5 font-weight-bold mb-2">Audit failed</h3>
+                <p class="text-body-2 text-medium-emphasis mb-4">
+                    {{ analysis?.errorMessage || "Something went wrong while auditing this repo." }}
+                </p>
+                <p class="text-caption text-medium-emphasis">Your credits have been refunded.</p>
+                <VBtn class="mt-4" color="primary" rounded="pill" to="/review">Run a new audit</VBtn>
+            </VCardText>
+        </VCard>
+
         <template v-else-if="analysis">
             <!-- Trust strip -->
             <TrustBanner class="mb-4" />
@@ -117,14 +145,22 @@ import ExecutiveSummaryBlock from "@/components/ExecutiveSummaryBlock.vue"
 import VerificationBadge from "@/components/VerificationBadge.vue"
 import TrustBanner from "@/components/TrustBanner.vue"
 import { fetchAnalysis, submitForReview } from "@/utils/codeCheck"
+import { useAnalysisRunStore } from "@/stores/analysisRun"
+import { onBeforeUnmount } from "vue"
 
 const route = useRoute()
+const analysisRun = useAnalysisRunStore()
 const analysis = ref(null)
 const loading = ref(true)
 const error = ref("")
 const submitting = ref(false)
 const actionMessage = ref("")
 const token = computed(() => useCookie("accessToken").value || "")
+
+const isRunning = computed(() =>
+    analysis.value && (analysis.value.status === "pending" || analysis.value.status === "running"),
+)
+const isFailed = computed(() => analysis.value?.status === "failed")
 
 const totalIssues = computed(() => {
     const i = analysis.value?.issues || {}
@@ -136,16 +172,46 @@ const formatDate = d => {
     catch { return d }
 }
 
+let pollTimer = null
+
 const load = async () => {
     try {
         const r = await fetchAnalysis(route.params.id)
         analysis.value = r.analysis
+        // If the row is still being processed, set up a poll loop so the
+        // page flips to results the moment the queue worker finishes.
+        if (r.analysis?.status === "pending" || r.analysis?.status === "running") {
+            schedulePoll()
+        } else {
+            // If the global banner is still tracking this analysis, clear it —
+            // the user is now looking at the report directly.
+            if (analysisRun.id === r.analysis?.id) analysisRun.clear()
+        }
     } catch (e) {
         error.value = e?.data?.message || e.message
     } finally {
         loading.value = false
     }
 }
+
+const schedulePoll = () => {
+    if (pollTimer) return
+    pollTimer = window.setInterval(async () => {
+        try {
+            const r = await fetchAnalysis(route.params.id)
+            analysis.value = r.analysis
+            if (r.analysis?.status === "completed" || r.analysis?.status === "failed") {
+                window.clearInterval(pollTimer)
+                pollTimer = null
+                if (analysisRun.id === r.analysis?.id) analysisRun.clear()
+            }
+        } catch { /* keep polling */ }
+    }, 4000)
+}
+
+onBeforeUnmount(() => {
+    if (pollTimer) { window.clearInterval(pollTimer); pollTimer = null }
+})
 
 const onSubmitForReview = async () => {
     submitting.value = true
