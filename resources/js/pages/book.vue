@@ -11,10 +11,6 @@
         </div>
 
         <VCard variant="outlined" class="cal-card">
-            <div v-show="loading" class="d-flex flex-column align-center justify-center pa-10">
-                <VProgressCircular indeterminate color="primary" class="mb-3" />
-                <p class="text-body-2 text-medium-emphasis">Loading calendar…</p>
-            </div>
             <!-- Cal.com auto-resizing inline embed — height adjusts to content,
                  so the booking widget never gets its own scrollbar (which is
                  what caused the 'Overlay my calendar' banner to collide with
@@ -37,7 +33,6 @@ const NAMESPACE = "book-call"
 const fallbackUrl = `https://cal.com/${CAL_LINK}`
 
 const calMount = ref(null)
-const loading = ref(true)
 const vuetifyTheme = useTheme()
 
 onMounted(() => {
@@ -91,16 +86,6 @@ onMounted(() => {
         layout: "month_view",
         theme: vuetifyTheme.global.current.value.dark ? "dark" : "light",
     })
-
-    // Cal.com fires `linkReady` once the booking widget has rendered. That's
-    // a more reliable signal than polling for an iframe element.
-    window.Cal.ns[NAMESPACE]("on", {
-        action: "linkReady",
-        callback: () => { loading.value = false },
-    })
-
-    // Safety net — never leave the spinner up forever.
-    setTimeout(() => { loading.value = false }, 4000)
 })
 
 onUnmounted(() => {
