@@ -13,6 +13,16 @@
 return [
     'min_total_cents' => 2000,
 
+    // Surfaced in transactional email footers (verification, audit reports).
+    // Update here, not in the blades.
+    'social' => [
+        'instagram'  => 'https://www.instagram.com/qodeshark/',
+        'linkedin'   => 'https://www.linkedin.com/company/qodeshark-ai/',
+        'trustpilot' => 'https://www.trustpilot.com/review/fullcodereview.com',
+    ],
+    'support_email' => env('SUPPORT_EMAIL', 'hello@qodeshark.com'),
+    'tagline' => 'AI-powered code audits for shipping teams',
+
     // Generate a Claude-authored business-language summary on top of every
     // scan. Adds ~$0.05 per scan. Set CODEREVIEW_EXECUTIVE_SUMMARY=false to
     // disable.

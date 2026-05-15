@@ -1,24 +1,39 @@
-<!DOCTYPE html>
-<html>
-<head><meta charset="utf-8"><title>Your code audit report</title></head>
-<body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background:#0f1117; color:#e8eaf0; padding:32px;">
-    <div style="max-width:520px; margin:0 auto; background:#1a1d2b; border:1px solid #2a2f44; border-radius:16px; padding:32px;">
-        <h1 style="margin:0 0 12px; font-size:22px;">Your code audit is ready</h1>
-        <p style="margin:0 0 20px; color:#a8acbf;">
-            We just finished auditing <strong style="color:#e8eaf0;">{{ $a->repo_full_name }}</strong>.
-            The full PDF report is attached.
-        </p>
-        <div style="background:#0f1117; border:1px solid #2a2f44; border-radius:12px; padding:14px; margin-bottom:20px;">
-            <div style="font-size:13px; line-height:1.6;">
-                <strong>Overall:</strong> {{ $a->overall_score }}/100 ·
-                <strong>Security:</strong> {{ $a->security_score }} ·
-                <strong>Performance:</strong> {{ $a->performance_score }} ·
-                <strong>Quality:</strong> {{ $a->quality_score }}
-            </div>
+@extends('mail._layout', ['title' => 'Your code audit report'])
+
+@section('content')
+    <h1 style="margin:0 0 14px; font-size:22px; font-weight:700; color:#0f172a; line-height:1.3;">
+        Your code audit is ready
+    </h1>
+    <p style="margin:0 0 22px; color:#475569; font-size:15px; line-height:1.65;">
+        We just finished auditing <strong style="color:#0f172a;">{{ $a->repo_full_name }}</strong>.
+        The full PDF report is attached to this email.
+    </p>
+
+    <div style="background:#f8fafc; border:1px solid #e6e8ef; border-radius:12px; padding:18px 20px; margin:0 0 24px;">
+        <div style="font-size:11px; font-weight:600; letter-spacing:0.06em; text-transform:uppercase; color:#94a3b8; margin-bottom:10px;">
+            Scores
         </div>
-        <p style="margin:0 0 0; color:#a8acbf; font-size:13px;">
-            Open the attached PDF for the full breakdown of issues and suggested fixes.
-        </p>
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="font-size:14px; line-height:1.7; color:#0f172a;">
+            <tr>
+                <td style="padding:2px 0;"><strong>Overall</strong></td>
+                <td align="right" style="padding:2px 0; font-variant-numeric:tabular-nums;">{{ $a->overall_score }}/100</td>
+            </tr>
+            <tr>
+                <td style="padding:2px 0;">Security</td>
+                <td align="right" style="padding:2px 0; font-variant-numeric:tabular-nums;">{{ $a->security_score }}</td>
+            </tr>
+            <tr>
+                <td style="padding:2px 0;">Performance</td>
+                <td align="right" style="padding:2px 0; font-variant-numeric:tabular-nums;">{{ $a->performance_score }}</td>
+            </tr>
+            <tr>
+                <td style="padding:2px 0;">Quality</td>
+                <td align="right" style="padding:2px 0; font-variant-numeric:tabular-nums;">{{ $a->quality_score }}</td>
+            </tr>
+        </table>
     </div>
-</body>
-</html>
+
+    <p style="margin:0; color:#475569; font-size:14px; line-height:1.65;">
+        Open the attached PDF for the full breakdown of issues and suggested fixes.
+    </p>
+@endsection
