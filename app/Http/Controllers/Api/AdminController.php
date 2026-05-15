@@ -3,10 +3,12 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\SectionSlot;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 
 /**
@@ -217,6 +219,75 @@ class AdminController extends Controller
             'ok' => true,
             'user' => $this->serialize($target->fresh()),
         ]);
+    }
+
+    /**
+     * GET /api/admin/users/{id}/credits
+     *
+     * Returns per-category counts of unused, non-expired slots.
+     */
+    public function credits(int $id)
+    {
+        $user = User::withTrashed()->findOrFail($id);
+
+        $counts = SectionSlot::query()
+            ->where('user_id', $user->id)
+            ->available()
+            ->selectRaw('category, COUNT(*) as c')
+            ->groupBy('category')
+            ->pluck('c', 'category');
+
+        return response()->json([
+            'userId'  => $user->id,
+            'credits' => [
+                'security' => (int) ($counts['security'] ?? 0),
+                'database' => (int) ($counts['database'] ?? 0),
+                'backend'  => (int) ($counts['backend']  ?? 0),
+                'frontend' => (int) ($counts['frontend'] ?? 0),
+            ],
+        ]);
+    }
+
+    /**
+     * POST /api/admin/users/{id}/credits
+     * Body: { category: "security"|"database"|"backend"|"frontend", count: 1..100 }
+     *
+     * Inserts `count` SectionSlot rows for the user with a synthetic
+     * stripe_session_id (`admin-grant-…`) so they don't collide with the
+     * (stripe_session_id, category) unique constraint that real purchases use.
+     */
+    public function grantCredits(Request $request, int $id)
+    {
+        $validator = Validator::make($request->all(), [
+            'category' => ['required', 'string', Rule::in(['security', 'database', 'backend', 'frontend'])],
+            'count'    => ['required', 'integer', 'min:1', 'max:100'],
+        ]);
+        if ($validator->fails()) {
+            return response()->json(['message' => 'Invalid request.', 'errors' => $validator->errors()], 422);
+        }
+
+        $user = User::findOrFail($id);
+        $category = (string) $request->string('category');
+        $count = (int) $request->integer('count');
+
+        $now = now();
+        $rows = [];
+        for ($i = 0; $i < $count; $i++) {
+            $rows[] = [
+                'user_id'           => $user->id,
+                'stripe_session_id' => 'admin-grant-'.$user->id.'-'.$category.'-'.$now->getTimestamp().'-'.Str::random(6),
+                'amount_cents'      => 0,
+                'category'          => $category,
+                'used_at'           => null,
+                'used_by_analysis_id' => null,
+                'expires_at'        => null,
+                'created_at'        => $now,
+                'updated_at'        => $now,
+            ];
+        }
+        SectionSlot::insert($rows);
+
+        return $this->credits($user->id);
     }
 
     private function serialize(User $u): array

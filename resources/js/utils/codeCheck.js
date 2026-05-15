@@ -82,6 +82,15 @@ export const deleteUser = (id) =>
 export const restoreUser = (id) =>
     $api(`/admin/users/${id}/restore`, { method: "POST" })
 
+export const fetchUserCredits = (id) =>
+    $api(`/admin/users/${id}/credits`)
+
+export const grantUserCredits = (id, category, count) =>
+    $api(`/admin/users/${id}/credits`, {
+        method: "POST",
+        body: { category, count },
+    })
+
 // My profile
 export const updateProfile = (name, email) =>
     $api("/me/profile", { method: "PUT", body: { name, email } })

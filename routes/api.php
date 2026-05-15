@@ -79,5 +79,7 @@ Route::middleware('auth.api')->group(function () {
         Route::delete('admin/users/{id}', [AdminController::class, 'destroy'])->whereNumber('id');
         Route::post('admin/users/{id}/restore', [AdminController::class, 'restore'])->whereNumber('id');
         Route::post('admin/users/{id}/reviewer', [AdminController::class, 'setReviewer'])->whereNumber('id');
+        Route::get('admin/users/{id}/credits', [AdminController::class, 'credits'])->whereNumber('id');
+        Route::post('admin/users/{id}/credits', [AdminController::class, 'grantCredits'])->whereNumber('id');
     });
 });

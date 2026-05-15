@@ -407,6 +407,8 @@
     "createUser": true,
     "deleteUser": true,
     "restoreUser": true,
-    "updateUser": true
+    "updateUser": true,
+    "fetchUserCredits": true,
+    "grantUserCredits": true
   }
 }

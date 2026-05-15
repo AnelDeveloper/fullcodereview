@@ -139,6 +139,14 @@
                                     <VBtn
                                         size="small"
                                         variant="text"
+                                        icon="tabler-coins"
+                                        :disabled="actingId === u.id"
+                                        title="Grant credits"
+                                        @click="openCredits(u)"
+                                    />
+                                    <VBtn
+                                        size="small"
+                                        variant="text"
                                         icon="tabler-edit"
                                         :disabled="actingId === u.id"
                                         title="Edit"
@@ -238,6 +246,72 @@
             </VCard>
         </VDialog>
 
+        <!-- Grant credits -->
+        <VDialog v-model="creditsOpen" max-width="520" persistent>
+            <VCard>
+                <VCardItem>
+                    <VCardTitle>Grant audit credits</VCardTitle>
+                    <VCardSubtitle v-if="creditsUser">
+                        {{ creditsUser.name }}
+                        <span class="text-medium-emphasis font-mono">({{ creditsUser.email }})</span>
+                    </VCardSubtitle>
+                </VCardItem>
+                <VCardText>
+                    <div v-if="creditsLoading" class="d-flex justify-center py-8">
+                        <VProgressCircular indeterminate color="primary" />
+                    </div>
+                    <template v-else>
+                        <div class="d-flex justify-end mb-3">
+                            <VBtn size="small" variant="tonal" prepend-icon="tabler-stack-2" @click="fillAllTen">
+                                Set all to 10
+                            </VBtn>
+                        </div>
+                        <div class="d-flex flex-column ga-3">
+                            <div
+                                v-for="cat in categoryDefs"
+                                :key="cat.key"
+                                class="d-flex align-center ga-3 pa-3 rounded credit-row"
+                            >
+                                <VIcon :icon="cat.icon" :color="cat.color" />
+                                <div class="flex-grow-1">
+                                    <div class="font-weight-bold">{{ cat.label }}</div>
+                                    <div class="text-caption text-medium-emphasis">
+                                        Current: {{ currentCredits[cat.key] }} available
+                                    </div>
+                                </div>
+                                <VTextField
+                                    v-model.number="grantInputs[cat.key]"
+                                    type="number"
+                                    min="0"
+                                    max="100"
+                                    density="compact"
+                                    variant="outlined"
+                                    hide-details
+                                    style="max-width: 90px;"
+                                    placeholder="0"
+                                />
+                            </div>
+                        </div>
+                        <p class="text-caption text-medium-emphasis mt-3">
+                            Each credit = one slot the user can spend on a single category in one audit run.
+                        </p>
+                    </template>
+                </VCardText>
+                <VCardActions class="px-4 pb-4">
+                    <VSpacer />
+                    <VBtn variant="text" :disabled="submitting" @click="closeCredits">Close</VBtn>
+                    <VBtn
+                        color="primary"
+                        :loading="submitting"
+                        :disabled="creditsLoading || totalToGrant === 0"
+                        @click="confirmGrant"
+                    >
+                        Grant {{ totalToGrant || "" }} credit{{ totalToGrant === 1 ? "" : "s" }}
+                    </VBtn>
+                </VCardActions>
+            </VCard>
+        </VDialog>
+
         <!-- Delete confirm -->
         <VDialog v-model="deleteOpen" max-width="440" persistent>
             <VCard>
@@ -272,6 +346,8 @@ import {
     updateUser,
     deleteUser,
     restoreUser,
+    fetchUserCredits,
+    grantUserCredits,
 } from "@/utils/codeCheck"
 import { useAuthStore } from "@/stores/auth"
 
@@ -459,6 +535,73 @@ const onRestore = async (u) => {
     }
 }
 
+// ---- Credits ----
+
+const categoryDefs = [
+    { key: "security", label: "Security", icon: "tabler-shield",   color: "error" },
+    { key: "database", label: "Database", icon: "tabler-database", color: "warning" },
+    { key: "backend",  label: "Backend",  icon: "tabler-server",   color: "info" },
+    { key: "frontend", label: "Frontend", icon: "tabler-code",     color: "primary" },
+]
+
+const creditsOpen = ref(false)
+const creditsUser = ref(null)
+const creditsLoading = ref(false)
+const currentCredits = ref({ security: 0, database: 0, backend: 0, frontend: 0 })
+const grantInputs = ref({ security: 0, database: 0, backend: 0, frontend: 0 })
+
+const totalToGrant = computed(() =>
+    categoryDefs.reduce((sum, c) => sum + Math.max(0, Number(grantInputs.value[c.key]) || 0), 0),
+)
+
+const openCredits = async (u) => {
+    creditsUser.value = u
+    grantInputs.value = { security: 0, database: 0, backend: 0, frontend: 0 }
+    creditsOpen.value = true
+    creditsLoading.value = true
+    error.value = ""
+    try {
+        const r = await fetchUserCredits(u.id)
+        currentCredits.value = r.credits
+    } catch (e) {
+        error.value = e?.data?.message || e.message
+    } finally {
+        creditsLoading.value = false
+    }
+}
+
+const closeCredits = () => {
+    if (submitting.value) return
+    creditsOpen.value = false
+    creditsUser.value = null
+}
+
+const fillAllTen = () => {
+    grantInputs.value = { security: 10, database: 10, backend: 10, frontend: 10 }
+}
+
+const confirmGrant = async () => {
+    if (!creditsUser.value || totalToGrant.value === 0) return
+    submitting.value = true
+    error.value = ""
+    let granted = 0
+    try {
+        for (const cat of categoryDefs) {
+            const n = Math.max(0, Math.min(100, Number(grantInputs.value[cat.key]) || 0))
+            if (n === 0) continue
+            const r = await grantUserCredits(creditsUser.value.id, cat.key, n)
+            currentCredits.value = r.credits
+            granted += n
+        }
+        actionMessage.value = `Granted ${granted} credit${granted === 1 ? "" : "s"} to ${creditsUser.value.email}.`
+        grantInputs.value = { security: 0, database: 0, backend: 0, frontend: 0 }
+    } catch (e) {
+        error.value = e?.data?.message || e.message
+    } finally {
+        submitting.value = false
+    }
+}
+
 // ---- helpers ----
 
 const initials = (name) => {
@@ -478,5 +621,10 @@ onMounted(load)
 .row-trashed {
     opacity: 0.6;
     background: rgba(var(--v-theme-warning), 0.04);
+}
+
+.credit-row {
+    background: rgba(var(--v-theme-on-surface), 0.03);
+    border: 1px solid rgba(var(--v-border-color), var(--v-border-opacity));
 }
 </style>
