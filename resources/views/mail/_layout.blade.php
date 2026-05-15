@@ -3,11 +3,12 @@
     inline styles, table-based scaffold, absolute image URLs.
 --}}
 @php
-    $appName = config('app.name', 'QodeShark');
+    $brand = config('codereview.brand_name', config('app.name', 'QodeShark'));
     $social = config('codereview.social', []);
     $support = config('codereview.support_email', 'hello@qodeshark.com');
     $tagline = config('codereview.tagline', '');
-    $logoUrl = rtrim(config('app.url'), '/') . '/logo.png';
+    // Cropped shark mark — wider than tall (~2:1). Live at /email-logo.png.
+    $logoUrl = rtrim(config('app.url'), '/') . '/email-logo.png';
 @endphp
 <!DOCTYPE html>
 <html lang="en">
@@ -15,17 +16,17 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="x-apple-disable-message-reformatting">
-    <title>{{ $title ?? $appName }}</title>
+    <title>{{ $title ?? $brand }}</title>
 </head>
 <body style="margin:0; padding:0; background:#f4f5f8; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif; color:#0f172a; -webkit-font-smoothing:antialiased;">
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#f4f5f8;">
     <tr><td align="center" style="padding:32px 16px;">
         <table role="presentation" width="560" cellpadding="0" cellspacing="0" border="0" style="max-width:560px; width:100%;">
-            {{-- Logo header --}}
-            <tr><td align="center" style="padding:4px 0 24px;">
+            {{-- Logo header (shark mark, ~2:1 aspect, rendered ~56px tall ≈ 114px wide) --}}
+            <tr><td align="center" style="padding:8px 0 24px;">
                 <a href="{{ rtrim(config('app.url'), '/') }}" style="text-decoration:none;">
-                    <img src="{{ $logoUrl }}" alt="{{ $appName }}" height="44"
-                         style="height:44px; width:auto; display:block; border:0; outline:none;">
+                    <img src="{{ $logoUrl }}" alt="{{ $brand }}" height="56"
+                         style="height:56px; width:auto; display:block; border:0; outline:none;">
                 </a>
             </td></tr>
 
@@ -71,7 +72,7 @@
                     Questions? Email <a href="mailto:{{ $support }}" style="color:#64748b; text-decoration:underline;">{{ $support }}</a>
                 </div>
                 <div style="color:#94a3b8; font-size:12px; line-height:1.6; margin-top:6px;">
-                    &copy; {{ date('Y') }} {{ $appName }}. All rights reserved.
+                    &copy; {{ date('Y') }} {{ $brand }}. All rights reserved.
                 </div>
             </td></tr>
         </table>

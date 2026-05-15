@@ -13,12 +13,18 @@
 return [
     'min_total_cents' => 2000,
 
+    // Brand identity for transactional emails (sender name, subjects,
+    // welcome heading). Decoupled from APP_NAME so the deployed env can
+    // keep "Code Review" without leaking into customer-facing emails.
+    'brand_name' => 'QodeShark - Code Review',
+
     // Surfaced in transactional email footers (verification, audit reports).
     // Update here, not in the blades.
     'social' => [
         'instagram'  => 'https://www.instagram.com/qodeshark/',
         'linkedin'   => 'https://www.linkedin.com/company/qodeshark-ai/',
         'trustpilot' => 'https://www.trustpilot.com/review/fullcodereview.com',
+        'x'          => 'https://x.com/QodeShark',
     ],
     'support_email' => env('SUPPORT_EMAIL', 'hello@qodeshark.com'),
     'tagline' => 'AI-powered code audits for shipping teams',

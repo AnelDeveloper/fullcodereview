@@ -29,14 +29,19 @@ class VerifyEmailNotification extends BaseVerifyEmail
     public function toMail($notifiable): MailMessage
     {
         $url = $this->verificationUrl($notifiable);
-        $appName = config('app.name', 'QodeShark');
+        // Brand name lives in config (not env) so the sender display, subject,
+        // and body all stay consistent regardless of APP_NAME / MAIL_FROM_NAME
+        // on the deployment platform.
+        $brand = config('codereview.brand_name', config('app.name', 'QodeShark'));
+        $support = config('codereview.support_email', 'hello@qodeshark.com');
 
         return (new MailMessage())
-            ->subject("Confirm your email — {$appName}")
+            ->from($support, $brand)
+            ->subject("Confirm your email — {$brand}")
             ->view('mail.verify_email', [
-                'url'     => $url,
-                'appName' => $appName,
-                'user'    => $notifiable,
+                'url'   => $url,
+                'brand' => $brand,
+                'user'  => $notifiable,
             ]);
     }
 }

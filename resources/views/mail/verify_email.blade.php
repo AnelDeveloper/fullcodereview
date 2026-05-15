@@ -2,7 +2,7 @@
 
 @section('content')
     <h1 style="margin:0 0 14px; font-size:22px; font-weight:700; color:#0f172a; line-height:1.3;">
-        Welcome to {{ $appName }}
+        Welcome to {{ $brand }}
     </h1>
     <p style="margin:0 0 22px; color:#475569; font-size:15px; line-height:1.65;">
         Confirm your email so we can deliver your code audit reports, receipts,

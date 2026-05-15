@@ -18,7 +18,13 @@ class AnalysisReportMail extends Mailable
 
     public function envelope(): Envelope
     {
-        return new Envelope(subject: "Code audit report — {$this->analysis->repo_full_name}");
+        $brand = config('codereview.brand_name', config('app.name', 'QodeShark'));
+        $support = config('codereview.support_email', 'hello@qodeshark.com');
+
+        return new Envelope(
+            from: new \Illuminate\Mail\Mailables\Address($support, $brand),
+            subject: "Code audit report — {$this->analysis->repo_full_name}",
+        );
     }
 
     public function content(): Content
