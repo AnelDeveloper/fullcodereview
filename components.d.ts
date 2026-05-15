@@ -31,6 +31,7 @@ declare module 'vue' {
     DialogCloseBtn: typeof import('./resources/js/@core/components/DialogCloseBtn.vue')['default']
     DropZone: typeof import('./resources/js/@core/components/DropZone.vue')['default']
     ExecutiveSummaryBlock: typeof import('./resources/js/components/ExecutiveSummaryBlock.vue')['default']
+    FeedbackDialog: typeof import('./resources/js/components/FeedbackDialog.vue')['default']
     I18n: typeof import('./resources/js/@core/components/I18n.vue')['default']
     IssueCard: typeof import('./resources/js/components/IssueCard.vue')['default']
     IssueSection: typeof import('./resources/js/components/IssueSection.vue')['default']

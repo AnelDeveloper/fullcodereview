@@ -19,10 +19,13 @@ class AnalysisReportMail extends Mailable
     public function envelope(): Envelope
     {
         $brand = config('codereview.brand_name', config('app.name', 'QodeShark'));
-        $support = config('codereview.support_email', 'hello@qodeshark.com');
+        // FROM is the verified outbound sender (MAIL_FROM_ADDRESS env, e.g.
+        // hello@qodeshark.com). Keep separate from support_email, which is
+        // the receive-only contact address shown in footers.
+        $fromAddress = config('mail.from.address');
 
         return new Envelope(
-            from: new \Illuminate\Mail\Mailables\Address($support, $brand),
+            from: new \Illuminate\Mail\Mailables\Address($fromAddress, $brand),
             subject: "Code audit report — {$this->analysis->repo_full_name}",
         );
     }

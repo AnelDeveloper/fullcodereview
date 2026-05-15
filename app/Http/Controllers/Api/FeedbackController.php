@@ -43,7 +43,7 @@ class FeedbackController extends Controller
         $rating = $request->filled('rating') ? (int) $request->integer('rating') : null;
         $analysisId = $request->filled('analysis_id') ? (int) $request->integer('analysis_id') : null;
 
-        $supportEmail = config('codereview.support_email', 'hello@qodeshark.com');
+        $supportEmail = config('codereview.support_email', 'support@qodeshark.com');
         $brand        = config('codereview.brand_name', 'QodeShark');
 
         $subject = $type === 'audit'

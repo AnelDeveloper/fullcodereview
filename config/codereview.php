@@ -26,7 +26,7 @@ return [
         'trustpilot' => 'https://www.trustpilot.com/review/fullcodereview.com',
         'x'          => 'https://x.com/QodeShark',
     ],
-    'support_email' => env('SUPPORT_EMAIL', 'hello@qodeshark.com'),
+    'support_email' => env('SUPPORT_EMAIL', 'support@qodeshark.com'),
     'tagline' => 'AI-powered code audits for shipping teams',
 
     // Generate a Claude-authored business-language summary on top of every

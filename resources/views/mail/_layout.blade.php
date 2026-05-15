@@ -5,7 +5,7 @@
 @php
     $brand = config('codereview.brand_name', config('app.name', 'QodeShark'));
     $social = config('codereview.social', []);
-    $support = config('codereview.support_email', 'hello@qodeshark.com');
+    $support = config('codereview.support_email', 'support@qodeshark.com');
     $tagline = config('codereview.tagline', '');
     // Cropped shark mark — wider than tall (~2:1). Live at /email-logo.png.
     $logoUrl = rtrim(config('app.url'), '/') . '/email-logo.png';

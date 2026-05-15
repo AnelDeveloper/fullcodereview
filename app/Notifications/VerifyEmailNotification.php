@@ -33,10 +33,13 @@ class VerifyEmailNotification extends BaseVerifyEmail
         // and body all stay consistent regardless of APP_NAME / MAIL_FROM_NAME
         // on the deployment platform.
         $brand = config('codereview.brand_name', config('app.name', 'QodeShark'));
-        $support = config('codereview.support_email', 'hello@qodeshark.com');
+        // FROM is the verified outbound sender (MAIL_FROM_ADDRESS env, e.g.
+        // hello@qodeshark.com). Keep separate from support_email, which is
+        // the receive-only contact address shown in footers.
+        $fromAddress = config('mail.from.address');
 
         return (new MailMessage())
-            ->from($support, $brand)
+            ->from($fromAddress, $brand)
             ->subject("Confirm your email — {$brand}")
             ->view('mail.verify_email', [
                 'url'   => $url,
