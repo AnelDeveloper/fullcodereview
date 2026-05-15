@@ -98,7 +98,7 @@
 
                             <VCol cols="12" class="text-body-1 text-center">
                                 <span class="d-inline-block">Already have an account?</span>
-                                <RouterLink class="text-primary ms-1 d-inline-block text-body-1" to="/login">
+                                <RouterLink class="text-primary ms-1 d-inline-block text-body-1" :to="{ path: '/login', query: route.query }">
                                     Sign in
                                 </RouterLink>
                             </VCol>
@@ -117,6 +117,7 @@ import { useTheme } from "vuetify"
 import { useConfigStore } from "@core/stores/config"
 
 const authStore = useAuthStore()
+const route = useRoute()
 const router = useRouter()
 const vuetifyTheme = useTheme()
 const configStore = useConfigStore()
@@ -159,7 +160,9 @@ const register = async () => {
     loading.value = true
     try {
         await authStore.register(form.value)
-        router.push({ path: "/check-email", query: { email: form.value.email } })
+        const query = { email: form.value.email }
+        if (route.query.redirect) query.redirect = route.query.redirect
+        router.push({ path: "/check-email", query })
     } catch (e) {
         const data = e?.data || {}
         if (data.errors) errors.value = data.errors

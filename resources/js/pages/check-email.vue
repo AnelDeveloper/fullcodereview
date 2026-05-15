@@ -69,7 +69,7 @@
                             block
                             variant="outlined"
                             size="default"
-                            to="/login"
+                            :to="{ path: '/login', query: forwardQuery }"
                         >
                             Back to sign in
                         </VBtn>
@@ -77,7 +77,7 @@
 
                     <p class="text-caption text-medium-emphasis mt-6">
                         Wrong email?
-                        <RouterLink to="/register" class="text-primary">Register again</RouterLink>
+                        <RouterLink :to="{ path: '/register', query: forwardQuery }" class="text-primary">Register again</RouterLink>
                     </p>
                 </VCardText>
             </VCard>
@@ -95,6 +95,11 @@ const authStore = useAuthStore()
 
 // Email comes from the redirect (?email=...) or from the auth store
 const email = computed(() => route.query.email || authStore.user?.email || "")
+
+// Carry the post-auth redirect target (if any) through the back-to-login /
+// register-again links so a new user who started from /book lands back there
+// after they verify and sign in.
+const forwardQuery = computed(() => (route.query.redirect ? { redirect: route.query.redirect } : {}))
 
 const resending = ref(false)
 const resendStatus = ref(null)

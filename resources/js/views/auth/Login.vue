@@ -82,7 +82,7 @@
 
                             <VCol cols="12" class="text-body-1 text-center">
                                 <span class="d-inline-block">New here?</span>
-                                <RouterLink class="text-primary ms-1 d-inline-block text-body-1" to="/register">
+                                <RouterLink class="text-primary ms-1 d-inline-block text-body-1" :to="{ path: '/register', query: route.query }">
                                     Create an account
                                 </RouterLink>
                             </VCol>
