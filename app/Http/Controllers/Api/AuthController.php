@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Services\WelcomeBonusService;
 use Illuminate\Auth\Events\Verified;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -33,6 +34,8 @@ class AuthController extends Controller
             'password' => $request->input('password'),
             'api_token' => User::generateApiToken(),
         ]);
+
+        app(WelcomeBonusService::class)->grant($user);
 
         try {
             $user->sendEmailVerificationNotification();

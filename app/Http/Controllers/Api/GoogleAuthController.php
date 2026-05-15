@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Services\WelcomeBonusService;
 use Illuminate\Http\Request;
 use Laravel\Socialite\Facades\Socialite;
 
@@ -47,6 +48,8 @@ class GoogleAuthController extends Controller
                 'avatar' => $googleUser->getAvatar(),
                 'api_token' => User::generateApiToken(),
             ]);
+
+            app(WelcomeBonusService::class)->grant($user);
         }
 
         if (empty($user->api_token)) {
