@@ -74,6 +74,10 @@ Route::middleware('auth.api')->group(function () {
         Route::post('analyses/{id}/verification/finalize', [VerificationController::class, 'finalize'])->whereNumber('id');
 
         Route::get('admin/users', [AdminController::class, 'users']);
+        Route::post('admin/users', [AdminController::class, 'store']);
+        Route::patch('admin/users/{id}', [AdminController::class, 'update'])->whereNumber('id');
+        Route::delete('admin/users/{id}', [AdminController::class, 'destroy'])->whereNumber('id');
+        Route::post('admin/users/{id}/restore', [AdminController::class, 'restore'])->whereNumber('id');
         Route::post('admin/users/{id}/reviewer', [AdminController::class, 'setReviewer'])->whereNumber('id');
     });
 });

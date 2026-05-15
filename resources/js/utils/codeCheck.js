@@ -54,10 +54,12 @@ export const fetchReviewerQueue = () =>
     $api("/reviewer/queue")
 
 // Admin (reviewer-only) — user management
-export const fetchAdminUsers = (search = "", reviewersOnly = false) => {
+export const fetchAdminUsers = (search = "", reviewersOnly = false, { includeTrashed = false, trashedOnly = false } = {}) => {
     const params = new URLSearchParams()
     if (search) params.set("search", search)
     if (reviewersOnly) params.set("reviewers_only", "1")
+    if (trashedOnly) params.set("trashed_only", "1")
+    else if (includeTrashed) params.set("include_trashed", "1")
     const qs = params.toString()
     return $api(`/admin/users${qs ? "?" + qs : ""}`)
 }
@@ -67,6 +69,18 @@ export const setUserReviewer = (id, isReviewer) =>
         method: "POST",
         body: { is_reviewer: !!isReviewer },
     })
+
+export const createUser = (data) =>
+    $api("/admin/users", { method: "POST", body: data })
+
+export const updateUser = (id, data) =>
+    $api(`/admin/users/${id}`, { method: "PATCH", body: data })
+
+export const deleteUser = (id) =>
+    $api(`/admin/users/${id}`, { method: "DELETE" })
+
+export const restoreUser = (id) =>
+    $api(`/admin/users/${id}/restore`, { method: "POST" })
 
 // My profile
 export const updateProfile = (name, email) =>

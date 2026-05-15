@@ -403,6 +403,10 @@
     "updateProfile": true,
     "syncStripeOrders": true,
     "fetchAnalysisStatus": true,
-    "cancelAnalysis": true
+    "cancelAnalysis": true,
+    "createUser": true,
+    "deleteUser": true,
+    "restoreUser": true,
+    "updateUser": true
   }
 }
