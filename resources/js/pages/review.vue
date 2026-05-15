@@ -84,7 +84,7 @@
                         <VCardText class="pa-6">
                             <div class="d-flex align-center justify-space-between mb-3">
                                 <h3 class="text-h6 font-weight-bold">Pick credits</h3>
-                                <span class="text-caption text-medium-emphasis">{{ pickedCount }} of {{ totalSections }} selected</span>
+                                <span class="text-caption text-medium-emphasis">{{ pickedCount }} of {{ scopeRows.length }} selected</span>
                             </div>
                             <p class="text-caption text-medium-emphasis mb-4">
                                 Each one you pick consumes a slot from your inventory.
