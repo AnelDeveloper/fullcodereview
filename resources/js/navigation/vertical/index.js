@@ -19,6 +19,11 @@ export default [
         icon: { icon: "tabler-history" },
     },
     {
+        title: "Book a call",
+        to: { path: "/book" },
+        icon: { icon: "tabler-calendar-event" },
+    },
+    {
         title: "Reviewer queue",
         to: { path: "/reviewer/queue" },
         icon: { icon: "tabler-clipboard-check" },

@@ -92,14 +92,15 @@ onMounted(() => {
         theme: vuetifyTheme.global.current.value.dark ? "dark" : "light",
     })
 
-    // Hide the spinner once the iframe has actually mounted into our node.
-    const stop = setInterval(() => {
-        if (calMount.value && calMount.value.querySelector("iframe")) {
-            loading.value = false
-            clearInterval(stop)
-        }
-    }, 150)
-    setTimeout(() => clearInterval(stop), 10000)
+    // Cal.com fires `linkReady` once the booking widget has rendered. That's
+    // a more reliable signal than polling for an iframe element.
+    window.Cal.ns[NAMESPACE]("on", {
+        action: "linkReady",
+        callback: () => { loading.value = false },
+    })
+
+    // Safety net — never leave the spinner up forever.
+    setTimeout(() => { loading.value = false }, 4000)
 })
 
 onUnmounted(() => {
