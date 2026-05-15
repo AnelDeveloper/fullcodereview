@@ -3,20 +3,20 @@
         <!-- Header -->
         <div v-if="step !== 'analyzing'" class="d-flex align-center justify-space-between flex-wrap ga-4 mb-6">
             <div>
-                <h1 class="text-h4 font-weight-bold mb-1">Run a code review</h1>
+                <h1 class="text-h4 font-weight-bold mb-1">Run a code audit</h1>
                 <p class="text-body-2 text-medium-emphasis">
-                    Pick scopes from your inventory + a repo. Each scope you select consumes one slot.
+                    Pick credits from your inventory + a repo. Each credit you select consumes one slot.
                 </p>
             </div>
 
             <VBtn color="primary" rounded="pill" prepend-icon="tabler-plus" @click="buyDialog = true">
-                Buy scopes
+                Buy credits
             </VBtn>
         </div>
 
         <!-- Banners -->
         <VAlert v-if="returnBanner === 'success'" type="success" variant="tonal" closable class="mb-4" @click:close="returnBanner = null">
-            Payment received — scopes added to your inventory. Pick what to review below.
+            Payment received — credits added to your inventory. Pick what to audit below.
         </VAlert>
         <VAlert v-if="oauthError" type="error" variant="tonal" closable class="mb-4" @click:close="oauthError = ''">
             GitHub connection failed: {{ oauthError }}
@@ -45,14 +45,14 @@
             <VCard v-if="totalSections === 0" variant="outlined">
                 <VCardText class="empty-state text-center py-12">
                     <div class="big-icon mb-4">
-                        <VIcon icon="tabler-stack-2" size="40" color="primary" />
+                        <VIcon icon="tabler-credit-card" size="40" color="primary" />
                     </div>
-                    <h3 class="text-h6 font-weight-bold mb-2">No scopes in your inventory</h3>
+                    <h3 class="text-h6 font-weight-bold mb-2">No credits in your inventory</h3>
                     <p class="text-body-2 text-medium-emphasis mb-5" style="max-width:480px;margin:0 auto;">
-                        Buy your first scope to get started. Each scope you buy stays in your inventory until you use it on a review.
+                        Buy your first credit to get started. Each credit you buy stays in your inventory until you use it on an audit.
                     </p>
                     <VBtn color="primary" size="large" rounded="pill" prepend-icon="tabler-plus" @click="buyDialog = true">
-                        Buy review scopes
+                        Buy audit credits
                     </VBtn>
                 </VCardText>
             </VCard>
@@ -63,7 +63,7 @@
                     <VCard variant="outlined" class="h-100">
                         <VCardText class="pa-6">
                             <div class="d-flex align-center justify-space-between mb-3">
-                                <h3 class="text-h6 font-weight-bold">Pick scopes</h3>
+                                <h3 class="text-h6 font-weight-bold">Pick credits</h3>
                                 <span class="text-caption text-medium-emphasis">{{ pickedCount }} of {{ totalSections }} selected</span>
                             </div>
                             <p class="text-caption text-medium-emphasis mb-4">
@@ -218,7 +218,7 @@
             <VCard>
                 <VCardTitle class="d-flex align-center justify-space-between pa-6 pb-2">
                     <div>
-                        <div class="text-h5 font-weight-bold">Buy review scopes</div>
+                        <div class="text-h5 font-weight-bold">Buy audit credits</div>
                         <div class="text-body-2 text-medium-emphasis">Each category you buy adds one slot to your inventory.</div>
                     </div>
                     <VBtn icon="tabler-x" variant="text" size="small" @click="buyDialog = false" />
@@ -315,9 +315,9 @@ const repoChosen = computed(() => {
 const canRun = computed(() => picked.value.length > 0 && repoChosen.value)
 
 const runButtonLabel = computed(() => {
-    if (picked.value.length === 0) return "Pick at least one scope"
+    if (picked.value.length === 0) return "Pick at least one credit"
     if (!repoChosen.value) return repoSource.value === "connected" ? "Pick a repository" : "Paste a GitHub URL"
-    return `Run review · ${picked.value.length} ${picked.value.length === 1 ? "scope" : "scopes"}`
+    return `Run audit · ${picked.value.length} ${picked.value.length === 1 ? "credit" : "credits"}`
 })
 
 const onOpenBuy = () => { buyDialog.value = true }
@@ -440,7 +440,7 @@ const handleAnalyze = async () => {
     progress.value = 0
 
     const intro = [
-        ["Reserving scopes…", 8, 400],
+        ["Reserving credits…", 8, 400],
         ["Fetching repository metadata…", 18, 700],
         ["Reading source files…", 32, 900],
         ["Mapping the stack…", 45, 800],
@@ -448,7 +448,7 @@ const handleAnalyze = async () => {
         ["Analyzing patterns…", 70, 800],
     ]
     const waitLabels = [
-        "Reviewing with AI…",
+        "Auditing with AI…",
         "Auditing access patterns…",
         "Checking for known footguns…",
         "Synthesizing findings…",

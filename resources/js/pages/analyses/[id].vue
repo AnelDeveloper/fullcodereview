@@ -50,7 +50,7 @@
                                 <span class="font-mono">{{ analysis.repoName }}</span>
                             </div>
                             <div class="d-flex align-center ga-2 flex-wrap mb-1">
-                                <h2 class="text-h4 font-weight-bold">Code Review Results</h2>
+                                <h2 class="text-h4 font-weight-bold">Code Audit Results</h2>
                                 <VerificationBadge :status="analysis.verificationStatus" size="small" />
                             </div>
                             <p class="text-body-2 text-medium-emphasis mt-1">
@@ -67,7 +67,7 @@
                                 :loading="submitting"
                                 @click="onSubmitForReview"
                             >
-                                Request human review
+                                Request human audit
                             </VBtn>
                             <VBtn
                                 color="primary"
@@ -152,7 +152,7 @@ const onSubmitForReview = async () => {
     error.value = ""
     try {
         const r = await submitForReview(route.params.id)
-        actionMessage.value = r.message || "Submitted for review."
+        actionMessage.value = r.message || "Submitted for audit."
         if (analysis.value) analysis.value.verificationStatus = r.verificationStatus
     } catch (e) {
         error.value = e?.data?.message || e.message

@@ -25,7 +25,7 @@ const STATUS = {
         icon: "tabler-robot",
     },
     human_review_pending: {
-        label: "Pending review",
+        label: "Pending audit",
         color: "warning",
         variant: "tonal",
         icon: "tabler-clock",

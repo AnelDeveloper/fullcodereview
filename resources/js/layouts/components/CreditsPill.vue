@@ -2,21 +2,21 @@
     <VMenu offset="8" :close-on-content-click="false">
         <template #activator="{ props: activator }">
             <div v-bind="activator" class="credits-pill d-inline-flex align-center ga-2 px-3 py-1.5 rounded-pill cursor-pointer">
-                <VIcon icon="tabler-stack-2" size="18" />
+                <VIcon icon="tabler-credit-card" size="18" />
                 <span class="text-body-2 font-weight-semibold">{{ total }}</span>
-                <span class="text-caption d-none d-sm-inline">{{ total === 1 ? "scope" : "scopes" }}</span>
+                <span class="text-caption d-none d-sm-inline">{{ total === 1 ? "credit" : "credits" }}</span>
             </div>
         </template>
 
         <VCard min-width="260" variant="elevated">
             <VCardText class="pa-4">
                 <div class="text-caption text-medium-emphasis font-weight-semibold text-uppercase mb-2 tracking-wide">
-                    Available scopes
+                    Available credits
                 </div>
 
                 <div v-if="total === 0" class="text-center py-4">
-                    <p class="text-body-2 text-medium-emphasis mb-3">No scopes yet.</p>
-                    <VBtn color="primary" rounded="pill" size="small" @click="goBuy">Buy your first scope</VBtn>
+                    <p class="text-body-2 text-medium-emphasis mb-3">No credits yet.</p>
+                    <VBtn color="primary" rounded="pill" size="small" @click="goBuy">Buy your first credit</VBtn>
                 </div>
 
                 <template v-else>
@@ -29,7 +29,7 @@
                     </div>
 
                     <VDivider class="my-3" />
-                    <VBtn block color="primary" rounded="pill" size="small" @click="goBuy">Buy more scopes</VBtn>
+                    <VBtn block color="primary" rounded="pill" size="small" @click="goBuy">Buy more credits</VBtn>
                 </template>
             </VCardText>
         </VCard>

@@ -13,12 +13,12 @@ const logoMark = h('span', {
     class: 'app-logo-mark',
     style: [
         'display:inline-block',
-        'width:48px',
-        'height:48px',
+        'width:72px',
+        'height:72px',
         'flex-shrink:0',
         "background-image:url('/logos/Shark Logo Itself white.svg')",
         'background-size:195% auto',
-        'background-position:center 40%',
+        'background-position:center 35%',
         'background-repeat:no-repeat',
     ].join(';'),
 })
@@ -61,8 +61,8 @@ export const { themeConfig, layoutConfig } = defineThemeConfig({
         chevronDown: { icon: 'tabler-chevron-down' },
         chevronRight: { icon: 'tabler-chevron-right', size: 20 },
         close: { icon: 'tabler-x', size: 20 },
-        verticalNavPinned: { icon: 'tabler-circle-dot', size: 20 },
-        verticalNavUnPinned: { icon: 'tabler-circle', size: 20 },
+        verticalNavPinned: { icon: 'tabler-square-dot', size: 20 },
+        verticalNavUnPinned: { icon: 'tabler-square', size: 20 },
         sectionTitlePlaceholder: { icon: 'tabler-minus' },
     },
 })

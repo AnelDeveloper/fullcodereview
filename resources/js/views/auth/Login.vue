@@ -17,7 +17,7 @@
                 <VCardItem class="d-flex flex-column align-center text-center pt-2">
                     <RouterLink to="/" class="brand-mark mb-2" aria-label="QodeShark" :style="brandStyle" />
                     <h1 class="text-h4 font-weight-bold mb-1">Welcome back</h1>
-                    <p class="text-body-2 text-medium-emphasis">Sign in to run AI-powered code reviews on your repos.</p>
+                    <p class="text-body-2 text-medium-emphasis">Sign in to run AI-powered code audits on your repos.</p>
                 </VCardItem>
 
                 <VCardText>

@@ -7,7 +7,7 @@
                     Welcome back<span v-if="firstName">, {{ firstName }}</span> 👋
                 </h1>
                 <p class="text-body-2 text-medium-emphasis">
-                    Your code, reviewed by AI. Pick what to fix next.
+                    Your code, audited by AI. Pick what to fix next.
                 </p>
             </div>
             <div class="d-flex ga-2">
@@ -15,10 +15,9 @@
                     color="primary"
                     rounded="pill"
                     size="large"
-                    prepend-icon="tabler-sparkles"
                     to="/review"
                 >
-                    New Review
+                    New Audit
                 </VBtn>
             </div>
         </div>
@@ -38,15 +37,15 @@
             <!-- Stat tiles -->
             <VRow class="mb-2">
                 <VCol cols="12" sm="6" md="3">
-                    <StatCard icon="tabler-stack-2" accent="primary" :value="stats.sectionsTotal || 0" label="Review scopes">
+                    <StatCard icon="tabler-credit-card" accent="primary" :value="stats.sectionsTotal || 0" label="Audit credits">
                         <template #footer>
-                            <VBtn v-if="(stats.sectionsTotal || 0) === 0" size="small" variant="tonal" color="primary" to="/review">Buy scopes</VBtn>
+                            <VBtn v-if="(stats.sectionsTotal || 0) === 0" size="small" variant="tonal" color="primary" to="/review">Buy credits</VBtn>
                             <span v-else class="text-caption text-medium-emphasis">{{ sectionsBreakdown }}</span>
                         </template>
                     </StatCard>
                 </VCol>
                 <VCol cols="12" sm="6" md="3">
-                    <StatCard icon="tabler-shield-check" accent="success" :value="stats.totalReviews" label="Reviews completed">
+                    <StatCard icon="tabler-shield-check" accent="success" :value="stats.totalReviews" label="Audits completed">
                         <template #footer>
                             <span class="text-caption text-medium-emphasis">{{ stats.monthReviews }} this month</span>
                         </template>
@@ -55,7 +54,7 @@
                 <VCol cols="12" sm="6" md="3">
                     <StatCard icon="tabler-trending-up" accent="info" :value="stats.avgScore !== null ? stats.avgScore : '—'" label="Average overall score">
                         <template #footer>
-                            <span class="text-caption text-medium-emphasis">Across all reviews</span>
+                            <span class="text-caption text-medium-emphasis">Across all audits</span>
                         </template>
                     </StatCard>
                 </VCol>
@@ -75,7 +74,7 @@
                         <VCardText class="pa-6">
                             <div class="d-flex align-center justify-space-between mb-4">
                                 <div>
-                                    <h3 class="text-h6 font-weight-bold">Recent reviews</h3>
+                                    <h3 class="text-h6 font-weight-bold">Recent audits</h3>
                                     <p class="text-caption text-medium-emphasis">Your last {{ recent.length || 0 }} runs</p>
                                 </div>
                                 <VBtn v-if="recent.length" variant="text" size="small" append-icon="tabler-arrow-right" to="/history">View all</VBtn>
@@ -83,10 +82,10 @@
 
                             <div v-if="!recent.length" class="empty-state text-center py-10">
                                 <VIcon icon="tabler-shield-search" size="48" color="primary" class="mb-2" />
-                                <h4 class="text-h6 mt-2">No reviews yet</h4>
-                                <p class="text-body-2 text-medium-emphasis mb-4">Run your first review to see it here.</p>
-                                <VBtn color="primary" rounded="pill" prepend-icon="tabler-sparkles" to="/review">
-                                    Start your first review
+                                <h4 class="text-h6 mt-2">No audits yet</h4>
+                                <p class="text-body-2 text-medium-emphasis mb-4">Run your first audit to see it here.</p>
+                                <VBtn color="primary" rounded="pill" to="/review">
+                                    Start your first audit
                                 </VBtn>
                             </div>
 
@@ -136,7 +135,7 @@
 
                     <VCard variant="outlined" class="coverage-card">
                         <VCardText class="pa-6">
-                            <h3 class="text-subtitle-1 font-weight-bold mb-3">What we review</h3>
+                            <h3 class="text-subtitle-1 font-weight-bold mb-3">What we audit</h3>
                             <div class="d-flex flex-column ga-2">
                                 <div class="coverage-item"><VIcon icon="tabler-shield" color="error" size="18" /><span class="text-body-2">Security — auth, injection, secrets</span></div>
                                 <div class="coverage-item"><VIcon icon="tabler-database" color="warning" size="18" /><span class="text-body-2">Database — N+1, indexes, migrations</span></div>

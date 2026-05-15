@@ -172,7 +172,7 @@ const hideTitleAndIcon = configStore.isVerticalNavMini(isHovered)
 .app-logo {
   display: flex;
   align-items: center;
-  column-gap: 0.75rem;
+  column-gap: 0;
 
   .app-logo-title {
     font-size: 1.375rem;
@@ -276,6 +276,21 @@ const hideTitleAndIcon = configStore.isVerticalNavMini(isHovered)
     &:not(.hovered) {
       inline-size: variables.$layout-vertical-nav-collapsed-width;
     }
+  }
+}
+
+// Mini state: center logo + hide footer text
+#{variables.$selector-vertical-nav-mini} {
+  .nav-header {
+    justify-content: center;
+
+    .app-title-wrapper {
+      margin-inline-end: 0;
+    }
+  }
+
+  .nav-footer {
+    visibility: hidden;
   }
 }
 

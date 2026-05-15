@@ -77,7 +77,7 @@
                     <VCard variant="outlined" class="summary-card">
                         <VCardText class="pa-6">
                             <div class="d-flex align-center justify-space-between mb-2">
-                                <div class="text-caption font-weight-semibold text-uppercase text-primary">Your review</div>
+                                <div class="text-caption font-weight-semibold text-uppercase text-primary">Your audit</div>
                                 <VChip
                                     v-if="discountPct > 0"
                                     size="x-small"
@@ -238,7 +238,7 @@ const canCheckout = computed(() =>
 const buttonLabel = computed(() => {
     if (selected.value.length === 0) return "Select categories"
     if (subtotalCents.value < catalog.value.minTotalCents) return `Minimum $${minTotalDollars.value}`
-    return `Get my review · $${totalAfter.value}`
+    return `Get my audit · $${totalAfter.value}`
 })
 
 const tierBadges = computed(() => {

@@ -3,10 +3,10 @@
         <div class="d-flex align-center justify-space-between flex-wrap ga-4 mb-6">
             <div>
                 <h1 class="text-h4 font-weight-bold">Audit history</h1>
-                <p class="text-body-2 text-medium-emphasis">Your past production-readiness reviews.</p>
+                <p class="text-body-2 text-medium-emphasis">Your past production-readiness audits.</p>
             </div>
             <VBtn to="/" prepend-icon="tabler-plus" color="primary" rounded="pill">
-                New review
+                New audit
             </VBtn>
         </div>
 
@@ -19,12 +19,12 @@
         <VCard v-else-if="!items.length" variant="outlined">
             <VCardText class="text-center py-10">
                 <VIcon icon="tabler-history" size="56" color="primary" class="mb-3" />
-                <h3 class="text-h6 mb-1">No reviews yet</h3>
+                <h3 class="text-h6 mb-1">No audits yet</h3>
                 <p class="text-body-2 text-medium-emphasis mb-4">
-                    Run your first review and it'll show up here.
+                    Run your first audit and it'll show up here.
                 </p>
                 <VBtn to="/" color="primary" rounded="pill">
-                    Run a review
+                    Run an audit
                 </VBtn>
             </VCardText>
         </VCard>
@@ -140,7 +140,7 @@
 
             <VCard v-if="!filtered.length" variant="outlined" class="mt-2">
                 <VCardText class="text-center py-8 text-medium-emphasis">
-                    No reviews match the current filters.
+                    No audits match the current filters.
                 </VCardText>
             </VCard>
         </template>

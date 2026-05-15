@@ -9,7 +9,7 @@ export default [
         icon: { icon: "tabler-layout-dashboard" },
     },
     {
-        title: "New Review",
+        title: "New Audit",
         to: { path: "/review" },
         icon: { icon: "tabler-shield-check" },
     },
