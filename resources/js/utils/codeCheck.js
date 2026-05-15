@@ -95,6 +95,14 @@ export const grantUserCredits = (id, category, count) =>
 export const updateProfile = (name, email) =>
     $api("/me/profile", { method: "PUT", body: { name, email } })
 
+// In-app feedback / support requests — emails the support inbox.
+export const submitFeedback = ({ type, message, rating = null, analysisId = null }) => {
+    const body = { type, message }
+    if (rating !== null) body.rating = rating
+    if (analysisId !== null) body.analysis_id = analysisId
+    return $api("/feedback", { method: "POST", body })
+}
+
 export const changePassword = (current_password, password, password_confirmation) =>
     $api("/me/password", {
         method: "POST",

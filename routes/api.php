@@ -5,6 +5,7 @@ use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\CatalogController;
 use App\Http\Controllers\Api\CreditsController;
 use App\Http\Controllers\Api\DashboardController;
+use App\Http\Controllers\Api\FeedbackController;
 use App\Http\Controllers\Api\GithubController;
 use App\Http\Controllers\Api\GoogleAuthController;
 use App\Http\Controllers\Api\StripeController;
@@ -52,6 +53,8 @@ Route::middleware('auth.api')->group(function () {
 
     Route::post('stripe/checkout', [StripeController::class, 'checkout']);
     Route::post('stripe/sync', [StripeController::class, 'sync']);
+
+    Route::post('feedback', [FeedbackController::class, 'store'])->middleware('throttle:6,1');
 
     Route::get('github/login', [GithubController::class, 'login']);
     Route::get('github/repos', [GithubController::class, 'repos']);

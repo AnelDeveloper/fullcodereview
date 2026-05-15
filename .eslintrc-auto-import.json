@@ -409,6 +409,7 @@
     "restoreUser": true,
     "updateUser": true,
     "fetchUserCredits": true,
-    "grantUserCredits": true
+    "grantUserCredits": true,
+    "submitFeedback": true
   }
 }

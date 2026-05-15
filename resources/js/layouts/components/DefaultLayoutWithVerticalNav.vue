@@ -13,12 +13,24 @@
                 <VSpacer />
 
                 <CreditsPill class="ml-15" />
-                <NavbarThemeSwitcher class="mr-5 ml-5" />
+                <VBtn
+                    icon
+                    variant="text"
+                    class="ml-3"
+                    title="Send feedback"
+                    aria-label="Send feedback"
+                    @click="feedbackOpen = true"
+                >
+                    <VIcon icon="tabler-message-circle" />
+                </VBtn>
+                <NavbarThemeSwitcher class="mr-5 ml-3" />
                 <UserProfile />
             </div>
         </template>
 
         <slot />
+
+        <FeedbackDialog v-model="feedbackOpen" mode="support" />
 
         <template #footer>
             <Footer />
@@ -28,13 +40,16 @@
 
 <script setup>
 import CreditsPill from "@/layouts/components/CreditsPill.vue"
+import FeedbackDialog from "@/components/FeedbackDialog.vue"
 import Footer from "@/layouts/components/Footer.vue"
 import NavbarThemeSwitcher from "@/layouts/components/NavbarThemeSwitcher.vue"
 import UserProfile from "@/layouts/components/UserProfile.vue"
 import navItemsRaw from "@/navigation/vertical"
 import { useAuthStore } from "@/stores/auth"
 import { VerticalNavLayout } from "@layouts"
-import { computed, onMounted } from "vue"
+import { computed, onMounted, ref } from "vue"
+
+const feedbackOpen = ref(false)
 
 const authStore = useAuthStore()
 

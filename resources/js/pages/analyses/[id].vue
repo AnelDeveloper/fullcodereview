@@ -133,7 +133,16 @@
             <IssueSection title="Security" icon="tabler-shield" color="error" :issues="analysis.issues?.security || []" />
             <IssueSection title="Performance" icon="tabler-bolt" color="warning" :issues="analysis.issues?.performance || []" />
             <IssueSection title="Code Quality" icon="tabler-code" color="primary" :issues="analysis.issues?.quality || []" />
+
+            <!-- Manual feedback CTA — always available even after the auto-prompt has fired -->
+            <div v-if="analysis.status === 'completed'" class="d-flex justify-center mt-8 mb-2">
+                <VBtn variant="tonal" color="primary" prepend-icon="tabler-message-circle" @click="feedbackOpen = true">
+                    Give us feedback on this audit
+                </VBtn>
+            </div>
         </template>
+
+        <FeedbackDialog v-model="feedbackOpen" mode="audit" :analysis-id="analysis?.id || null" />
     </div>
 </template>
 
@@ -144,9 +153,10 @@ import ReadinessScoreCard from "@/components/ReadinessScoreCard.vue"
 import ExecutiveSummaryBlock from "@/components/ExecutiveSummaryBlock.vue"
 import VerificationBadge from "@/components/VerificationBadge.vue"
 import TrustBanner from "@/components/TrustBanner.vue"
+import FeedbackDialog from "@/components/FeedbackDialog.vue"
 import { fetchAnalysis, submitForReview } from "@/utils/codeCheck"
 import { useAnalysisRunStore } from "@/stores/analysisRun"
-import { onBeforeUnmount } from "vue"
+import { onBeforeUnmount, watch } from "vue"
 
 const route = useRoute()
 const analysisRun = useAnalysisRunStore()
@@ -212,6 +222,32 @@ const schedulePoll = () => {
 onBeforeUnmount(() => {
     if (pollTimer) { window.clearInterval(pollTimer); pollTimer = null }
 })
+
+// Auto-prompt for feedback once per (user, analysis) when an audit finishes.
+// The localStorage flag is per analysis ID so we don't re-prompt on revisit
+// or after a soft reload. Manual "Give feedback" button below remains
+// available even after the prompt is dismissed.
+const feedbackOpen = ref(false)
+
+const feedbackStorageKey = (id) => `audit-feedback-prompted:${id}`
+
+watch(
+    () => analysis.value?.status,
+    (status, prev) => {
+        if (status !== "completed") return
+        const id = analysis.value?.id
+        if (!id) return
+        try {
+            if (localStorage.getItem(feedbackStorageKey(id))) return
+            // Defer slightly so the report renders before the dialog overlays it.
+            setTimeout(() => {
+                feedbackOpen.value = true
+                localStorage.setItem(feedbackStorageKey(id), "1")
+            }, 1200)
+        } catch { /* private mode etc. — just skip */ }
+    },
+    { immediate: true },
+)
 
 const onSubmitForReview = async () => {
     submitting.value = true
