@@ -83,7 +83,7 @@
                     <VCard variant="outlined" class="h-100">
                         <VCardText class="pa-6">
                             <div class="d-flex align-center justify-space-between mb-3">
-                                <h3 class="text-h6 font-weight-bold">Pick credits</h3>
+                                <h3 class="text-h6 font-weight-bold">Pick audits</h3>
                                 <span class="text-caption text-medium-emphasis">{{ pickedCount }} of {{ scopeRows.length }} selected</span>
                             </div>
                             <p class="text-caption text-medium-emphasis mb-4">
