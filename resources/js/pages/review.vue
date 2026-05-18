@@ -142,7 +142,7 @@
                                     <VIcon icon="tabler-brand-github" size="36" />
                                     <div class="flex-1-1">
                                         <div class="text-body-1 font-weight-semibold mb-1">Connect your GitHub account</div>
-                                        <p class="text-caption text-medium-emphasis mb-0">Read-only access. Token is removed when the analysis finishes.</p>
+                                        <p class="text-caption text-medium-emphasis mb-0">Read-only access — we can view repo contents but never modify them.</p>
                                     </div>
                                     <VBtn color="primary" rounded="pill" prepend-icon="tabler-plug-connected" @click="handleConnectGithub">Connect</VBtn>
                                 </div>

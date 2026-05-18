@@ -34,17 +34,17 @@ class AnalysisService
         Analysis $analysis,
         string $repoSpec,
         ?User $user = null,
-        ?string $githubToken = null,
+        ?string $githubInstallationId = null,
         array $categories = [],
     ): Analysis {
-        $this->runScan($analysis, $repoSpec, $user, $githubToken, $categories);
+        $this->runScan($analysis, $repoSpec, $user, $githubInstallationId, $categories);
         return $analysis;
     }
 
     public function runForRepo(
         string $repoSpec,
         ?User $user = null,
-        ?string $githubToken = null,
+        ?string $githubInstallationId = null,
         array $categories = [],
     ): Analysis {
         $analysis = Analysis::create([
@@ -54,22 +54,27 @@ class AnalysisService
             'selected_categories' => $categories ?: null,
             'verification_status' => Analysis::VERIFICATION_AI_SCAN_COMPLETE,
         ]);
-        return $this->populateForRepo($analysis, $repoSpec, $user, $githubToken, $categories);
+        return $this->populateForRepo($analysis, $repoSpec, $user, $githubInstallationId, $categories);
     }
 
     protected function runScan(
         Analysis $analysis,
         string $repoSpec,
         ?User $user,
-        ?string $githubToken,
+        ?string $githubInstallationId,
         array $categories,
     ): void {
         ['owner' => $owner, 'repo' => $repoName] = GithubService::parseRepoUrl($repoSpec);
-        $token = $githubToken ?: $user?->github_access_token;
-        $github = GithubService::withToken($token);
+        // If the user connected GitHub, mint a fresh installation token for
+        // this scan. Otherwise fall back to anonymous access — works for
+        // public repos via the raw URL path inside fetchFile().
+        $installationId = $githubInstallationId ?: $user?->github_installation_id;
+        $github = $installationId
+            ? GithubService::forInstallation($installationId)
+            : GithubService::withToken(null);
 
         $repo = $github->getRepo($owner, $repoName);
-        if (($repo['private'] ?? false) && ! $token) {
+        if (($repo['private'] ?? false) && ! $installationId) {
             throw new RuntimeException('Repository is private. Connect your GitHub account to scan private repos.');
         }
         $branch = $repo['default_branch'] ?? 'main';

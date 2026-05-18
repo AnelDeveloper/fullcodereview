@@ -10,12 +10,19 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Str;
 
 /**
- * GitHub OAuth tied to the user account.
+ * GitHub App connection tied to the user account.
  *
- * The login route requires auth so we know which user is connecting; we
- * stash a one-shot state token in cache, hand it to GitHub, and look it
- * up on the callback to find the user. The token is stored on the User
- * row so any subsequent analysis can scan that user's private repos.
+ * Connect flow:
+ *   1. login()    - stash a one-shot state token in cache, redirect the user
+ *                   to the App's install page (combined install + OAuth auth).
+ *   2. callback() - GitHub redirects back with ?code, ?installation_id, ?state.
+ *                   We use the code once to read identity (login, avatar) and
+ *                   then store the installation_id. All future repo reads mint
+ *                   fresh installation tokens from our private key.
+ *
+ * Why we don't store the user OAuth token: the App's permissions (Contents:
+ * read-only) gate everything, and installation tokens are easier to manage
+ * server-side — no refresh, no long-lived secret on our DB.
  */
 class GithubController extends Controller
 {
@@ -24,27 +31,28 @@ class GithubController extends Controller
         $user = $request->user();
         if (! $user) return response()->json(['message' => 'Sign in first.'], 401);
 
+        $slug = config('services.github.app_slug');
+        if (! $slug) {
+            return response()->json(['message' => 'GitHub App is not configured.'], 500);
+        }
+
         $state = Str::random(40);
         Cache::put("github:oauth:state:{$state}", $user->id, now()->addMinutes(15));
 
-        $params = http_build_query([
-            'client_id' => config('services.github.client_id'),
-            'redirect_uri' => config('services.github.redirect_uri'),
-            'scope' => 'repo read:user user:email',
-            'state' => $state,
-        ]);
-
-        // Browser-initiated; redirect rather than JSON.
-        return redirect("https://github.com/login/oauth/authorize?{$params}");
+        // The App's install page handles both the install (granting our App
+        // access to selected repos) and OAuth user-authorization in one screen.
+        $params = http_build_query(['state' => $state]);
+        return redirect("https://github.com/apps/{$slug}/installations/new?{$params}");
     }
 
     public function callback(Request $request, GithubService $github)
     {
         $oauthCode = (string) $request->query('code');
         $state = (string) $request->query('state');
+        $installationId = (string) $request->query('installation_id');
 
-        if (! $oauthCode || ! $state) {
-            return redirect(config('app.url') . '/?gh_error=' . urlencode('Missing code or state.'));
+        if (! $oauthCode || ! $state || ! $installationId) {
+            return redirect(config('app.url') . '/?gh_error=' . urlencode('Missing parameters from GitHub.'));
         }
 
         $userId = Cache::pull("github:oauth:state:{$state}");
@@ -58,17 +66,19 @@ class GithubController extends Controller
         }
 
         try {
+            // Exchange the OAuth code once to read identity. We don't keep the
+            // user token afterwards — repo reads use installation tokens.
             $token = $github->exchangeOauthCode($oauthCode);
-            $svc = GithubService::withToken($token['access_token']);
-            $ghUser = $svc->fetchUser();
+            $ghUser = GithubService::withToken($token['access_token'])->fetchUser();
         } catch (\Throwable $e) {
             return redirect(config('app.url') . '/?gh_error=' . urlencode($e->getMessage()));
         }
 
         $user->update([
-            'github_access_token' => $token['access_token'],
+            'github_installation_id' => $installationId,
             'github_login' => $ghUser['login'] ?? null,
             'github_avatar_url' => $ghUser['avatar_url'] ?? null,
+            'github_access_token' => null,
         ]);
 
         return redirect(config('app.url') . '/?gh_connected=1');
@@ -77,13 +87,12 @@ class GithubController extends Controller
     public function repos(Request $request)
     {
         $user = $request->user();
-        if (! $user || ! $user->github_access_token) {
+        if (! $user || ! $user->github_installation_id) {
             return response()->json(['message' => 'GitHub not connected.', 'code' => 'not_connected'], 400);
         }
 
-        $svc = GithubService::withToken($user->github_access_token);
         try {
-            $repos = $svc->fetchUserRepos();
+            $repos = GithubService::forInstallation($user->github_installation_id)->fetchInstallationRepos();
         } catch (\Throwable $e) {
             return response()->json(['message' => $e->getMessage()], 500);
         }
@@ -96,10 +105,10 @@ class GithubController extends Controller
     }
 
     /**
-     * Clears the user's stored GitHub access token (and login/avatar metadata).
-     * The OAuth grant on GitHub's side stays in place — the user must remove
-     * "QodeShark" from github.com/settings/applications to revoke it
-     * fully — but our app immediately stops being able to read their repos.
+     * Clears the user's installation reference on our side. The App install
+     * itself stays on GitHub — users have to remove "QodeShark" from
+     * github.com/settings/installations to fully revoke. We immediately
+     * stop being able to mint tokens for them once the column is null.
      */
     public function disconnect(Request $request)
     {
@@ -107,14 +116,15 @@ class GithubController extends Controller
         if (! $user) return response()->json(['message' => 'Sign in first.'], 401);
 
         $user->update([
-            'github_access_token' => null,
+            'github_installation_id' => null,
             'github_login' => null,
             'github_avatar_url' => null,
+            'github_access_token' => null,
         ]);
 
         return response()->json([
             'ok' => true,
-            'message' => 'GitHub disconnected. To fully revoke access on GitHub\'s side, visit github.com/settings/applications.',
+            'message' => 'GitHub disconnected. To fully revoke access on GitHub\'s side, visit github.com/settings/installations.',
         ]);
     }
 }

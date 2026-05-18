@@ -49,7 +49,7 @@ class RunAnalysisJob implements ShouldQueue
                 analysis: $analysis,
                 repoSpec: $this->repoSpec,
                 user: $user,
-                githubToken: $user?->github_access_token,
+                githubInstallationId: $user?->github_installation_id,
                 categories: $this->categories,
             );
         } catch (Throwable $e) {

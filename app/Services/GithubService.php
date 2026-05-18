@@ -2,9 +2,27 @@
 
 namespace App\Services;
 
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 use RuntimeException;
 
+/**
+ * Wraps the GitHub App auth + API.
+ *
+ * Two token types in play here:
+ *
+ *  - User-to-server (OAuth): obtained at install time, used once to read the
+ *    user's identity (login, avatar). We don't store it.
+ *  - Installation token (server-to-server): minted on demand from a JWT signed
+ *    with the App's private key. Used for every repo read. Cached ~50 minutes
+ *    per installation (GitHub gives us 60). No refresh dance needed — if the
+ *    cache misses or the installation was uninstalled, we just mint again or
+ *    surface a "reconnect" error.
+ *
+ * Everything the App can do is gated by the permissions configured on the App
+ * itself (Contents: read, Metadata: read). The consent screen the user sees
+ * reflects that.
+ */
 class GithubService
 {
     public const MAX_FILE_BYTES = 40_000;
@@ -15,6 +33,16 @@ class GithubService
     public static function withToken(?string $token): self
     {
         return new self($token);
+    }
+
+    /**
+     * Returns a service primed with a freshly-minted installation token for the
+     * given installation. Throws if the App is misconfigured or the install is
+     * gone (user revoked it on github.com).
+     */
+    public static function forInstallation(string $installationId): self
+    {
+        return new self(self::mintInstallationToken($installationId));
     }
 
     public function ghHeaders(): array
@@ -54,19 +82,22 @@ class GithubService
         return $r->json();
     }
 
-    public function fetchUserRepos(): array
+    /**
+     * Lists every repo the given installation has access to. Replaces the old
+     * "GET /user/repos" call — the installation only sees repos the user
+     * selected during install, so this is naturally scoped.
+     */
+    public function fetchInstallationRepos(): array
     {
         $repos = [];
         for ($page = 1; $page <= 5; $page++) {
             $r = Http::withHeaders($this->ghHeaders())
-                ->get('https://api.github.com/user/repos', [
+                ->get('https://api.github.com/installation/repositories', [
                     'per_page' => 100,
                     'page' => $page,
-                    'sort' => 'updated',
-                    'affiliation' => 'owner,collaborator,organization_member',
                 ]);
             if (! $r->ok()) break;
-            $batch = $r->json();
+            $batch = $r->json('repositories') ?? [];
             if (empty($batch)) break;
             foreach ($batch as $repo) {
                 $repos[] = [
@@ -81,6 +112,9 @@ class GithubService
             }
             if (count($batch) < 100) break;
         }
+        // GitHub returns most-recent installs first; sort by updatedAt to keep
+        // the old UI ordering ("recently updated repo first").
+        usort($repos, fn ($a, $b) => strcmp($b['updatedAt'] ?? '', $a['updatedAt'] ?? ''));
         return $repos;
     }
 
@@ -134,5 +168,59 @@ class GithubService
             throw new RuntimeException('Invalid GitHub URL or repo name.');
         }
         return ['owner' => $parts[0], 'repo' => $parts[1]];
+    }
+
+    /**
+     * Mints an installation access token by signing a short-lived JWT with the
+     * App's private key and exchanging it at GitHub. Cached per-installation
+     * for slightly less than the 1-hour TTL GitHub gives us.
+     */
+    public static function mintInstallationToken(string $installationId): string
+    {
+        return Cache::remember(
+            "github:installation_token:{$installationId}",
+            now()->addMinutes(50),
+            function () use ($installationId) {
+                $jwt = self::generateAppJwt();
+                $r = Http::withHeaders([
+                    'Accept' => 'application/vnd.github+json',
+                    'Authorization' => 'Bearer ' . $jwt,
+                    'User-Agent' => 'codereview-app',
+                ])->post("https://api.github.com/app/installations/{$installationId}/access_tokens");
+
+                if (! $r->ok() || ! $r->json('token')) {
+                    throw new RuntimeException('Could not mint GitHub installation token. The user may have uninstalled the app — ask them to reconnect.');
+                }
+                return $r->json('token');
+            }
+        );
+    }
+
+    /**
+     * RS256-signed JWT identifying our App. GitHub allows max 10-minute lifetime;
+     * we use 9 to be safe on clock skew. No third-party JWT lib needed — RS256
+     * is just base64url(header).base64url(payload) signed with openssl_sign.
+     */
+    private static function generateAppJwt(): string
+    {
+        $appId = config('services.github.app_id');
+        $privateKey = config('services.github.app_private_key');
+        if (! $appId || ! $privateKey) {
+            throw new RuntimeException('GitHub App is not configured (missing GITHUB_APP_ID or GITHUB_APP_PRIVATE_KEY).');
+        }
+
+        $now = time();
+        $header = ['alg' => 'RS256', 'typ' => 'JWT'];
+        // iat is set 60s in the past to tolerate clock drift between us and GitHub.
+        $payload = ['iat' => $now - 60, 'exp' => $now + (9 * 60), 'iss' => (string) $appId];
+
+        $b64 = fn ($data) => rtrim(strtr(base64_encode($data), '+/', '-_'), '=');
+        $signingInput = $b64(json_encode($header)) . '.' . $b64(json_encode($payload));
+
+        $signature = '';
+        if (! openssl_sign($signingInput, $signature, $privateKey, OPENSSL_ALGO_SHA256)) {
+            throw new RuntimeException('Could not sign GitHub App JWT — private key may be malformed.');
+        }
+        return $signingInput . '.' . $b64($signature);
     }
 }

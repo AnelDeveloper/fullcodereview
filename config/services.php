@@ -24,9 +24,15 @@ return [
     ],
 
     'github' => [
+        // OAuth credentials live on the GitHub App now (App settings → "Client ID" / "Client secret").
         'client_id' => env('GITHUB_CLIENT_ID'),
         'client_secret' => env('GITHUB_CLIENT_SECRET'),
         'redirect_uri' => env('GITHUB_REDIRECT_URI'),
+        // App-level identity (used for JWT signing → installation tokens).
+        'app_id' => env('GITHUB_APP_ID'),
+        'app_slug' => env('GITHUB_APP_SLUG'),
+        // PEM stored with literal "\n" in the env value — restore real newlines for openssl.
+        'app_private_key' => str_replace('\\n', "\n", (string) env('GITHUB_APP_PRIVATE_KEY', '')),
     ],
 
     'google' => [

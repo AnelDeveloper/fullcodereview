@@ -185,7 +185,7 @@
                         </div>
                         <div v-else class="d-flex align-center justify-space-between flex-wrap ga-3">
                             <div class="text-body-2 text-medium-emphasis">
-                                Not connected. Connect to scan your private GitHub repos.
+                                Not connected. Connect to scan your private GitHub repos — read-only access.
                             </div>
                             <VBtn
                                 color="primary"
@@ -197,7 +197,7 @@
                             </VBtn>
                         </div>
                         <p class="text-caption text-medium-emphasis mt-3 mb-0">
-                            To fully revoke access on GitHub's side, visit <a href="https://github.com/settings/applications" target="_blank" rel="noopener">github.com/settings/applications</a>.
+                            To fully revoke access on GitHub's side, visit <a href="https://github.com/settings/installations" target="_blank" rel="noopener">github.com/settings/installations</a>.
                         </p>
                     </VCardText>
                 </VCard>
