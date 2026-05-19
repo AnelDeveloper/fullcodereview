@@ -66,7 +66,7 @@ class GithubService
                 'redirect_uri' => config('services.github.redirect_uri'),
             ]);
 
-        if (! $response->ok() || ! $response->json('access_token')) {
+        if (! $response->successful() || ! $response->json('access_token')) {
             throw new RuntimeException('GitHub OAuth exchange failed.');
         }
         return [
@@ -78,7 +78,7 @@ class GithubService
     public function fetchUser(): array
     {
         $r = Http::withHeaders($this->ghHeaders())->get('https://api.github.com/user');
-        if (! $r->ok()) throw new RuntimeException('Could not load GitHub user.');
+        if (! $r->successful()) throw new RuntimeException('Could not load GitHub user.');
         return $r->json();
     }
 
@@ -96,7 +96,7 @@ class GithubService
                     'per_page' => 100,
                     'page' => $page,
                 ]);
-            if (! $r->ok()) break;
+            if (! $r->successful()) break;
             $batch = $r->json('repositories') ?? [];
             if (empty($batch)) break;
             foreach ($batch as $repo) {
@@ -123,7 +123,7 @@ class GithubService
         $r = Http::withHeaders($this->ghHeaders())
             ->get("https://api.github.com/repos/{$owner}/{$repo}");
         if ($r->status() === 404) throw new RuntimeException('Repository not found or not accessible.');
-        if (! $r->ok()) throw new RuntimeException("GitHub repo fetch failed ({$r->status()}).");
+        if (! $r->successful()) throw new RuntimeException("GitHub repo fetch failed ({$r->status()}).");
         return $r->json();
     }
 
@@ -131,7 +131,7 @@ class GithubService
     {
         $r = Http::withHeaders($this->ghHeaders())
             ->get("https://api.github.com/repos/{$owner}/{$repo}/git/trees/{$branch}", ['recursive' => 1]);
-        if (! $r->ok()) throw new RuntimeException("Could not read repo tree ({$r->status()}).");
+        if (! $r->successful()) throw new RuntimeException("Could not read repo tree ({$r->status()}).");
         $tree = $r->json('tree') ?? [];
         return array_values(array_filter($tree, fn ($e) => ($e['type'] ?? '') === 'blob'));
     }
@@ -141,13 +141,13 @@ class GithubService
         if ($this->token) {
             $r = Http::withHeaders($this->ghHeaders())
                 ->get("https://api.github.com/repos/{$owner}/{$repo}/contents/" . rawurlencode($path), ['ref' => $branch]);
-            if (! $r->ok()) return null;
+            if (! $r->successful()) return null;
             $data = $r->json();
             if (($data['encoding'] ?? '') !== 'base64' || empty($data['content'])) return null;
             $content = base64_decode($data['content']);
         } else {
             $r = Http::get("https://raw.githubusercontent.com/{$owner}/{$repo}/{$branch}/" . str_replace('%2F', '/', rawurlencode($path)));
-            if (! $r->ok()) return null;
+            if (! $r->successful()) return null;
             $content = $r->body();
         }
 
@@ -188,12 +188,11 @@ class GithubService
                     'User-Agent' => 'codereview-app',
                 ])->post("https://api.github.com/app/installations/{$installationId}/access_tokens");
 
-                if (! $r->ok() || ! $r->json('token')) {
-                    // Surface GitHub's actual reply (status + truncated body) so we
-                    // can tell uninstall (404) from JWT issues (401) from rate-limit
-                    // (403) without having to grep logs.
-                    $detail = 'status=' . $r->status() . ', body=' . substr($r->body(), 0, 240);
-                    throw new RuntimeException("Could not mint GitHub installation token ({$detail}). If GitHub reports the install was removed, reconnect from /profile.");
+                if (! $r->successful() || ! $r->json('token')) {
+                    // Don't echo $r->body() to callers — on the happy path it
+                    // contains a fresh installation token. Status code alone
+                    // is enough to tell uninstall (404) from rate-limit (403).
+                    throw new RuntimeException("Could not mint GitHub installation token (status={$r->status()}). The user may have uninstalled the app — ask them to reconnect.");
                 }
                 return $r->json('token');
             }
