@@ -189,7 +189,11 @@ class GithubService
                 ])->post("https://api.github.com/app/installations/{$installationId}/access_tokens");
 
                 if (! $r->ok() || ! $r->json('token')) {
-                    throw new RuntimeException('Could not mint GitHub installation token. The user may have uninstalled the app — ask them to reconnect.');
+                    // Surface GitHub's actual reply (status + truncated body) so we
+                    // can tell uninstall (404) from JWT issues (401) from rate-limit
+                    // (403) without having to grep logs.
+                    $detail = 'status=' . $r->status() . ', body=' . substr($r->body(), 0, 240);
+                    throw new RuntimeException("Could not mint GitHub installation token ({$detail}). If GitHub reports the install was removed, reconnect from /profile.");
                 }
                 return $r->json('token');
             }
