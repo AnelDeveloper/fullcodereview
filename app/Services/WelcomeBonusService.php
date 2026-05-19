@@ -8,12 +8,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 
 /**
- * Grants the launch-promo bonus credit to a newly registered user when
- * they are among the first N registrations.
- *
- * "First N" is measured against User::withTrashed()->count() so a
- * soft-deleted user still counts — the giveaway is about historical
- * registration order, not currently-active accounts.
+ * Grants the welcome bonus credit to every newly registered user.
  *
  * Safe to call multiple times for the same user: it checks first whether
  * the user already has a bonus slot (matched by the synthetic
@@ -24,18 +19,10 @@ class WelcomeBonusService
     public function grant(User $user): void
     {
         $cfg = config('codereview.welcome_bonus', []);
-        $firstN  = (int) ($cfg['first_n']  ?? 0);
         $category = (string) ($cfg['category'] ?? '');
         $count   = (int) ($cfg['count']    ?? 0);
 
-        if ($firstN <= 0 || $count <= 0 || $category === '') {
-            return;
-        }
-
-        // The just-created user counts toward the threshold (their row exists
-        // by the time this is called). So user #100 still passes.
-        $totalRegistered = User::withTrashed()->count();
-        if ($totalRegistered > $firstN) {
+        if ($count <= 0 || $category === '') {
             return;
         }
 

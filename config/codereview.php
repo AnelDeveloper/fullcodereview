@@ -107,12 +107,9 @@ return [
         ],
     ],
 
-    // Launch promo: the first N self-registered users get a free credit on
-    // sign-up. Counted against User::withTrashed() so the giveaway is based
-    // on registration order, not currently-active accounts. Tweak / disable
-    // by changing first_n to 0.
+    // Every new user gets a free credit on sign-up. Disable by setting
+    // count to 0.
     'welcome_bonus' => [
-        'first_n'  => 100,
         'category' => 'security',
         'count'    => 1,
     ],

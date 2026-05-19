@@ -54,15 +54,14 @@
                 class="mb-4"
                 icon="tabler-shield-check"
             >
-                <div class="d-flex flex-wrap align-center justify-space-between ga-3">
-                    <div>
-                        <div class="font-weight-bold">Verified by senior engineer</div>
-                        <div class="text-caption">
-                            {{ analysis.reviewer?.name || 'Senior engineer' }}
-                            · {{ formatDate(analysis.verifiedAt) }}
-                        </div>
+                <div>
+                    <div class="font-weight-bold">Verified by senior engineer</div>
+                    <div class="text-caption">
+                        {{ analysis.reviewer?.name || 'Senior engineer' }}
+                        · {{ formatDate(analysis.verifiedAt) }}
                     </div>
-                    <div v-if="analysis.reviewerNotes" class="text-body-2 text-medium-emphasis" style="max-width:520px;">
+                    <div v-if="analysis.reviewerNotes" class="text-body-2 mt-2">
+                        <span class="font-weight-medium">Message:</span>
                         "{{ analysis.reviewerNotes }}"
                     </div>
                 </div>
