@@ -387,7 +387,10 @@ onMounted(async () => {
         picked.value = [...authStore.availableCategories]
     }
 
-    if (authStore.user?.githubLogin) await loadGithubRepos({ silent: true })
+    // Probe the API rather than the cached user object — localStorage may
+    // be stale (e.g. after a fresh connect, before the layout's fetchMe
+    // resolves), and the endpoint returns code:"not_connected" cheaply.
+    await loadGithubRepos({ silent: true })
 })
 
 onUnmounted(() => {
