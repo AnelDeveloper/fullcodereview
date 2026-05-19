@@ -53,7 +53,7 @@
 
                         <VDivider vertical class="d-none d-md-block" />
 
-                        <div class="d-flex flex-wrap align-center ga-2">
+                        <div class="d-flex flex-wrap align-center ga-2" style="padding-left: 5px;">
                             <div class="text-caption text-medium-emphasis font-weight-bold">
                                 VERIFICATION
                             </div>
